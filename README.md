@@ -35,12 +35,12 @@ Each task receives context with packages already used by `task`
 
 | prop      | desc                                             |
 | --------- | ------------------------------------------------ |
-| `_`       | [lodash](https://lodash.com/docs)                |
-| `argv`    | [minimist](https://github.com/substack/minimist) |
-| `contrib` | contrib functions `{shawn}`                      |
-| `event`   | Watch event                                      |
-| `glob`    | [globby](https://github.com/sindresorhus/globby) |
-| `sh`      | [shelljs](http://documentup.com/shelljs/shelljs) |
+| \_        | [lodash](https://lodash.com/docs)                |
+| _argv_    | [minimist](https://github.com/substack/minimist) |
+| _contrib_ | contrib functions _{shawn}_                      |
+| _event_   | Watch event                                      |
+| _glob_    | [globby](https://github.com/sindresorhus/globby) |
+| _sh_      | [shelljs](http://documentup.com/shelljs/shelljs) |
 
 ## Export Meta for More Options
 
@@ -58,11 +58,11 @@ Metadata props
 
 | prop    | desc                                                                 |
 | ------- | -------------------------------------------------------------------- |
-| `deps`  | Functions which must run before task                                 |
-| `desc`  | Description to display in task list                                  |
-| `once`  | Task must only run once                                              |
-| `func`  | The function to run. May be ignored if key is exported function name |
-| `watch` | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
+| _deps_  | Functions which must run before task                                 |
+| _desc_  | Description to display in task list                                  |
+| _once_  | Task must only run once                                              |
+| _func_  | The function to run. May be ignored if key is exported function name |
+| _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
 
 ## Set a Default Task
 
