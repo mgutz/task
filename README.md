@@ -12,12 +12,12 @@
 ## Install
 
 ```sh
-npm install -g @mgutz/task
+npm install -g @mgutz/task@1.0.0-alpha.10
 ```
 
 ## Running Tasks
 
-Edit `Taskfile.js` anywhere. _Does not need to be inside a node project_
+Edit `Taskfile.js`. _Does not need to be inside a node project_
 
 ```js
 export async function hello({argv}) {
@@ -31,13 +31,13 @@ Run `hello` task from terminal with a name
 task hello --name world
 ```
 
-Each task receives context with packges already used by `task`
+Each task receives context with packages already used by `task`
 
 | prop      | desc                                             |
 | --------- | ------------------------------------------------ |
 | `_`       | [lodash](https://lodash.com/docs)                |
 | `argv`    | [minimist](https://github.com/substack/minimist) |
-| `contrib` | contrib functions {shawn}                        |
+| `contrib` | contrib functions `{shawn}`                      |
 | `event`   | Watch event                                      |
 | `glob`    | [globby](https://github.com/sindresorhus/globby) |
 | `sh`      | [shelljs](http://documentup.com/shelljs/shelljs) |
@@ -90,7 +90,7 @@ export default {
 }
 ```
 
-`task` can gracefully restart a process (and subprocesses) if a task returns a node [ChildProces](https://nodejs.org/api/child_process.html#child_process_class_childprocess). `task` provides `contrib.shawn` to conveniently run a literal script
+`task` can gracefully restart a process (and subprocesses) if a task returns a [ChildProcess](https://nodejs.org/api/child_process.html#child_process_class_childprocess). `task` provides `contrib.shawn` to run a literal script and return a `ChildProcess`
 
 ```js
 export function server({contrib}) {
@@ -135,6 +135,7 @@ task --setup-completion
 ```
 
 If you want more control, read [omelette](https://github.com/f/omelette#manual-install)
+to manually integrate autocompletion.
 
 ## LICENSE
 
