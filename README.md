@@ -90,18 +90,35 @@ export default {
 }
 ```
 
-`task` can gracefully restart a process (and subprocesses) if a task returns a [ChildProcess](https://nodejs.org/api/child_process.html#child_process_class_childprocess). `task` provides `contrib.shawn` to run a literal script and return a `ChildProcess`
-
-```js
-export function server({contrib}) {
-  return contrib.shawn(`node index.js`)
-}
-```
-
 Run a task in watch mode with `--watch, -w` flag
 
 ```sh
 task build -w
+```
+
+NOTE: `task` can gracefully restart a process (and subprocesses) if a task returns a
+[ChildProcess](https://nodejs.org/api/child_process.html#child_process_class_childprocess).
+`task` provides `contrib.shawn` to run a literal script and return a `ChildProcess`
+
+To properly restart a go http server listening on a port whenever a go file
+changes
+
+```js
+export function server({contrib}) {
+  return contrib.shawn(`
+    cd cmd/server
+    go install
+    server
+  `)
+}
+
+export default {
+  server: {watch: ['server/**/*.go']},
+}
+```
+
+```sh
+task server -w
 ```
 
 ## Running Multiple Tasks
