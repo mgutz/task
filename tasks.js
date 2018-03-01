@@ -25,9 +25,12 @@ async function getTasks() {
   // Handle case where the export is of mix of default and exported
   // functions. Meta from default has higher precedence.
   for (let name in taskFile) {
+    if (name === 'default') {
+      continue
+    }
     const obj = taskFile[name]
     if (typeof obj === 'function') {
-      tasks[name] = {func: obj, name, desc: `run ${name}`, deps: undefined}
+      tasks[name] = {run: obj, name, desc: `run ${name}`}
     }
   }
 
@@ -35,10 +38,9 @@ async function getTasks() {
     // convert exported default function
     if (typeof taskFile.default === 'function') {
       tasks.default = {
-        func: taskFile.default,
+        run: taskFile.default,
         name: 'default',
         desc: `run exported default`,
-        deps: undefined,
       }
     } else if (_.isPlainObject(taskFile.default)) {
       const meta = taskFile.default
@@ -46,36 +48,71 @@ async function getTasks() {
       // convert exported default object
       for (let name in meta) {
         const taskdef = meta[name]
-        let {func, desc, deps} = taskdef
 
-        // if the name is the same as a func, and func is not set, use the
-        // func  as the func for this task
-        if (!func && tasks[name] && typeof tasks[name].func === 'function') {
-          func = tasks[name].func
+        if (typeof taskdef === 'function') {
+          tasks[name] = {
+            run: taskdef,
+            name,
+            desc: `run ${name}`,
+          }
+          continue
         }
 
-        if (!func && !Array.isArray(deps)) {
+        let {run, desc, deps} = taskdef
+
+        // if the name is of an existing fucntion, and run is not set, use the
+        // function as the run for this task
+        if (!run && tasks[name] && typeof tasks[name].run === 'function') {
+          run = tasks[name].run
+        }
+
+        if (!run && !Array.isArray(deps)) {
           exitError(`${name} is misspelled or missing 'deps'`)
         }
 
-        // deps come in as function references, convert to name references
-        // for depedency resolution
-        const nameDeps = deps
-          ? deps.map(fn => typeof fn === 'function' && fn.name)
-          : undefined
-
-        tasks[name] = {
-          ...taskdef,
-          func: func || noop,
-          name,
-          desc: desc || `run ${nameDeps} ${func ? name : ''}`,
-          deps: nameDeps,
-        }
+        tasks[name] = {...taskdef, run, name, desc}
       }
+    } else {
+      exitError(`default must be a function or metadata object`)
+    }
+
+    // fill in anything missing
+    for (let name in tasks) {
+      const task = tasks[name]
+      // deps come in as function variables, convert to name references
+      // for depedency resolution
+      const deps = Array.isArray(task.deps)
+        ? task.deps.map(dep => depToName(tasks, task, dep))
+        : null
+      const desc = deps ? `run ${deps} ${task.name}` : `run ${task.name}`
+
+      task.deps = deps
+      task.desc = task.desc || desc
+      task.run = task.run || noop
     }
   }
 
   return Object.values(tasks)
+}
+
+function depToName(tasks, task, dep) {
+  if (_.isString(dep)) {
+    if (tasks[dep]) {
+      return dep
+    }
+    exitError(`Task ${task.name} has invalid ${dep} dependency`)
+  } else if (typeof dep === 'function') {
+    // anonymous functions need to be in tasks too
+    if (!tasks[dep.name]) {
+      tasks[dep.name] = {
+        name: dep.name,
+        run: dep,
+      }
+    }
+    return dep.name
+  }
+
+  exitError(`Task ${task.name} has invalid ${dep} dependency`)
 }
 
 function noop() {}

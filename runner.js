@@ -43,7 +43,7 @@ const execOrder = (tasks, name) => {
 }
 
 const isTask = task => {
-  return task && (typeof task.func === 'function' || Array.isArray(task.deps))
+  return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
 const isChildProcess = v => v instanceof ChildProcess
@@ -85,7 +85,7 @@ const runTask = async (task, args) => {
 
   log.debug(`RUN ${task.name}...`)
   _ran[task.name] = true
-  const v = await task.func(args)
+  const v = await task.run(args)
   if (isChildProcess(v)) {
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
@@ -123,7 +123,7 @@ const run = async (tasks, names, args) => {
       const task = getTask(tasks, dep)
       if (task) {
         // tasks can just be deps
-        if (task.func) {
+        if (task.run) {
           await runTask(task, args)
         }
       } else {

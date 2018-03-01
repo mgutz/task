@@ -32,7 +32,7 @@ export async function cra({contrib}) {
 
 /*
 export default {
-  default: {func: cra, desc: 'runs create-react-app server', deps: [clean], once: true}
+  default: {run: cra, desc: 'runs create-react-app server', deps: [clean], once: true}
 }
 */
 `

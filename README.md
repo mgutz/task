@@ -1,6 +1,6 @@
 # task
 
-`task` is a no configuration task runner from plain es6 files
+`task` is a no configuration async task runner from plain es6 files
 
 * .env support
 * babel out of the box
@@ -54,6 +54,16 @@ export default {
 }
 ```
 
+Alternatively,
+
+```js
+export default {
+  build: {desc: 'builds project', run: () => {}, deps: ['clean', 'generate']},
+  clean: {desc: 'cleans project', run: () => {}},
+  generate: {desc: 'generates code', run: () => {}},
+}
+```
+
 Metadata props
 
 | prop    | desc                                                                 |
@@ -61,7 +71,7 @@ Metadata props
 | _deps_  | Functions which must run before task                                 |
 | _desc_  | Description to display in task list                                  |
 | _once_  | Task must only run once                                              |
-| _func_  | The function to run. May be ignored if key is exported function name |
+| _run_   | The function to run. May be ignored if key is exported function name |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
 
 ## Set a Default Task
