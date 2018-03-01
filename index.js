@@ -36,6 +36,9 @@ export default {
 }
 */
 `
+
+let _tasks
+
 /* eslint-enable max-len */
 
 async function commandInit(argv, content) {
@@ -144,12 +147,11 @@ const minimistOpts = {
   },
 }
 
-async function setupTerminalAutoComplete() {
+async function setupTerminalAutoComplete(tasks) {
   const completion = omelette(`task <task>`)
   if (~process.argv.indexOf('--setup-completion')) {
     completion.setupShellInitFile()
   }
-  const tasks = (await getTasks()) || []
   const names = tasks.map(t => t.name)
   completion.on('task', async ({reply}) => {
     reply(names)
@@ -158,9 +160,12 @@ async function setupTerminalAutoComplete() {
 }
 
 async function main() {
-  setupTerminalAutoComplete()
-
   const argv = minimist(process.argv.slice(2), minimistOpts)
+  log.setLevel(argv.verbose ? 'debug' : 'info')
+
+  const tasks = (await getTasks()) || []
+  setupTerminalAutoComplete(tasks)
+
   if (argv.dotenv) {
     dotenv.config()
   }
@@ -174,9 +179,6 @@ async function main() {
     return await commandInit(argv, exampleContent)
   }
 
-  log.setLevel(argv.verbose ? 'debug' : 'info')
-
-  const tasks = await getTasks()
   const name = taskToRun(tasks, argv)
   if (!name) exitMessage(usage(tasks))
 

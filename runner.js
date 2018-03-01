@@ -24,14 +24,18 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     if (task.deps) {
+      let prev
       for (const dep of task.deps) {
         graph.push([dep, name])
+        // in a series, the current task depends on prev
+        if (prev) {
+          graph.push([prev, dep])
+        }
+        prev = dep
       }
-      graph = graph.concat(execGraph(processed, task.deps))
+      graph = graph.concat(execGraph(tasks, processed, task.deps))
     }
-    if (task.run) {
-      graph.push([name, ''])
-    }
+    graph.push([name, ''])
   }
 
   return graph
@@ -39,9 +43,15 @@ const execGraph = (tasks, processed, taskNames) => {
 
 const execOrder = (tasks, name) => {
   const deps = toposort(execGraph(tasks, [], [name]))
-
-  // remove '' if any
-  return _.compact(deps)
+  return deps.reduce((memo, dep) => {
+    if (dep) {
+      const task = _.find(tasks, {name: dep})
+      if (task && task.run) {
+        memo.push(dep)
+      }
+    }
+    return memo
+  }, [])
 }
 
 const isTask = task => {
@@ -121,10 +131,11 @@ const run = async (tasks, names, args) => {
 
   for (const name of names) {
     const deps = execOrder(tasks, name)
+    log.debug('deps order', deps)
     for (const dep of deps) {
       const task = getTask(tasks, dep)
+      // tasks can just be deps
       if (task) {
-        // tasks can just be deps
         if (task.run) {
           await runTask(task, args)
         }
