@@ -1,0 +1,26 @@
+{
+  "env": {
+    "browser": false,
+    "node": true,
+    "es6": true
+  },
+  "parser": "babel-eslint",
+  "rules": {
+    "max-len": [
+      1,
+      80,
+      2,
+      {
+        "ignoreComments": true
+      }
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "extends": ["eslint:recommended"]
+}

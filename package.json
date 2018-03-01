@@ -1,0 +1,33 @@
+{
+  "name": "@mgutz/task",
+  "author": "Mario Gutierrez <mario@mgutz.com>",
+  "description": "no configruation task runner",
+  "repository": "https://github.com/mgutz/task",
+  "bin": {
+    "task": "./index.js"
+  },
+  "version": "1.0.0-alpha.10",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "@babel/register": "^7.0.0-beta.40",
+    "chokidar": "^2.0.2",
+    "columnify": "^1.5.4",
+    "dotenv": "^5.0.1",
+    "globby": "^8.0.1",
+    "lodash": "^4.17.5",
+    "loglevel": "^1.6.1",
+    "minimist": "^1.2.0",
+    "omelette": "^0.4.5",
+    "pn": "^1.1.0",
+    "shelljs": "^0.8.1",
+    "toposort": "^1.0.6"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "eslint": "^4.18.1",
+    "prettier": "^1.11.1"
+  }
+}
