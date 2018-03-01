@@ -12,7 +12,7 @@
 ## Install
 
 ```sh
-npm install -g @mgutz/task@1.0.0-alpha.10
+npm install -g @mgutz/task@next
 ```
 
 ## Running Tasks
