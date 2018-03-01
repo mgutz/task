@@ -49,10 +49,12 @@ async function commandInit(argv, content) {
 
 function taskList(tasks) {
   const indent = '  '
-  const items = _.sortBy(tasks, 'name').map(it => ({
-    name: it.name,
-    desc: it.desc,
-  }))
+  const items = _.sortBy(tasks, 'name')
+    .map(it => ({
+      name: it.name,
+      desc: it.desc,
+    }))
+    .filter(it => it.desc)
   const taskList = columnify(items, {
     showHeaders: false,
     columnSplitter: '  ',

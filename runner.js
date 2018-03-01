@@ -29,7 +29,9 @@ const execGraph = (tasks, processed, taskNames) => {
       }
       graph = graph.concat(execGraph(processed, task.deps))
     }
-    graph.push([name, ''])
+    if (task.run) {
+      graph.push([name, ''])
+    }
   }
 
   return graph

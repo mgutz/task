@@ -2,6 +2,7 @@ const _ = require('lodash')
 const {exitError} = require('./exits')
 const fp = require('pn/path')
 const fs = require('pn/fs')
+const log = require('./log')
 const tasksJs = 'Taskfile.js'
 
 async function getTasks() {
@@ -88,13 +89,19 @@ async function getTasks() {
 
       task.deps = deps
       task.desc = task.desc || desc
-      task.run = task.run || noop
     }
   }
 
-  return Object.values(tasks)
+  const all = Object.values(tasks)
+  log.debug('tasks', all)
+  return all
 }
 
+let nameId = 0
+function uniqueName() {
+  nameId++
+  return `anon${nameId}`
+}
 function depToName(tasks, task, dep) {
   if (_.isString(dep)) {
     if (tasks[dep]) {
@@ -102,14 +109,17 @@ function depToName(tasks, task, dep) {
     }
     exitError(`Task ${task.name} has invalid ${dep} dependency`)
   } else if (typeof dep === 'function') {
-    // anonymous functions need to be in tasks too
-    if (!tasks[dep.name]) {
-      tasks[dep.name] = {
-        name: dep.name,
-        run: dep,
-      }
+    if (dep.name) {
+      return dep.name
     }
-    return dep.name
+
+    // anonymous functions need to be in tasks too
+    const name = uniqueName()
+    tasks[name] = {
+      name,
+      run: dep,
+    }
+    return name
   }
 
   exitError(`Task ${task.name} has invalid ${dep} dependency`)
