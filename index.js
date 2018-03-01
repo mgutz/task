@@ -87,6 +87,7 @@ Usage: task [options] [task_name] [task_options...]
 Options
   --init              Create empty ${tasksJs} if not exists
   --init-example      Create example ${tasksJs} if not exists
+  --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --setup-completion  Integrates auto completion with shell
   --verbose           Verbose logging
@@ -135,14 +136,17 @@ const minimistOpts = {
     watch: ['w'],
   },
   boolean: [
+    'babel',
     'dotenv',
     'help',
     'init',
     'init-example',
-    'watch',
     'setup-completion',
+    'verbose',
+    'watch',
   ],
   default: {
+    babel: true,
     dotenv: true,
   },
 }
@@ -163,7 +167,7 @@ async function main() {
   const argv = minimist(process.argv.slice(2), minimistOpts)
   log.setLevel(argv.verbose ? 'debug' : 'info')
 
-  const tasks = (await getTasks()) || []
+  const tasks = (await getTasks(argv)) || []
   setupTerminalAutoComplete(tasks)
 
   if (argv.dotenv) {

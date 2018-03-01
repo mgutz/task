@@ -5,22 +5,33 @@ const fs = require('pn/fs')
 const log = require('./log')
 const tasksJs = 'Taskfile.js'
 
-async function getTasks() {
+// standardize differences between es6 exports and commonJs exports
+function standardizeExports(obj) {
+  if (typeof obj === 'function' || _.isPlainObject(obj)) {
+    return {default: obj}
+  }
+  return obj
+}
+
+async function getTasks(argv) {
   const jsFilename = fp.join(process.cwd(), tasksJs)
   if (!await fs.exists(jsFilename)) return null
 
-  // MUST use full path or babel tries to load @babel/preset-env relative to cwd
-  const babelrc = {
-    presets: [
-      [
-        fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
-        {targets: {node: 'current'}},
+  if (argv.babel) {
+    log.debug('using @babel/preset-env')
+    // MUST use full path or babel tries to load @babel/preset-env relative to cwd
+    const babelrc = {
+      presets: [
+        [
+          fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
+          {targets: {node: 'current'}},
+        ],
       ],
-    ],
+    }
+    require('@babel/register')(babelrc)
   }
-  require('@babel/register')(babelrc)
-  const taskFile = require(jsFilename)
 
+  const taskFile = standardizeExports(require(jsFilename))
   const tasks = {}
 
   // Handle case where the export is of mix of default and exported
