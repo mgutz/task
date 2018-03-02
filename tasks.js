@@ -3,19 +3,58 @@ const {exitError} = require('./exits')
 const fp = require('pn/path')
 const fs = require('pn/fs')
 const log = require('./log')
-const tasksJs = 'Taskfile.js'
 
-// standardize differences between es6 exports and commonJs exports
-function standardizeExports(obj) {
-  if (typeof obj === 'function' || _.isPlainObject(obj)) {
-    return {default: obj}
+// Standardize differences between es6 exports and commonJs exports. The rest
+// of the code assumes the task file is in es6.
+function standardizeExports(argv, taskFile) {
+  if (
+    !argv.babel &&
+    (typeof taskFile === 'function' || _.isPlainObject(taskFile))
+  ) {
+    taskFile.default = taskFile
   }
-  return obj
+  return taskFile
 }
 
-async function getTasks(argv) {
-  const jsFilename = fp.join(process.cwd(), tasksJs)
-  if (!await fs.exists(jsFilename)) return null
+const isParallelDep = dep => dep && _.isPlainObject(dep.p)
+const isSerialDep = dep => Array.isArray(dep)
+const isDep = dep => isParallelDep(dep) || isSerialDep(dep)
+
+function standardizeDeps(tasks, task) {
+  if (!tasks.deps) return null
+
+  // deps come in as function variables, convert to name references
+  // for depedency resolution
+  const deps = isDep(tasks.deps)
+    ? task.deps.map(dep => depToName(tasks, task, dep))
+    : null
+
+  return deps
+}
+
+function clearRan(tasks) {
+  for (const task of tasks) {
+    task._ran = false
+  }
+}
+
+/**
+ * Loads and standardize tasks.
+ *
+ * type task struct {
+ *
+ *  deps []string
+ *  desc string
+ *  name string
+ *  once bool
+ *  run function
+ *  isParallelized bool
+ *  _ran bool       // whether task ran on current watch change
+ * }
+ */
+async function loadTasks(argv) {
+  const taskfilePath = fp.join(process.cwd(), argv.file)
+  if (!await fs.exists(taskfilePath)) return null
 
   if (argv.babel) {
     log.debug('using @babel/preset-env')
@@ -31,31 +70,28 @@ async function getTasks(argv) {
     require('@babel/register')(babelrc)
   }
 
-  const taskFile = standardizeExports(require(jsFilename))
+  const taskfileExports = standardizeExports(argv, require(taskfilePath))
   const tasks = {}
-
-  // Handle case where the export is of mix of default and exported
-  // functions. Meta from default has higher precedence.
-  for (let name in taskFile) {
+  for (let name in taskfileExports) {
     if (name === 'default') {
       continue
     }
-    const obj = taskFile[name]
+    const obj = taskfileExports[name]
     if (typeof obj === 'function') {
       tasks[name] = {run: obj, name, desc: `run ${name}`}
     }
   }
 
-  if (taskFile.default) {
+  if (taskfileExports.default) {
     // convert exported default function
-    if (typeof taskFile.default === 'function') {
+    if (typeof taskfileExports.default === 'function') {
       tasks.default = {
-        run: taskFile.default,
+        run: taskfileExports.default,
         name: 'default',
         desc: `run exported default`,
       }
-    } else if (_.isPlainObject(taskFile.default)) {
-      const meta = taskFile.default
+    } else if (_.isPlainObject(taskfileExports.default)) {
+      const meta = taskfileExports.default
 
       // convert exported default object
       for (let name in meta) {
@@ -93,9 +129,7 @@ async function getTasks(argv) {
       const task = tasks[name]
       // deps come in as function variables, convert to name references
       // for depedency resolution
-      const deps = Array.isArray(task.deps)
-        ? task.deps.map(dep => depToName(tasks, task, dep))
-        : null
+      const deps = standardizeDeps(tasks, task)
       const desc = deps ? `run ${deps} ${task.name}` : `run ${task.name}`
 
       task.deps = deps
@@ -113,6 +147,7 @@ function uniqueName() {
   nameId++
   return `anon${nameId}`
 }
+
 function depToName(tasks, task, dep) {
   if (_.isString(dep)) {
     if (tasks[dep]) {
@@ -136,6 +171,4 @@ function depToName(tasks, task, dep) {
   exitError(`Task ${task.name} has invalid ${dep} dependency`)
 }
 
-function noop() {}
-
-module.exports = {getTasks, tasksJs}
+module.exports = {clearRan, loadTasks}

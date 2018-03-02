@@ -3,6 +3,7 @@ const toposort = require('toposort')
 const {ChildProcess} = require('child_process')
 const log = require('./log')
 const watch = require('./watch')
+const {clearRan} = require('./tasks')
 
 // Very simple depdendency resolution. Will execute dependencies once.
 const execGraph = (tasks, processed, taskNames) => {
@@ -154,6 +155,7 @@ const runThenWatch = async (tasks, name, args) => {
 
   const globs = task.watch
   await watch(globs, args, async argsWithEvent => {
+    clearRan(tasks)
     return await run(tasks, name, argsWithEvent)
   })
 }
