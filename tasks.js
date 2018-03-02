@@ -42,7 +42,7 @@ const isTask = task => {
  *  _parallel: true
  * }
  */
-function normalizeDeps(tasks, task, deps) {
+function standardizeDeps(tasks, task, deps) {
   if (!Array.isArray(deps)) return null
   const result = []
   let name
@@ -71,7 +71,7 @@ function makeParallelRef(tasks, dep) {
     _parallel: true,
   }
   tasks[name] = task
-  task.deps = normalizeDeps(tasks, task, dep.p)
+  task.deps = standardizeDeps(tasks, task, dep.p)
   return name
 }
 
@@ -122,7 +122,7 @@ function depToRef(tasks, task, dep) {
   } else if (isParallel(dep)) {
     name = makeParallelRef(tasks, dep)
   } else {
-    log.error(`Can't normalize dependency`, {task, dep})
+    log.error(`Can't standardize dependency`, {task, dep})
     return null
   }
 
@@ -197,11 +197,11 @@ async function loadTasks(argv) {
     const task = tasks[name]
     // deps come in as function variables, convert to name references
     // for depedency resolution
-    const deps = normalizeDeps(tasks, task, task.deps)
+    const deps = standardizeDeps(tasks, task, task.deps)
     task.deps = deps
   }
 
-  // add descriptions needs to be separate task because normalize deps
+  // add descriptions needs to be separate task because standardizeDeps
   // can create anonymous tasks for dep only tasks
   // noramlize deps
   for (let name in tasks) {
@@ -226,7 +226,7 @@ async function loadTasks(argv) {
 // mutates task
 function standardizePartial(tasks, v) {
   const assignTask = (key, taskdef) => {
-    const task = normalizeTask(tasks, key, taskdef)
+    const task = standardizeTask(tasks, key, taskdef)
     if (!task) {
       throw new Error(`Does not resolve to task: ${prettify(taskdef)}`)
     }
@@ -244,7 +244,7 @@ function standardizePartial(tasks, v) {
   assignTask('', v)
 }
 
-function normalizeTask(tasks, k, v) {
+function standardizeTask(tasks, k, v) {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, v)
   } else if (_.isString(v)) {

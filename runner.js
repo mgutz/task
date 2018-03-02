@@ -61,9 +61,9 @@ const execOrder = (tasks, name) => {
     return memo
   }, [])
 
+  // truncate deps at the task being run
   const idx = result.indexOf(name)
   if (idx < 0) throw new Error(`{Task ${name} was not in exec order`)
-
   return result.slice(0, idx + 1)
 }
 
