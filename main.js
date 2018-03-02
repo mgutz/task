@@ -71,10 +71,17 @@ function taskArgs(argv) {
 
 async function main() {
   const argv = parseArgv()
-  log.setLevel(argv.verbose ? 'debug' : 'info')
-
+  if (argv.trace) {
+    log.setLevel('trace')
+  } else if (argv.verbose) {
+    log.setLevel('debug')
+  } else {
+    log.setLevel('info')
+  }
   const tasks = (await loadTasks(argv)) || []
+
   setupTerminalAutoComplete(tasks)
+
   if (argv.dotenv) {
     dotenv.config()
   }
@@ -99,6 +106,7 @@ async function main() {
   return run(tasks, name, args).then(exitOKFn(), exitErrorFn())
 }
 
-process.on('unhandledRejection', r => console.error(r))
+// eslint-disable-next-line no-console
+process.on('unhandledRejection', console.error)
 
 main()

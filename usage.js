@@ -27,10 +27,12 @@ const minimistOpts = {
   boolean: [
     'babel',
     'dotenv',
+    'dry-run',
     'help',
     'init',
     'init-example',
     'setup-completion',
+    'trace',
     'verbose',
     'watch',
   ],
@@ -52,12 +54,14 @@ function helpScreen() {
 Usage: task [options] [task_name] [task_options...]
 
 Options
+  --dry-run           Displays tasks that will run
   --file, f           File
   --init              Create empty Taskfile.js if not exists
   --init-example      Create example Taskfile.js if not exists
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --setup-completion  Integrates auto completion with shell
+  --trace             More verbose logging
   --verbose           Verbose logging
   --watch, -w         Watch mode
   --help, -?          Display this screen

@@ -25,14 +25,21 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     if (task.deps) {
-      let prev
-      for (const dep of task.deps) {
-        graph.push([dep, name])
-        // in a series, the current task depends on prev
-        if (prev) {
-          graph.push([prev, dep])
+      if (task._parallel) {
+        // do nothing
+      } else {
+        let prev
+        for (const dep of task.deps) {
+          if (task._parallel) {
+            continue
+          }
+          graph.push([dep, name])
+          // in a series, the current task depends on prev
+          if (prev) {
+            graph.push([prev, dep])
+          }
+          prev = dep
         }
-        prev = dep
       }
       graph = graph.concat(execGraph(tasks, processed, task.deps))
     }
@@ -44,15 +51,20 @@ const execGraph = (tasks, processed, taskNames) => {
 
 const execOrder = (tasks, name) => {
   const deps = toposort(execGraph(tasks, [], [name]))
-  return deps.reduce((memo, dep) => {
+  const result = deps.reduce((memo, dep) => {
     if (dep) {
       const task = _.find(tasks, {name: dep})
-      if (task && task.run) {
+      if (isTask(task)) {
         memo.push(dep)
       }
     }
     return memo
   }, [])
+
+  const idx = result.indexOf(name)
+  if (idx < 0) throw new Error(`{Task ${name} was not in exec order`)
+
+  return result.slice(0, idx + 1)
 }
 
 const isTask = task => {
@@ -60,7 +72,7 @@ const isTask = task => {
 }
 
 const isChildProcess = v => v instanceof ChildProcess
-//const isPromise = v => v.then && typeof v.then === 'function'
+const isPromise = v => typeof v.then === 'function'
 
 process.on('SIGINT', function() {
   log.info('cleaning up...')
@@ -78,10 +90,26 @@ process.on('SIGINT', function() {
 
 const _childProcesses = {}
 const _ran = {}
-const runTask = async (task, args) => {
+const runTask = async (tasks, task, args, wait = true) => {
   if (task.once && _ran[task.name]) {
     log.debug(`SKIP ${task.name} ran once`)
     return
+  }
+
+  if (args.argv['dry-run']) {
+    if (task._parallel) {
+      return log.info(`DRYRUN ${task.name} -> {${task.deps.join(', ')}}`)
+    }
+    return log.info(`DRYRUN ${task.name}`)
+  }
+
+  if (task._parallel) {
+    log.debug(`Run ${task.name} -> {${task.deps.join(', ')}}`)
+    const promises = task.deps.map(name => {
+      const task = getTask(tasks, name)
+      return runTask(tasks, task, args, false)
+    })
+    return await Promise.all(promises)
   }
 
   const childProcess = _childProcesses[task.name]
@@ -98,7 +126,21 @@ const runTask = async (task, args) => {
 
   log.debug(`RUN ${task.name}...`)
   _ran[task.name] = true
-  const v = await task.run(args)
+
+  let v
+  if (wait) {
+    v = await task.run(args)
+    log.debug(`END ${task.name}`)
+  } else {
+    v = task.run(args)
+    if (isPromise(v)) {
+      v.then(res => {
+        log.debug(`END ${task.name}`)
+        return res
+      })
+    }
+  }
+
   if (isChildProcess(v)) {
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
@@ -130,16 +172,16 @@ const run = async (tasks, names, args) => {
     names = [names]
   }
 
+  clearRan(tasks)
   for (const name of names) {
     const deps = execOrder(tasks, name)
-    log.debug('deps order', deps)
+
+    log.debug('Exec order', deps)
     for (const dep of deps) {
       const task = getTask(tasks, dep)
       // tasks can just be deps
       if (task) {
-        if (task.run) {
-          await runTask(task, args)
-        }
+        await runTask(tasks, task, args)
       } else {
         throw new Error('Object is not a task')
       }

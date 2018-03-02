@@ -4,7 +4,7 @@
 
 * .env support
 * babel out of the box
-* dependent tasks
+* serial and parallel depdencies
 * respawn daemons gracefully
 * shell autocompletion
 * watch
@@ -42,7 +42,7 @@ Each task receives context with packages already used by `task`
 | _glob_    | [globby](https://github.com/sindresorhus/globby) |
 | _sh_      | [shelljs](http://documentup.com/shelljs/shelljs) |
 
-## Export Meta for More Options
+## Export Metada for More Options
 
 ```js
 export function build() {}
@@ -73,6 +73,22 @@ Metadata props
 | _once_  | Task must only run once                                              |
 | _run_   | The function to run. May be ignored if key is exported function name |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
+
+## Dependencies Execution
+
+Dependencies can execute in series or parallel
+
+```
+export default {
+  // series
+  foo: ['bar', 'bah'],
+
+  // parallel
+  baz: {p: ['a', 'b']},
+
+  mix: ['bar', {p: ['g', 'h']}, 'bah', {p: ['x', 'y']}]
+}
+```
 
 ## Set a Default Task
 
