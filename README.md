@@ -1,12 +1,13 @@
 # task
 
-`task` is a no configuration async task runner from plain es6 files
+`task` is a no configuration async task runner
 
-* .env support
-* es6 out of the box
-* typescript supported
-* serial and parallel depdencies
-* respawn daemons gracefully
+* es6 task files
+* command line arguments
+* typescript
+* .env parsing
+* serial and parallel dependencies
+* graceful daemon restarts
 * shell autocompletion
 * watch
 
@@ -18,7 +19,7 @@ npm install -g @mgutz/task@next
 
 ## Running Tasks
 
-Edit `Taskfile.js`. _Does not need to be inside a node project_
+Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
 ```js
 export async function hello({argv}) {
@@ -43,8 +44,10 @@ Each task receives context with packages already used by `task`
 | _glob_    | [globby](https://github.com/sindresorhus/globby) |
 | _sh_      | [shelljs](http://documentup.com/shelljs/shelljs) |
 
+## Export Metada for Typical Task Runner Options
 
-## Export Metada for More Options
+> `task` accepts a single task from command line. To run multiple tasks, add `deps`
+> with multiple tasks.
 
 ```js
 export function build() {}
@@ -55,7 +58,7 @@ export function css() {}
 export default {
   build: {
     desc: 'builds project',
-    deps: [clean, {p: [generate, css]}]     // serial and parallel execution
+    deps: [clean, {p: [generate, css]}], // serial and parallel execution
   },
 }
 ```
@@ -86,8 +89,8 @@ Metadata props
 * Or, force typescript flag: `task --ts Taskfile hello`
 * Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
 
-ES6 is the default for any `.js` file unless babel is disabled with `--no-babel`
-flag.
+ES6 is the default for any `.js` file. To use current node to run scripts
+directly use `task --no-babel` flag.
 
 ## Dependencies Execution
 
@@ -121,7 +124,13 @@ export default {
 
 ## Watch Tasks
 
-Watching requires defining glob patterns for a task
+Run a task in watch mode with `--watch, -w` flag
+
+```sh
+task build -w
+```
+
+Watch requires defining `watch` glob patterns
 
 ```js
 export default {
@@ -131,62 +140,48 @@ export default {
 }
 ```
 
-Run a task in watch mode with `--watch, -w` flag
-
-```sh
-task build -w
-```
-
-NOTE: `task` can gracefully restart a process (and subprocesses) if a task returns a
+`task` can gracefully restart daemons if a task returns a
 [ChildProcess](https://nodejs.org/api/child_process.html#child_process_class_childprocess).
-`task` provides `contrib.shawn` to run a literal script and return a `ChildProcess`
-
-To properly restart a go http server listening on a port whenever a go file
-changes
+For example, to properly restart a node server listening on a specific port whenever a
+a file changes
 
 ```js
-export function server({contrib}) {
-  return contrib.shawn(`
-    cd cmd/server
-    go install
-    server
-  `)
-}
-
 export default {
-  server: {watch: ['server/**/*.go']},
+  server: {
+    run: ({contrib}) => {
+      // this causes port in use errors with other task runners
+      return contrib.shawn(`
+        PORT=1324 node server
+      `)
+    },
+    watch: ['server/**/*.go'],
+  },
 }
 ```
-
-```sh
-task server -w
-```
-
-## Running Multiple Tasks
-
-`task` only runs a single task to be consistent with args. To run multiple tasks,
-call them directly within a task or add tasks to `deps` prop.
-
-## contrib.shawn
 
 `shawn` is short for shell spawn. `shawn` executes `/bin/bash -c [script]` by
-default. The shell and arguments can be overriden
+default. The shell, arguments and other ChildProcess options can be overridden.
 
 ```js
+const shellOpts = {
+  shell: '/bin/sh',
+  shellArgs: ['-c'],
+  env: {
+    PORT: '1344',
+  },
+}
+
 export function server({contrib}) {
-  // shawn accepts any child_process.spawn option
-  return contrib.shawn(`node index.js`, {
-    shell: '/bin/bash',
-    shellArgs: ['-c'],
-    env: process.env,
-  })
+  return contrib.shawn(`node index.js`, shellOpts)
 }
 ```
 
 ## Auto Completion
 
+Note: autocompletion is terribly slow. Will be replacing `omelette` in the future
+
 Shell auto completion requires editing your shell's rc files. The easiest
-solution is by running
+solution is by running then restarting your terminal
 
 ```sh
 task --setup-completion
