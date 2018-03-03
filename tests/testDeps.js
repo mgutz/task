@@ -17,6 +17,9 @@ export async function c() {
 }
 
 export default {
+  b: {
+    desc: 'b task',
+  },
   d: async () => {
     memo += 'd'
   },

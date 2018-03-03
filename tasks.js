@@ -179,7 +179,12 @@ function findTaskfile(filename) {
  */
 async function loadTasks(argv) {
   const taskfilePath = findTaskfile(argv.file)
-  if (!taskfilePath) return null
+  if (!taskfilePath) {
+    if (argv.file) {
+      return exitError(`Tasks file not found: ${argv.file}`)
+    }
+    return null
+  }
 
   log.debug(`Loading ${taskfilePath}`)
 
@@ -210,27 +215,27 @@ async function loadTasks(argv) {
   }
 
   const taskfileExports = require(taskfilePath)
-  log.trace('Raw taskfile', taskfileExports)
+  log.trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)
-  log.trace('Standardized as ES6', taskfile)
+  log.trace('Standardized as ES6\n', taskfile)
 
   let tasks = {}
 
   const nonDefault = _.omit(taskfile, 'default')
   if (nonDefault) {
-    log.trace('Non-default exports', nonDefault)
+    log.trace('Non-default exports\n', nonDefault)
     standardizePartial(tasks, nonDefault)
-    log.trace('Tasks after standardizing non-defaults', tasks)
+    log.trace('Tasks after standardizing non-defaults\n', tasks)
   }
 
   const defaultExport = _.pick(taskfile, 'default')
   if (defaultExport) {
-    log.trace('Default export', defaultExport.default)
+    log.trace('Default export\n', defaultExport.default)
     standardizePartial(tasks, defaultExport.default)
-    log.trace('Tasks afer standardizing default export', tasks)
+    log.trace('Tasks afer standardizing default export\n', tasks)
   }
 
-  // noramlize deps
+  // standardize depdencies
   for (let name in tasks) {
     const task = tasks[name]
     // deps come in as function variables, convert to name references
@@ -253,7 +258,7 @@ async function loadTasks(argv) {
   }
 
   const all = Object.values(tasks)
-  log.trace('Tasks after normalizing deps', tasks)
+  log.trace('Tasks after standardizing deps\n', tasks)
   return all
 }
 
@@ -286,7 +291,15 @@ function standardizeTask(tasks, k, v) {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, v)
   } else if (_.isString(v)) {
-    return taskFromRef(tasks, v)
+    const task = taskFromRef(tasks, v)
+    if (!task) {
+      exitError(`Invalid task name: ${v}`)
+    }
+    return {
+      name: k,
+      desc: task.name,
+      deps: [task.name],
+    }
   } else if (isDep(v)) {
     return {
       name: k,

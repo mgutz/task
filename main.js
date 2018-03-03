@@ -27,7 +27,7 @@ export async function cra({contrib}) {
 
 /*
 export default {
-  default: {run: cra, desc: 'runs create-react-app server', deps: [clean], once: true}
+  default: {run: cra, desc: 'Runs create-react-app server', deps: [clean], once: true}
 }
 */
 `
@@ -47,8 +47,11 @@ async function commandInit(argv, content) {
     .then(exitOKFn(`${taskfilePath} created`), exitErrorFn())
 }
 
-function taskToRun(tasks, argv) {
-  const name = argv._[0]
+function taskToRun(argv) {
+  return argv._[0]
+}
+
+function isRunnable(tasks, name) {
   if (name) {
     const found = _.find(tasks, {name})
     if (found) return name
@@ -95,8 +98,15 @@ async function main() {
     return await commandInit(argv, exampleContent)
   }
 
-  const name = taskToRun(tasks, argv)
-  if (!name) exitMessage(usage(tasks))
+  const taskName = taskToRun(argv)
+  if (!taskName && !isRunnable(tasks, 'default')) {
+    exitMessage(usage(tasks))
+  }
+
+  const name = isRunnable(tasks, taskName || 'default')
+  if (!name) {
+    exitError(`Task not found:  ${argv._[0]}`)
+  }
 
   const args = taskArgs(argv)
 

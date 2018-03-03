@@ -63,7 +63,7 @@ function parseArgv() {
 function helpScreen() {
   return `${pkgJson.name} v${pkgJson.version} - no config task runner
 
-Usage: task [options] [task_name] [task_options...]
+Usage: task [options] [task] [task_options...]
 
 Options
   --dry-run           Displays tasks that will run
@@ -106,6 +106,8 @@ function usage(tasks) {
 
 function tasksScreen(tasks) {
   return `task v${pkgJson.version}
+
+Usage: task [options] [task] [task_options...]
 
 Tasks
 ${taskList(tasks)}
