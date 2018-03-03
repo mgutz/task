@@ -124,6 +124,7 @@ const runTask = async (tasks, task, args, wait = true) => {
     return
   }
 
+  if (typeof task.run !== 'function') return
   log.debug(`RUN ${task.name}...`)
   _ran[task.name] = true
 

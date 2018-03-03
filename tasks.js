@@ -29,6 +29,10 @@ const isTask = task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
+const isTaskMeta = task => {
+  return task && (task.desc || task.once || task.watch || task.deps)
+}
+
 /**
  * [a, b, {p: [d, e, {p: [x, y]}]}] becomes
  *
@@ -288,8 +292,20 @@ function standardizeTask(tasks, k, v) {
       name: k,
       deps: v,
     }
-  } else if (isTask(v)) {
-    return Object.assign({}, v, {name: k})
+  } else if (isTask(v) || isTaskMeta(v)) {
+    // A non-default exported function creates a task and in the first pass.
+    // In the second pass, a default property of the same task name augments
+    // it with metadat.
+    //
+    // For example:
+    //   // non defaults processed first pass
+    //   export async function foo() {}
+    //   export async function bar() {}
+    //
+    //   // defaults processed second pass
+    //   export default { foo: {deps: [bar]}
+    const existing = tasks[k]
+    return Object.assign({}, existing, v, {name: k})
   } else if (_.isObject(v)) {
     throw new Error(
       `Nested object (namespaces) not yet implemented: ${prettify(v)}`

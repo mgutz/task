@@ -1,5 +1,6 @@
 const _ = require('lodash')
 const columnify = require('columnify')
+const {exitError} = require('./exits')
 const omelette = require('omelette')
 const minimist = require('minimist')
 const pkgJson = require('./package.json')
@@ -48,6 +49,9 @@ const minimistOpts = {
     file: '',
   },
   string: ['f', 'file'],
+  unknown: flag => {
+    exitError(`Unknown option: ${flag}`)
+  },
 }
 
 function parseArgv() {
