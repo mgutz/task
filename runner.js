@@ -116,7 +116,7 @@ const runTask = async (tasks, task, args, wait = true) => {
   if (childProcess) {
     childProcess.on('close', () => {
       _childProcesses[task.name] = null
-      setImmediate(() => runTask(task, args))
+      setImmediate(() => runTask(tasks, task, args))
     })
     log.debug(`SIGHUP ${task.name}`)
     // regarding -pid, see https://stackoverflow.com/a/33367711
