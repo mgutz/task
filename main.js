@@ -10,7 +10,6 @@ const log = require('./log')
 const sh = require('shelljs')
 const emptyContent = ``
 const {parseArgv, setupTerminalAutoComplete, usage} = require('./usage')
-const spawn = require('cross-spawn')
 
 /* eslint-disable max-len */
 const exampleContent = `

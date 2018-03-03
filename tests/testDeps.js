@@ -3,7 +3,8 @@
 const {sleep} = require('../util')
 
 let memo = ''
-export function a() {
+export async function a() {
+  await sleep(10)
   memo += 'a'
 }
 
@@ -12,12 +13,12 @@ export function b() {
 }
 
 export async function c() {
-  await sleep(10)
+  await sleep(3)
   memo += 'c'
 }
 
 export async function e() {
-  await sleep(10)
+  await sleep(2)
   memo += 'e'
 }
 
