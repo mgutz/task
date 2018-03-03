@@ -3,7 +3,8 @@
 `task` is a no configuration async task runner from plain es6 files
 
 * .env support
-* babel out of the box
+* es6 out of the box
+* typescript supported
 * serial and parallel depdencies
 * respawn daemons gracefully
 * shell autocompletion
@@ -42,15 +43,20 @@ Each task receives context with packages already used by `task`
 | _glob_    | [globby](https://github.com/sindresorhus/globby) |
 | _sh_      | [shelljs](http://documentup.com/shelljs/shelljs) |
 
+
 ## Export Metada for More Options
 
 ```js
 export function build() {}
 export function clean() {}
 export function generate() {}
+export function css() {}
 
 export default {
-  build: {desc: 'builds project', deps: [clean, generate]},
+  build: {
+    desc: 'builds project',
+    deps: [clean, {p: [generate, css]}]     // serial and parallel execution
+  },
 }
 ```
 
@@ -73,6 +79,15 @@ Metadata props
 | _once_  | Task must only run once                                              |
 | _run_   | The function to run. May be ignored if key is exported function name |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
+
+### Babel and Typescript Support
+
+* Name your taskfile: `Taskfile.ts`
+* Or, force typescript flag: `task --ts Taskfile hello`
+* Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
+
+ES6 is the default for any `.js` file unless babel is disabled with `--no-babel`
+flag.
 
 ## Dependencies Execution
 

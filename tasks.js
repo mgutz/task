@@ -138,6 +138,27 @@ function clearRan(tasks) {
   }
 }
 
+const taskfileJs = 'Taskfile.js'
+const taskfileTs = 'Taskfile.ts'
+
+function findTaskfile(filename) {
+  const testFilename = fname => {
+    const absolute = fp.join(process.cwd(), fname)
+    log.debug(`Trying task file: ${absolute}`)
+    return fs.existsSync(absolute) ? absolute : null
+  }
+
+  if (filename) {
+    return testFilename(filename)
+  }
+
+  let fname = testFilename(taskfileJs)
+  if (fname) return fname
+  fname = testFilename(taskfileTs)
+  if (fname) return fname
+  return null
+}
+
 /**
  * Loads and standardize tasks.
  *
@@ -153,12 +174,25 @@ function clearRan(tasks) {
  * }
  */
 async function loadTasks(argv) {
-  log.debug(`Loading ${argv.file}`)
-  const taskfilePath = fp.join(process.cwd(), argv.file)
-  if (!await fs.exists(taskfilePath)) return null
+  const taskfilePath = findTaskfile(argv.file)
+  if (!taskfilePath) return null
 
-  if (argv.babel) {
-    log.debug('Using @babel/preset-env')
+  log.debug(`Loading ${taskfilePath}`)
+
+  const dotext = fp.extname(taskfilePath) || '.js'
+
+  if (argv.typescript || dotext === '.ts') {
+    log.trace('Using ts-node for Typescript')
+
+    const tsOptions = {
+      compilerOptions: {
+        target: 'es2015',
+        module: 'commonjs',
+      },
+    }
+    require('ts-node').register(tsOptions)
+  } else if (argv.babel) {
+    log.trace('Using @babel/preset-env for ES6')
     // MUST use full path or babel tries to load @babel/preset-env relative to cwd
     const babelrc = {
       presets: [
