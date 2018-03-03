@@ -1,6 +1,8 @@
+const log = require('./log')
+
 /* eslint-disable no-console */
 const exitError = (err, code = 1) => {
-  console.error(err)
+  log.error(err)
   process.exit(code)
 }
 
@@ -9,7 +11,7 @@ const exitErrorFn = (code = 1) => err => {
 }
 
 const exitOK = msg => {
-  console.log(msg ? `OK ${msg}` : 'OK')
+  log.info(msg ? `OK ${msg}` : 'OK')
   process.exit(0)
 }
 
@@ -18,7 +20,7 @@ const exitOKFn = msg => () => {
 }
 
 const exitMessage = (msg, code = 0) => {
-  console.log(msg)
+  log.info(msg)
   process.exit(code)
 }
 

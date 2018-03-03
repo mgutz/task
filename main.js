@@ -10,6 +10,7 @@ const log = require('./log')
 const sh = require('shelljs')
 const emptyContent = ``
 const {parseArgv, setupTerminalAutoComplete, usage} = require('./usage')
+const spawn = require('cross-spawn')
 
 /* eslint-disable max-len */
 const exampleContent = `
@@ -62,21 +63,34 @@ function isRunnable(tasks, name) {
   return null
 }
 
+const execAsync = (...args) => {
+  return new Promise((resolve, reject) => {
+    sh.exec(...args, (code, stdout, stderr) => {
+      if (code !== 0) return reject({code, stdout, stderr})
+      return resolve({code, stdout, stderr})
+    })
+  })
+}
+
 function taskArgs(argv) {
   return {
     _,
     argv: Object.assign({}, argv, {_: argv._.slice(1)}), // drop the command
     contrib,
+    exec: execAsync,
     globby,
     sh,
+    shawn: contrib.shawn,
   }
 }
 
 async function main() {
   const argv = parseArgv()
-  if (argv.trace) {
+  if (argv.silent) {
+    log.setLevel('silent')
+  } else if (argv.trace) {
     log.setLevel('trace')
-  } else if (argv.verbose) {
+  } else if (argv.debug) {
     log.setLevel('debug')
   } else {
     log.setLevel('info')

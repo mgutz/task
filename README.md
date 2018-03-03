@@ -3,13 +3,12 @@
 `task` is a no configuration async task runner
 
 * es6 task files
-* command line arguments
-* typescript
+* typescript task files
 * .env parsing
-* serial and parallel dependencies
-* graceful daemon restarts
+* serial and parallel async dependencies
+* graceful daemon restarts on watch
 * shell autocompletion
-* watch
+* watch mode
 
 ## Install
 
@@ -17,7 +16,7 @@
 npm install -g @mgutz/task@next
 ```
 
-## Running Tasks
+## Quick Start
 
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
@@ -27,27 +26,47 @@ export async function hello({argv}) {
 }
 ```
 
-Run `hello` task from terminal with a name
+In a terminal, run
 
 ```sh
 task hello --name world
 ```
 
-Each task receives context with packages already used by `task`
+## Tasks
 
-| prop      | desc                                             |
-| --------- | ------------------------------------------------ |
-| \_        | [lodash](https://lodash.com/docs)                |
-| _argv_    | [minimist](https://github.com/substack/minimist) |
-| _contrib_ | contrib functions _{shawn}_                      |
-| _event_   | Watch event                                      |
-| _glob_    | [globby](https://github.com/sindresorhus/globby) |
-| _sh_      | [shelljs](http://documentup.com/shelljs/shelljs) |
+### Task Run-Time Arg
 
-## Export Metada for Typical Task Runner Options
+Each task receives an arg with packages already used by `task` itself
 
-> `task` accepts a single task from command line. To run multiple tasks, add `deps`
-> with multiple tasks.
+| prop      | desc                                                    |
+| --------- | ------------------------------------------------------- |
+| \_        | [lodash](https://lodash.com/docs)                       |
+| _argv_    | [minimist](https://github.com/substack/minimist)        |
+| _contrib_ | contrib functions _{shawn}_                             |
+| _exec_    | Promisified `sh.exec` resolves `{code, stderr, stdout}` |
+| _event_   | Watch event                                             |
+| _globby_  | [globby](https://github.com/sindresorhus/globby)        |
+| _sh_      | [shelljs](http://documentup.com/shelljs/shelljs)        |
+| _shawn_   | Shell spawn returning ChildProcess                      |
+
+### Task Runner Features
+
+`task` is simple by default and powerful when you need it to be.
+
+* Tasks run once per run. See `once` and `always` props.
+* `task` accepts a single task from command line. To run multiple tasks, add `deps`
+  with multiple tasks.
+
+Task props
+
+| prop     | desc                                                             |
+| -------- | ---------------------------------------------------------------- |
+| _deps_   | Functions which must run before task                             |
+| _desc_   | Description to display in task list                              |
+| _once_   | Task must only run once across watches                           |
+| _always_ | Always run regardless of how many times is is depended on        |
+| _run_    | The function or ref to run.                                      |
+| _watch_  | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js
 export function build() {}
@@ -59,6 +78,7 @@ export default {
   build: {
     desc: 'builds project',
     deps: [clean, {p: [generate, css]}], // serial and parallel execution
+    run: build,
   },
 }
 ```
@@ -73,42 +93,7 @@ export default {
 }
 ```
 
-Metadata props
-
-| prop    | desc                                                                 |
-| ------- | -------------------------------------------------------------------- |
-| _deps_  | Functions which must run before task                                 |
-| _desc_  | Description to display in task list                                  |
-| _once_  | Task must only run once                                              |
-| _run_   | The function to run. May be ignored if key is exported function name |
-| _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch     |
-
-### Babel and Typescript Support
-
-* Name your taskfile: `Taskfile.ts`
-* Or, force typescript flag: `task --ts Taskfile hello`
-* Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
-
-ES6 is the default for any `.js` file. To use current node to run scripts
-directly use `task --no-babel` flag.
-
-## Dependencies Execution
-
-Dependencies can execute in series or parallel
-
-```
-export default {
-  // series
-  foo: ['bar', 'bah'],
-
-  // parallel
-  baz: {p: ['a', 'b']},
-
-  mix: ['bar', {p: ['g', 'h']}, 'bah', {p: ['x', 'y']}]
-}
-```
-
-## Set a Default Task
+### Set a Default Task
 
 ```js
 export default build
@@ -122,13 +107,25 @@ export default {
 }
 ```
 
-## Watch Tasks
+### Dependencies Execution
 
-Run a task in watch mode with `--watch, -w` flag
+Dependencies can execute in series, parallel or a mix
 
-```sh
-task build -w
+```js
+export default {
+  // series
+  foo: ['bar', 'bah'],
+
+  // parallel
+  baz: {p: ['a', 'b']},
+
+  mix: ['bar', {p: ['g', 'h']}, 'bah', {p: ['x', 'y']}],
+}
 ```
+
+### Watching Tasks
+
+Run a task in watch mode: `task build -w`
 
 Watch requires defining `watch` glob patterns
 
@@ -140,55 +137,69 @@ export default {
 }
 ```
 
-`task` can gracefully restart daemons if a task returns a
+#### Daemons
+
+`task` can gracefully restart daemons in watch mode if a task returns a
 [ChildProcess](https://nodejs.org/api/child_process.html#child_process_class_childprocess).
-For example, to properly restart a node server listening on a specific port whenever a
-a file changes
+For example, to properly restart a node server
 
 ```js
 export default {
   server: {
-    run: ({contrib}) => {
+    run: ({shawn}) => {
       // this causes port in use errors with other task runners
-      return contrib.shawn(`
-        PORT=1324 node server
+      return shawn(`
+        node server
       `)
     },
-    watch: ['server/**/*.go'],
+    watch: ['server/**/*.js'],
   },
 }
 ```
 
-`shawn` is short for shell spawn. `shawn` executes `/bin/bash -c [script]` by
-default. The shell, arguments and other ChildProcess options can be overridden.
+`shawn` is short for shell spawn and handles process groups correctly.
+`shawn` executes `/bin/bash -c [script]` by default. Shell, arguments and other
+`ChildProcess` options can be overridden.
 
 ```js
 const shellOpts = {
-  shell: '/bin/sh',
+  shell: '/bin/bash',
   shellArgs: ['-c'],
   env: {
+    ...proces.env,
     PORT: '1344',
   },
 }
 
-export function server({contrib}) {
-  return contrib.shawn(`node index.js`, shellOpts)
+export function server({shawn}) {
+  return shawn(`node index.js`, shellOpts)
 }
 ```
 
-## Auto Completion
+## CLI Features
 
-Note: autocompletion is terribly slow. Will be replacing `omelette` in the future
+### Babel and Typescript Support
+
+* Name your taskfile: `Taskfile.ts`
+* Or, force typescript flag: `task --ts Taskfile hello`
+* Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
+
+ES6 is the default for any `.js` file. To use current node to run scripts
+directly use `task --no-babel` flag.
+
+### Auto Completion
+
+Note: autocompletion is terribly slow. Need to replace `omelette`
 
 Shell auto completion requires editing your shell's rc files. The easiest
-solution is by running then restarting your terminal
+solution is by running the command below then restarting your terminal
 
 ```sh
 task --setup-completion
 ```
 
-If you want more control, read [omelette](https://github.com/f/omelette#manual-install)
-to manually integrate autocompletion.
+Read [omelette](https://github.com/f/omelette#manual-install) to manually
+integrate with your shell.
 
 ## LICENSE
 

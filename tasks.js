@@ -4,9 +4,10 @@ const fp = require('pn/path')
 const fs = require('pn/fs')
 const log = require('./log')
 const {prettify} = require('./util')
+const {inspect} = require('util')
 
-// Standardize differences between es6 exports and commonJs exports. The rest
-// of the code assumes the task file is in es6.
+// Standardize differences between es6 exports and commonJs exports. Code
+// assumes es6 from user taskfiles.
 function standardizeExports(argv, taskFile) {
   if (
     !argv.babel &&
@@ -25,13 +26,12 @@ const isSerial = dep => Array.isArray(dep)
 
 const isDep = dep => isParallel(dep) || isSerial(dep)
 
-const isTask = task => {
+const isRunnable = task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
-const isTaskMeta = task => {
-  return task && (task.desc || task.once || task.watch || task.deps)
-}
+const isTaskMeta = task =>
+  task && (task.always || task.deps || task.desc || task.once || task.watch)
 
 /**
  * [a, b, {p: [d, e, {p: [x, y]}]}] becomes
@@ -47,7 +47,7 @@ const isTaskMeta = task => {
  * }
  */
 function standardizeDeps(tasks, task, deps) {
-  if (!Array.isArray(deps)) return null
+  if (!isDep(deps)) return null
   const result = []
   let name
 
@@ -59,7 +59,7 @@ function standardizeDeps(tasks, task, deps) {
       }
     }
   } else if (isParallel(deps)) {
-    name = makeParallelRef(tasks, deps)
+    name = makeParallelRef(tasks, task, deps)
     if (name) {
       result.push(name)
     }
@@ -68,14 +68,15 @@ function standardizeDeps(tasks, task, deps) {
   return result.length ? result : null
 }
 
-function makeParallelRef(tasks, dep) {
+function makeParallelRef(tasks, task, dep) {
   const name = uniqueName('p')
-  const task = {
+  const tsk = {
     name,
     _parallel: true,
   }
-  tasks[name] = task
-  task.deps = standardizeDeps(tasks, task, dep.p)
+  tasks[name] = tsk
+  tsk.deps = standardizeDeps(tasks, tsk, dep.p)
+  tsk.desc = `Run ${task.name}`
   return name
 }
 
@@ -101,7 +102,6 @@ function makeFunctionTask(tasks, fn) {
       run: fn,
     }
   }
-
   // anonymous functions need to be in tasks too
   const name = uniqueName('a')
   return {
@@ -116,7 +116,6 @@ function taskFromRef(tasks, name) {
 
 function depToRef(tasks, task, dep) {
   if (!dep) return null
-
   let name
 
   if (_.isString(dep)) {
@@ -124,7 +123,7 @@ function depToRef(tasks, task, dep) {
   } else if (typeof dep === 'function') {
     name = makeAnonymousRef(tasks, dep)
   } else if (isParallel(dep)) {
-    name = makeParallelRef(tasks, dep)
+    name = makeParallelRef(tasks, task, dep)
   } else {
     log.error(`Can't standardize dependency`, {task, dep})
     return null
@@ -163,11 +162,17 @@ function findTaskfile(filename) {
   return null
 }
 
+function trace(msg, obj) {
+  if (arguments.length === 1) {
+    return log.debug(msg)
+  }
+  log.debug(msg, inspect(obj))
+}
+
 /**
  * Loads and standardize tasks.
  *
  * type task struct {
- *
  *  deps []string
  *  desc string
  *  name string
@@ -185,13 +190,11 @@ async function loadTasks(argv) {
     }
     return null
   }
-
   log.debug(`Loading ${taskfilePath}`)
-
   const dotext = fp.extname(taskfilePath) || '.js'
 
   if (argv.typescript || dotext === '.ts') {
-    log.trace('Using ts-node for Typescript')
+    trace('Using ts-node for Typescript')
 
     const tsOptions = {
       compilerOptions: {
@@ -201,7 +204,7 @@ async function loadTasks(argv) {
     }
     require('ts-node').register(tsOptions)
   } else if (argv.babel) {
-    log.trace('Using @babel/preset-env for ES6')
+    trace('Using @babel/preset-env for ES6')
     // MUST use full path or babel tries to load @babel/preset-env relative to cwd
     const babelrc = {
       presets: [
@@ -215,24 +218,24 @@ async function loadTasks(argv) {
   }
 
   const taskfileExports = require(taskfilePath)
-  log.trace('Raw taskfile\n', taskfileExports)
+  trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)
-  log.trace('Standardized as ES6\n', taskfile)
+  trace('Standardized as ES6\n', taskfile)
 
   let tasks = {}
 
   const nonDefault = _.omit(taskfile, 'default')
-  if (nonDefault) {
-    log.trace('Non-default exports\n', nonDefault)
+  if (Object.keys(nonDefault).length > 0) {
+    trace('Non-default exports\n', nonDefault)
     standardizePartial(tasks, nonDefault)
-    log.trace('Tasks after standardizing non-defaults\n', tasks)
+    trace('Tasks after standardizing non-defaults\n', tasks)
   }
 
   const defaultExport = _.pick(taskfile, 'default')
-  if (defaultExport) {
-    log.trace('Default export\n', defaultExport.default)
+  if (defaultExport.default) {
+    trace('Default export\n', defaultExport.default)
     standardizePartial(tasks, defaultExport.default)
-    log.trace('Tasks afer standardizing default export\n', tasks)
+    trace('Tasks afer standardizing default export\n', tasks)
   }
 
   // standardize depdencies
@@ -244,9 +247,9 @@ async function loadTasks(argv) {
     task.deps = deps
   }
 
-  // add descriptions needs to be separate task because standardizeDeps
-  // can create anonymous tasks for dep only tasks
-  // noramlize deps
+  trace('Tasks after standardizing deps\n', tasks)
+
+  // standardizing deps can create anonymous tasks for dep-only tasks
   for (let name in tasks) {
     const task = tasks[name]
     if (task.desc) continue
@@ -257,8 +260,10 @@ async function loadTasks(argv) {
     task.desc = desc
   }
 
+  trace('Tasks after standardizing desc\n', tasks)
+
   const all = Object.values(tasks)
-  log.trace('Tasks after standardizing deps\n', tasks)
+  trace('Final tasks array\n', all)
   return all
 }
 
@@ -305,17 +310,19 @@ function standardizeTask(tasks, k, v) {
       name: k,
       deps: v,
     }
-  } else if (isTask(v) || isTaskMeta(v)) {
-    // A non-default exported function creates a task and in the first pass.
-    // In the second pass, a default property of the same task name augments
-    // it with metadat.
+  } else if (isRunnable(v) || isTaskMeta(v)) {
+    // Handle case where second pass augments task in first pass
+    //
+    // A non-default exported function creates a task in the first pass.
+    // In the second pass, a prop in default of the same name augments
+    // it with metadata.
     //
     // For example:
     //   // non defaults processed first pass
     //   export async function foo() {}
     //   export async function bar() {}
     //
-    //   // defaults processed second pass
+    //   // foo in default aguments foo with deps
     //   export default { foo: {deps: [bar]}
     const existing = tasks[k]
     return Object.assign({}, existing, v, {name: k})
@@ -335,4 +342,4 @@ function uniqueName(prefix) {
   return `${prefix}_${_nameId}`
 }
 
-module.exports = {clearRan, loadTasks}
+module.exports = {clearRan, isRunnable, loadTasks}

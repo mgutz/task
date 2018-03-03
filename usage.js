@@ -21,6 +21,7 @@ function taskList(tasks) {
 
 const minimistOpts = {
   alias: {
+    debug: ['verbose'],
     file: ['f'],
     help: ['?'],
     typescript: ['ts'],
@@ -35,6 +36,7 @@ const minimistOpts = {
     'help',
     'init',
     'init-example',
+    'silent',
     'setup-completion',
     'trace',
     'ts',
@@ -46,11 +48,13 @@ const minimistOpts = {
   default: {
     babel: true,
     dotenv: true,
+    silent: false,
     file: '',
   },
   string: ['f', 'file'],
   unknown: flag => {
-    if (flag.indexOf('-') > -1) {
+    // omelette uses --comp*
+    if (flag.indexOf('-') > -1 && flag.indexOf('--comp') !== 0) {
       exitError(`Unknown option: ${flag}`)
     }
   },
@@ -73,6 +77,7 @@ Options
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --setup-completion  Integrates auto completion with shell
+  --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript
   --verbose,--debug   Verbose logging

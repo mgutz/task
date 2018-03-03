@@ -16,6 +16,15 @@ export async function c() {
   memo += 'c'
 }
 
+export async function e() {
+  await sleep(10)
+  memo += 'e'
+}
+
+export async function f() {
+  memo += 'f'
+}
+
 export default {
   b: {
     desc: 'b task',
@@ -23,12 +32,14 @@ export default {
   d: async () => {
     memo += 'd'
   },
+  g: {p: [e, f]},
   x: ['y'],
   y: () => (memo += 'y'),
   test: {
-    deps: [b, a, {p: [c, 'd']}],
+    deps: [b, a, {p: [c, 'd']}, 'g'],
     run: () => {
-      console.assert(memo === 'badc')
+      //console.log('MEMO', memo)
+      console.assert(memo === 'badcfe')
     },
   },
 }

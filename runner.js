@@ -3,7 +3,7 @@ const toposort = require('toposort')
 const {ChildProcess} = require('child_process')
 const log = require('./log')
 const watch = require('./watch')
-const {clearRan} = require('./tasks')
+const {isRunnable} = require('./tasks')
 
 // Very simple depdendency resolution. Will execute dependencies once.
 const execGraph = (tasks, processed, taskNames) => {
@@ -20,7 +20,7 @@ const execGraph = (tasks, processed, taskNames) => {
 
     const task = _.find(tasks, {name})
 
-    if (!isTask(task)) {
+    if (!isRunnable(task)) {
       throw new Error(`Name not found: ${name}`)
     }
 
@@ -54,21 +54,19 @@ const execOrder = (tasks, name) => {
   const result = deps.reduce((memo, dep) => {
     if (dep) {
       const task = _.find(tasks, {name: dep})
-      if (isTask(task)) {
+      if (isRunnable(task)) {
         memo.push(dep)
       }
     }
     return memo
   }, [])
 
-  // truncate deps at the task being run
-  const idx = result.indexOf(name)
-  if (idx < 0) throw new Error(`{Task ${name} was not in exec order`)
-  return result.slice(0, idx + 1)
-}
+  return result
 
-const isTask = task => {
-  return task && (typeof task.run === 'function' || Array.isArray(task.deps))
+  // truncate deps at the task being run
+  // const idx = result.indexOf(name)
+  // if (idx < 0) throw new Error(`{Task ${name} was not in exec order`)
+  // return result.slice(0, idx + 1)
 }
 
 const isChildProcess = v => v instanceof ChildProcess
@@ -89,12 +87,12 @@ process.on('SIGINT', function() {
 })
 
 const _childProcesses = {}
-const _ran = {}
 const runTask = async (tasks, task, args, wait = true) => {
-  if (task.once && _ran[task.name]) {
-    log.debug(`SKIP ${task.name} ran once`)
+  if (didRun(task) && !task.always) {
+    log.debug(`SKIP ${task.name} already ran`)
     return
   }
+  track(task)
 
   if (args.argv['dry-run']) {
     if (task._parallel) {
@@ -102,7 +100,6 @@ const runTask = async (tasks, task, args, wait = true) => {
     }
     return log.info(`DRYRUN ${task.name}`)
   }
-
   if (task._parallel) {
     log.debug(`Run ${task.name} -> {${task.deps.join(', ')}}`)
     const promises = task.deps.map(name => {
@@ -126,7 +123,6 @@ const runTask = async (tasks, task, args, wait = true) => {
 
   if (typeof task.run !== 'function') return
   log.debug(`RUN ${task.name}...`)
-  _ran[task.name] = true
 
   let v
   if (wait) {
@@ -156,7 +152,17 @@ const runTask = async (tasks, task, args, wait = true) => {
 }
 
 const getTask = (tasks, name) =>
-  _.find(tasks, task => task.name === name && isTask(task))
+  _.find(tasks, task => task.name === name && isRunnable(task))
+
+const clearTracking = tasksArr => {
+  for (let task of tasksArr) {
+    // task which run only once survive across watches. Do nothing with them
+    if (_.has(task, 'once')) continue
+    task._ran = false
+  }
+}
+const track = task => (task._ran = true)
+const didRun = task => task._ran
 
 const run = async (tasks, names, args) => {
   if (!tasks) {
@@ -173,10 +179,8 @@ const run = async (tasks, names, args) => {
     names = [names]
   }
 
-  clearRan(tasks)
   for (const name of names) {
     const deps = execOrder(tasks, name)
-
     log.debug('Exec order', deps)
     for (const dep of deps) {
       const task = getTask(tasks, dep)
@@ -197,9 +201,13 @@ const runThenWatch = async (tasks, name, args) => {
   }
 
   const globs = task.watch
+  let lock = false
   await watch(globs, args, async argsWithEvent => {
-    clearRan(tasks)
-    return await run(tasks, name, argsWithEvent)
+    if (lock) return
+    lock = true
+    clearTracking(tasks)
+    await run(tasks, name, argsWithEvent)
+    lock = false
   })
 }
 
