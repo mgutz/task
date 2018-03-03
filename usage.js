@@ -50,7 +50,9 @@ const minimistOpts = {
   },
   string: ['f', 'file'],
   unknown: flag => {
-    exitError(`Unknown option: ${flag}`)
+    if (flag.indexOf('-') > -1) {
+      exitError(`Unknown option: ${flag}`)
+    }
   },
 }
 
