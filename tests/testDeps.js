@@ -37,7 +37,7 @@ export default {
   x: ['y'],
   y: () => (memo += 'y'),
   test: {
-    deps: [b, a, {p: [c, 'd']}, 'g'],
+    deps: [b, a, {p: [c, 'd']}, ' g'],
     run: () => {
       //console.log('MEMO', memo)
       console.assert(memo === 'badcfe')

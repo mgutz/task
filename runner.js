@@ -88,7 +88,7 @@ process.on('SIGINT', function() {
 
 const _childProcesses = {}
 const runTask = async (tasks, task, args, wait = true) => {
-  if (didRun(task) && !task.always) {
+  if (didRun(task) && !task.every) {
     log.debug(`SKIP ${task.name} already ran`)
     return
   }
@@ -112,7 +112,11 @@ const runTask = async (tasks, task, args, wait = true) => {
   const childProcess = _childProcesses[task.name]
   if (childProcess) {
     childProcess.on('close', () => {
+      log.debug('Old process closed')
       _childProcesses[task.name] = null
+      // ensure it is not being tracked so the immediate call to rerun
+      // does not think it has already run
+      untrack(task)
       setImmediate(() => runTask(tasks, task, args))
     })
     log.debug(`SIGHUP ${task.name}`)
@@ -139,6 +143,7 @@ const runTask = async (tasks, task, args, wait = true) => {
   }
 
   if (isChildProcess(v)) {
+    log.debug('Tracking old process')
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
       v.on('error', err => {
@@ -151,17 +156,16 @@ const runTask = async (tasks, task, args, wait = true) => {
   return v
 }
 
-const getTask = (tasks, name) =>
-  _.find(tasks, task => task.name === name && isRunnable(task))
+const getTask = (tasks, name) => _.find(tasks, task => task.name === name && isRunnable(task))
 
 const clearTracking = tasksArr => {
   for (let task of tasksArr) {
-    // task which run only once survive across watches. Do nothing with them
-    if (_.has(task, 'once')) continue
+    if (task.once) continue
     task._ran = false
   }
 }
 const track = task => (task._ran = true)
+const untrack = task => (task._ran = false)
 const didRun = task => task._ran
 
 const run = async (tasks, names, args) => {
@@ -201,13 +205,9 @@ const runThenWatch = async (tasks, name, args) => {
   }
 
   const globs = task.watch
-  let lock = false
   await watch(globs, args, async argsWithEvent => {
-    if (lock) return
-    lock = true
     clearTracking(tasks)
     await run(tasks, name, argsWithEvent)
-    lock = false
   })
 }
 

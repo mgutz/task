@@ -63,8 +63,8 @@ Task props
 | -------- | ---------------------------------------------------------------- |
 | _deps_   | Functions which must run before task                             |
 | _desc_   | Description to display in task list                              |
-| _once_   | Task must only run once across watches                           |
-| _always_ | Always run regardless of how many times is is depended on        |
+| _once_   | Task must only run once across watches and dependents            |
+| _every_  | Task must run every time regardless of dependents tree           |
 | _run_    | The function or ref to run.                                      |
 | _watch_  | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 

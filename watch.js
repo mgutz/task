@@ -23,7 +23,7 @@ async function watch(globs, args, fn, opts = defaults) {
       }
       firstRun = false
     },
-    1500,
+    1000,
     {leading: true, trailing: false}
   )
 
@@ -36,9 +36,11 @@ async function watch(globs, args, fn, opts = defaults) {
     watcher.once('ready', () => {
       log.debug('watching', util.prettify(globs))
       debounced()
-
+      let id = 1
       const eventHandler = (ev, path) => {
-        message = `\n${ev.toUpperCase()} ${path}\n`
+        const idstr = `[${_.padStart(id++, 2, 0)}]`
+
+        message = `\n${idstr} ${ev.toUpperCase()} ${path} restarting ...`
         event = {event: ev, path}
         debounced()
       }
