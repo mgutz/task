@@ -1,12 +1,12 @@
 # task
 
-`task` is a no configuration async task runner
+`task` is zero to full configuration async task runner
 
 * es6 task files
 * typescript task files
 * .env parsing
-* serial and parallel async dependencies
-* graceful daemon restarts on watch
+* serial and parallel dependencies
+* daemon restarts
 * shell autocompletion
 * watch mode
 
@@ -16,7 +16,7 @@
 npm install -g @mgutz/task@next
 ```
 
-## Quick Start
+## Zero Configuration
 
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
@@ -34,7 +34,7 @@ task hello --name world
 
 ## Tasks
 
-### Task Run-Time Arg
+### Task Run-Time Argument
 
 Each task receives an arg with packages already used by `task` itself
 
@@ -49,24 +49,24 @@ Each task receives an arg with packages already used by `task` itself
 | _sh_      | [shelljs](http://documentup.com/shelljs/shelljs)        |
 | _shawn_   | Shell spawn returning ChildProcess                      |
 
-### Task Runner Features
+### Full Configuration
 
 `task` is simple by default and powerful when you need it to be.
 
-* Tasks run once per run. See `once` and `always` props.
-* `task` accepts a single task from command line. To run multiple tasks, add `deps`
-  with multiple tasks.
+* Tasks run once per run. See `once` and `every` props.
+* `task` accepts a single task from command line. To run multiple tasks,
+  add `deps`
 
 Task props
 
-| prop     | desc                                                             |
-| -------- | ---------------------------------------------------------------- |
-| _deps_   | Functions which must run before task                             |
-| _desc_   | Description to display in task list                              |
-| _once_   | Task must only run once across watches and dependents            |
-| _every_  | Task must run every time regardless of dependents tree           |
-| _run_    | The function or ref to run.                                      |
-| _watch_  | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
+| prop    | desc                                                             |
+| ------- | ---------------------------------------------------------------- |
+| _deps_  | Tasks which must run before current task                         |
+| _desc_  | Description to display in task list                              |
+| _once_  | Task must only run once across watches and dependents            |
+| _every_ | Task must run every time it is a dependency                      |
+| _run_   | The function or ref to run.                                      |
+| _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js
 export function build() {}
@@ -184,8 +184,8 @@ export function server({shawn}) {
 * Or, force typescript flag: `task --ts Taskfile hello`
 * Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
 
-ES6 is the default for any `.js` file. To use current node to run scripts
-directly use `task --no-babel` flag.
+ES6 is the default for any `.js` file. To use plain node to run scripts
+use `task --no-babel` flag.
 
 ### Auto Completion
 

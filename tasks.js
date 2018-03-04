@@ -31,7 +31,7 @@ const isRunnable = task => {
 }
 
 const isTaskMeta = task =>
-  task && (task.always || task.deps || task.desc || task.once || task.watch)
+  task && (task.every || task.deps || task.desc || task.once || task.watch)
 
 /**
  * [a, b, {p: [d, e, {p: [x, y]}]}] becomes
