@@ -4,6 +4,7 @@ const {ChildProcess} = require('child_process')
 const log = require('./log')
 const watch = require('./watch')
 const {isRunnable} = require('./tasks')
+const {inspect} = require('util')
 
 // Very simple depdendency resolution. Will execute dependencies once.
 const execGraph = (tasks, processed, taskNames) => {
@@ -24,33 +25,58 @@ const execGraph = (tasks, processed, taskNames) => {
       throw new Error(`Name not found: ${name}`)
     }
 
+    // [a, b, c], d => [c, d], [b, c], [a, b]
+    const dependRL = (deps, name) => {
+      const newDeps = [].concat(deps, name)
+      for (let i = newDeps.length - 1; i > 0; i--) {
+        const prev = newDeps[i - 1]
+        const current = newDeps[i]
+        graph.push([prev, current])
+      }
+    }
+
+    const addParallel = (deps, name) => {
+      for (const dep of deps) {
+        // get sub dependencies of each depdency
+        let pdeps = toposort(execGraph(tasks, [], [dep]))
+
+        processed.push(dep)
+        if (pdeps.length < 2) continue
+        // make subdependencies be deps of current parallel task, note
+        // we remove last entry which is [..., dep] since it is already
+        // a dep in parallel
+        dependRL(pdeps.slice(0, -1), name)
+      }
+    }
+
     if (task.deps) {
       if (task._parallel) {
-        // do nothing
+        addParallel(task.deps, name)
       } else {
-        let prev
-        for (const dep of task.deps) {
-          if (task._parallel) {
-            continue
-          }
-          graph.push([dep, name])
-          // in a series, the current task depends on prev
-          if (prev) {
-            graph.push([prev, dep])
-          }
-          prev = dep
-        }
+        dependRL(task.deps, name)
+        // let prev
+        // for (const dep of task.deps) {
+        //   graph.push([dep, name])
+        //   // in a series, the current task depends on prev
+        //   if (prev) {
+        //     graph.push([prev, dep])
+        //   }
+        //   prev = dep
+        // }
       }
       graph = graph.concat(execGraph(tasks, processed, task.deps))
     }
-    graph.push([name, ''])
   }
 
+  log.debug('Dependency graph', inspect(graph))
   return graph
 }
 
 const execOrder = (tasks, name) => {
-  const deps = toposort(execGraph(tasks, [], [name]))
+  const graph = execGraph(tasks, [], [name])
+  graph.push([name, ''])
+
+  const deps = toposort(graph)
   const result = deps.reduce((memo, dep) => {
     if (dep) {
       const task = _.find(tasks, {name: dep})
@@ -62,15 +88,10 @@ const execOrder = (tasks, name) => {
   }, [])
 
   return result
-
-  // truncate deps at the task being run
-  // const idx = result.indexOf(name)
-  // if (idx < 0) throw new Error(`{Task ${name} was not in exec order`)
-  // return result.slice(0, idx + 1)
 }
 
 const isChildProcess = v => v instanceof ChildProcess
-const isPromise = v => typeof v.then === 'function'
+const isPromise = v => v && typeof v.then === 'function'
 
 process.on('SIGINT', function() {
   log.info('cleaning up...')
@@ -106,7 +127,7 @@ const runTask = async (tasks, task, args, wait = true) => {
       const task = getTask(tasks, name)
       return runTask(tasks, task, args, false)
     })
-    return await Promise.all(promises)
+    return Promise.all(promises)
   }
 
   const childProcess = _childProcesses[task.name]
@@ -135,10 +156,12 @@ const runTask = async (tasks, task, args, wait = true) => {
   } else {
     v = task.run(args)
     if (isPromise(v)) {
-      v.then(res => {
+      v = v.then(res => {
         log.debug(`END ${task.name}`)
         return res
       })
+    } else {
+      log.debug(`END ${task.name}`)
     }
   }
 

@@ -125,7 +125,10 @@ async function main() {
     dotenv.config()
   }
   if (argv.help) {
-    return exitMessage(usage(tasks))
+    return exitMessage(usage(tasks, 'help'))
+  }
+  if (argv.list) {
+    return exitMessage(usage(tasks, 'list'))
   }
   if (argv.init || argv['init-example']) {
     return await commandInit(argv)

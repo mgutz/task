@@ -6,6 +6,10 @@ const minimist = require('minimist')
 const pkgJson = require('./package.json')
 
 function taskList(tasks) {
+  if (!tasks || tasks.length < 1) {
+    return 'No tasks found.'
+  }
+
   const indent = '  '
   const items = _.sortBy(tasks, 'name')
     .map(it => ({
@@ -36,6 +40,7 @@ const minimistOpts = {
     'help',
     'init',
     'init-example',
+    'list',
     'silent',
     'setup-completion',
     'trace',
@@ -74,6 +79,7 @@ Options
   --file,-f           File
   --init              Create empty Taskfile.js if not exists
   --init-example      Create example Taskfile.js if not exists
+  --list              List tasks
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --setup-completion  Integrates auto completion with shell
@@ -105,7 +111,14 @@ Examples
 `
 }
 
-function usage(tasks) {
+function usage(tasks, which = '') {
+  if (which === 'help') {
+    return helpScreen()
+  }
+  if (which === 'list') {
+    tasksScreen(tasks)
+  }
+
   return tasks && tasks.length ? tasksScreen(tasks) : helpScreen()
 }
 

@@ -1,5 +1,12 @@
-export async function test({globby, exec}) {
-  const tests = await globby(['tests/{pass,fail}*.{js,ts}'])
+export async function test({globby, exec, argv}) {
+  const which = argv._[0]
+
+  const pattern =
+    which === 'all'
+      ? 'tests/{pass,fail}*.{js,ts}'
+      : which === 'fail' ? 'tests/fail*.{js,ts}' : 'tests/pass*.{js,ts}'
+
+  const tests = await globby([pattern])
   const promises = tests.map(testfile => {
     const command = `task -f ${testfile} --silent test`
     return exec(command).then(
