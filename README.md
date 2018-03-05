@@ -5,17 +5,19 @@
 * es6 task files
 * typescript task files
 * .env parsing
-* serial and parallel dependencies
+* parallelized dependencies can speed some tasks
 * daemon restarts
 * watch mode
-
-[Manual](docs/tasks.md)
 
 ## Install
 
 ```sh
 npm install -g @mgutz/task@next
 ```
+
+## Help
+
+[Task Manual](docs/tasks.md)
 
 ## Quick Start
 
@@ -50,8 +52,7 @@ export const copyAssets = ({sh}) => {
   sh.cp('-rf', 'public/*', `build/public/${version}`)
 }
 
-// run deps in parallel, `clean` will get automatically get called before
-// the parallel unit
+// Run deps in parallel.
 export const tar = {
   deps: {p: [build, copyAssets]},
   run: ({sh}) => {
