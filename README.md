@@ -21,22 +21,18 @@ npm install -g @mgutz/task@next
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
 ```js
-export async function hello({argv}) {
+export function hello({argv}) {
   console.log(`Hello, ${argv.name}!`)
 }
 ```
 
-In a terminal, run
-
-```sh
-task hello --name world
-```
+In a terminal, run: `task hello --name world`
 
 ## Tasks
 
 ### Task Run-Time Argument
 
-Each task receives an arg with packages already used by `task` itself
+Each task receives an arg with packages used by `task` itself
 
 | prop      | desc                                                    |
 | --------- | ------------------------------------------------------- |
@@ -69,27 +65,37 @@ Task props
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js
-export function build() {}
 export function clean() {}
 export function generate() {}
 export function css() {}
 
-export default {
-  build: {
-    desc: 'builds project',
-    deps: [clean, {p: [generate, css]}], // serial and parallel execution
-    run: build,
-  },
+export const build = {
+  desc: 'Builds project',
+  deps: [clean, {p: [generate, css]}],
+  run: () => {
+    // run build
+  }
 }
 ```
+### Dependencies Execution
 
-Alternatively,
+Dependencies can execute in series `[dep1, dep2, ... depN]`, in parallel
+`{p: [par1, par2, ... parN]}` or a mixture of.
 
 ```js
-export default {
-  build: {desc: 'builds project', run: () => {}, deps: ['clean', 'generate']},
-  clean: {desc: 'cleans project', run: () => {}},
-  generate: {desc: 'generates code', run: () => {}},
+export const foo = {
+  // series
+  deps: [bar, bah]
+}
+
+export const baz = {
+  // parallel is object of shape {p: []}
+  deps: {P: [bar, bah]}
+}
+
+export const mix = {
+  // mix of parallel and series
+  deps: [bar, {p: [g, h]}, bah, {p: [x, y]}]
 }
 ```
 
@@ -97,45 +103,24 @@ export default {
 
 ```js
 export default build
-```
 
-Or create a pseudo-task named default
-
-```js
+// OR
 export default {
-  default: {deps: [build]},
-}
-```
-
-### Dependencies Execution
-
-Dependencies can execute in series, parallel or a mix
-
-```js
-export default {
-  // series
-  foo: ['bar', 'bah'],
-
-  // parallel
-  baz: {p: ['a', 'b']},
-
-  mix: ['bar', {p: ['g', 'h']}, 'bah', {p: ['x', 'y']}],
+  deps: [build]
 }
 ```
 
 ### Watching Tasks
 
-Run a task in watch mode: `task build -w`
-
-Watch requires defining `watch` glob patterns
+A task must have `watch` props of glob patterns to run in watch mode.
 
 ```js
-export default {
-  build: {
-    watch: ['src/**/*.js'],
-  },
+export const build = {
+  watch: ['src/**.js']
 }
 ```
+
+Run a task in watch mode: `task build -w`
 
 #### Daemons
 
@@ -144,22 +129,18 @@ export default {
 For example, to properly restart a node server
 
 ```js
-export default {
-  server: {
-    run: ({shawn}) => {
-      // this causes port in use errors with other task runners
-      return shawn(`
-        node server
-      `)
-    },
-    watch: ['server/**/*.js'],
+export const server = {
+  run: ({shawn}) => {
+    // this causes port in use errors with other task runners
+    return shawn(`node server`)
   },
+  watch: ['server/**/*.js'],
 }
 ```
 
 `shawn` is short for shell spawn and handles process groups correctly.
-`shawn` executes `/bin/bash -c [script]` by default. Shell, arguments and other
-`ChildProcess` options can be overridden.
+`shawn` executes `/bin/bash -c [script]` by default. `shawn`'s shell, arguments
+and other `ChildProcess` options can be overridden.
 
 ```js
 const shellOpts = {
@@ -186,20 +167,6 @@ export function server({shawn}) {
 
 ES6 is the default for any `.js` file. To use plain node to run scripts
 use `task --no-babel` flag.
-
-### Auto Completion
-
-Note: autocompletion is terribly slow. Need to replace `omelette`
-
-Shell auto completion requires editing your shell's rc files. The easiest
-solution is by running the command below then restarting your terminal
-
-```sh
-task --setup-completion
-```
-
-Read [omelette](https://github.com/f/omelette#manual-install) to manually
-integrate with your shell.
 
 ## LICENSE
 

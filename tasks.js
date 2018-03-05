@@ -31,7 +31,7 @@ const isRunnable = task => {
 }
 
 const isTaskMeta = task =>
-  task && (task.every || task.deps || task.desc || task.once || task.watch)
+  task && (task.desc || task.deps || task.every || task.once || task.watch)
 
 /**
  * [a, b, {p: [d, e, {p: [x, y]}]}] becomes
@@ -95,23 +95,18 @@ function makeAnonymousRef(tasks, fn) {
   return name
 }
 
-function makeFunctionTask(tasks, fn) {
-  if (fn.name) {
+function makeFunctionTask(tasks, key, fn) {
+  if (fn.name || key) {
     return {
-      name: fn.name,
+      name: fn.name || key,
       run: fn,
     }
   }
   // anonymous functions need to be in tasks too
-  const name = uniqueName('a')
   return {
-    name,
+    name: uniqueName('a'),
     run: fn,
   }
-}
-
-function taskFromRef(tasks, name) {
-  return tasks[name]
 }
 
 function depToRef(tasks, task, dep) {
@@ -124,6 +119,12 @@ function depToRef(tasks, task, dep) {
     name = makeAnonymousRef(tasks, dep)
   } else if (isParallel(dep)) {
     name = makeParallelRef(tasks, task, dep)
+  } else if (isRunnable(dep)) {
+    // reference to an object
+    name = _.findKey(tasks, o => o._original == dep)
+    if (!name) {
+      log.Error(`Can't standardize dependency`, {task, dep})
+    }
   } else {
     log.error(`Can't standardize dependency`, {task, dep})
     return null
@@ -224,19 +225,8 @@ async function loadTasks(argv) {
 
   let tasks = {}
 
-  const nonDefault = _.omit(taskfile, 'default')
-  if (Object.keys(nonDefault).length > 0) {
-    trace('Non-default exports\n', nonDefault)
-    standardizePartial(tasks, nonDefault)
-    trace('Tasks after standardizing non-defaults\n', tasks)
-  }
-
-  const defaultExport = _.pick(taskfile, 'default')
-  if (defaultExport.default) {
-    trace('Default export\n', defaultExport.default)
-    standardizePartial(tasks, defaultExport.default)
-    trace('Tasks afer standardizing default export\n', tasks)
-  }
+  standardizePartial(tasks, taskfile)
+  trace('Tasks after standardizing functions and objects\n', tasks)
 
   // standardize depdencies
   for (let name in tasks) {
@@ -294,23 +284,14 @@ function standardizePartial(tasks, v) {
 
 function standardizeTask(tasks, k, v) {
   if (typeof v === 'function') {
-    return makeFunctionTask(tasks, v)
-  } else if (_.isString(v)) {
-    const task = taskFromRef(tasks, v)
-    if (!task) {
-      exitError(`Invalid task name: ${v}`)
-    }
-    return {
-      name: k,
-      desc: task.name,
-      deps: [task.name],
-    }
-  } else if (isDep(v)) {
-    return {
-      name: k,
-      deps: v,
-    }
+    return makeFunctionTask(tasks, k, v)
   } else if (isRunnable(v) || isTaskMeta(v)) {
+    // do is alias for run, if this is renamed, edit isTaskMeta
+    // if (typeof v.do === 'function') {
+    //   v.run = v.do
+    //   delete v.do
+    // }
+
     // Handle case where second pass augments task in first pass
     //
     // A non-default exported function creates a task in the first pass.
@@ -324,15 +305,15 @@ function standardizeTask(tasks, k, v) {
     //
     //   // foo in default aguments foo with deps
     //   export default { foo: {deps: [bar]}
+
+    // we also need to track original object to compare object references
     const existing = tasks[k]
-    return Object.assign({}, existing, v, {name: k})
-  } else if (_.isObject(v)) {
+    return Object.assign({_original: v}, existing, v, {name: k})
+  } else {
     throw new Error(
-      `Nested object (namespaces) not yet implemented: ${prettify(v)}`
+      `Tasks must be a function or task meta: ${prettify({[k]: v})}`
     )
   }
-
-  throw new Error(`Could not convert to task: ${prettify(v)}`)
 }
 
 let _nameId = 0

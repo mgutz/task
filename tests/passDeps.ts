@@ -24,7 +24,7 @@ export default {
   d: async () => {
     memo += 'd'
   },
-  x: ['y'],
+  x: {deps: ['y']},
   y: () => (memo += 'y'),
   test: {
     deps: [b, a, {p: [c, 'd']}],

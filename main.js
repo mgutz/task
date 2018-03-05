@@ -5,30 +5,48 @@ const {run, runThenWatch} = require('./runner')
 const contrib = require('./contrib')
 const dotenv = require('dotenv')
 const fs = require('pn/fs')
+const fp = require('path')
 const globby = require('globby')
 const log = require('./log')
 const sh = require('shelljs')
-const emptyContent = ``
-const {parseArgv, setupTerminalAutoComplete, usage} = require('./usage')
+const {parseArgv, /*setupTerminalAutoComplete,*/ usage} = require('./usage')
+
+const exampleEmpty = ``
 
 /* eslint-disable max-len */
-const exampleContent = `
+const exampleJs = `
 export function clean({sh}) {
   sh.rm('-rf', 'build')
 }
 
-export function installTools() {
-  sh.exec(\`go get -u github.com/mgutz/dat/cmd/dat\`)
+export function installTools({sh}) {
+  sh.exec('go get -u github.com/mgutz/dat/cmd/dat')
 }
 
-export async function cra({contrib}) {
-  return contrib.shawn(\`npm start\`)
+export async function start(ctx) {
+  return ctx.shawn(\`npm start\`)
 }
 
 /*
-export default {
-  default: {run: cra, desc: 'Runs create-react-app server', deps: [clean], once: true}
+export default start
+*/
+`
+
+const exampleTs = `
+export function clean({sh}) {
+  sh.rm('-rf', 'build')
 }
+
+export function installTools({sh}) {
+  sh.exec('go get -u github.com/mgutz/dat/cmd/dat')
+}
+
+export async function start(ctx) {
+  return ctx.shawn(\`npm start\`)
+}
+
+/*
+export default start
 */
 `
 
@@ -36,12 +54,17 @@ let _tasks
 
 /* eslint-enable max-len */
 
-async function commandInit(argv, content) {
-  const taskfilePath = argv.file
+async function commandInit(argv) {
+  const taskfile = argv.typescript ? 'Taskfile.ts' : 'Taskfile.js'
+  const taskfilePath = fp.join(process.cwd(), taskfile)
+  const content = argv['init-example']
+    ? argv.typescript ? exampleTs : exampleJs
+    : exampleEmpty
 
   if (await fs.exists(taskfilePath)) {
     exitError(`SKIPPED ${taskfilePath} exists`)
   }
+
   return fs
     .writeFile(taskfilePath, content, 'utf8')
     .then(exitOKFn(`${taskfilePath} created`), exitErrorFn())
@@ -96,7 +119,7 @@ async function main() {
   }
   const tasks = (await loadTasks(argv)) || []
 
-  setupTerminalAutoComplete(tasks)
+  //setupTerminalAutoComplete(tasks)
 
   if (argv.dotenv) {
     dotenv.config()
@@ -104,11 +127,8 @@ async function main() {
   if (argv.help) {
     return exitMessage(usage(tasks))
   }
-  if (argv.init) {
-    return await commandInit(argv, emptyContent)
-  }
-  if (argv['init-example']) {
-    return await commandInit(argv, exampleContent)
+  if (argv.init || argv['init-example']) {
+    return await commandInit(argv)
   }
 
   const taskName = taskToRun(argv)
@@ -130,6 +150,9 @@ async function main() {
 }
 
 // eslint-disable-next-line no-console
-process.on('unhandledRejection', console.error)
+process.on('unhandledRejection', (...args) => {
+  console.error(...args)
+  process.exit(1)
+})
 
 main()

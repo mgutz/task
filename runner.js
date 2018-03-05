@@ -156,7 +156,8 @@ const runTask = async (tasks, task, args, wait = true) => {
   return v
 }
 
-const getTask = (tasks, name) => _.find(tasks, task => task.name === name && isRunnable(task))
+const getTask = (tasks, name) =>
+  _.find(tasks, task => task.name === name && isRunnable(task))
 
 const clearTracking = tasksArr => {
   for (let task of tasksArr) {

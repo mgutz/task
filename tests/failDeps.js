@@ -8,8 +8,11 @@ export async function a() {
   memo += 'a'
 }
 
-export function b() {
-  memo += 'b'
+export const b = {
+  desc: 'Runs b',
+  run: () => {
+    memo += 'b'
+  },
 }
 
 export async function c() {
@@ -27,9 +30,6 @@ export async function f() {
 }
 
 export default {
-  b: {
-    desc: 'b task',
-  },
   d: async () => {
     memo += 'd'
   },
@@ -37,10 +37,10 @@ export default {
   x: ['y'],
   y: () => (memo += 'y'),
   test: {
-    deps: [b, a, {p: [c, 'd']}, ' g'],
+    deps: ['b', a, {p: [c, 'd']}, ' g'],
     run: () => {
-      //console.log('MEMO', memo)
-      console.assert(memo === 'badcfe')
+      const expected = 'badcfe'
+      if (memo !== expected) throw new Error(`${memo} !== expected ${expected}`)
     },
   },
 }
