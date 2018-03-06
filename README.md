@@ -12,7 +12,15 @@
 ## Install
 
 ```sh
+# to run latest
+git clone https://github.com/mgutz/task
+cd task
+npm link
+
+# to run next, which may be outdated
 npm install -g @mgutz/task@next
+
+# stable is not yet available
 ```
 
 ## Help
@@ -70,6 +78,14 @@ To run default: `task`
 To invoke arg with an argument: `task arg foo`
 
 To run server in watch mode: `task server -w`
+
+## Testing
+
+To run tests
+
+```sh
+task test
+```
 
 ## LICENSE
 

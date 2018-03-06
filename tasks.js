@@ -182,9 +182,11 @@ function findTaskfile(argv) {
 }
 
 function trace(msg, obj) {
+  if (!log._istrace) return
   if (arguments.length === 1) {
     return log.debug(msg)
   }
+
   log.debug(msg, inspect(obj))
 }
 

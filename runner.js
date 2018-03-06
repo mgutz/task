@@ -85,7 +85,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
   }
 
-  log.debug('Dependency graph', inspect(graph))
+  if (log._isdebug) log.debug('Dependency graph', inspect(graph))
   return graph
 }
 

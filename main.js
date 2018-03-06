@@ -122,13 +122,13 @@ async function main() {
   }
 
   if (argv.silent) {
-    log.setLevel('silent')
+    log._setLevel('silent')
   } else if (argv.trace) {
-    log.setLevel('trace')
+    log._setLevel('trace')
   } else if (argv.debug) {
-    log.setLevel('debug')
+    log._setLevel('debug')
   } else {
-    log.setLevel('info')
+    log._setLevel('info')
   }
   const tasks = (await loadTasks(argv)) || []
 
