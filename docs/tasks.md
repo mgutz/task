@@ -30,7 +30,7 @@ Task props
 | _desc_  | Description to display in task list                              |
 | _once_  | Task must only run once across watches and dependents            |
 | _every_ | Task must run every time it is a dependency                      |
-| _run_   | The function or ref to run.                                      |
+| _run_   | The function to run.                                             |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js
@@ -62,7 +62,7 @@ export const foo = {
 
 export const baz = {
   // parallel is object of shape {p: []}
-  deps: {P: [bar, bah]},
+  deps: {p: [bar, bah]},
 }
 
 export const mix = {
@@ -134,8 +134,8 @@ export function server(ctx) {
 ### Babel and Typescript Support
 
 * Name your taskfile: `Taskfile.ts`
-* Or, force typescript flag: `task --ts Taskfile hello`
-* Or, specify any file with `.ts` extension: `task -f anyfile.ts hello`
+* Or force typescript flag: `task --ts Taskfile hello`
+* Or specify any file with `.ts` extension: `task -f anyfile.ts hello`
 
 ES6 is the default for any `.js` file. To use plain node to run scripts
 use `task --no-babel` flag.
