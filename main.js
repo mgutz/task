@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const {exitOKFn, exitError, exitMessage, exitErrorFn} = require('./exits')
-const {loadTasks} = require('./tasks')
+const {findTaskfile, loadTasks} = require('./tasks')
 const {run, runThenWatch} = require('./runner')
 const contrib = require('./contrib')
 const dotenv = require('dotenv')
@@ -51,12 +51,20 @@ export default start
 */
 `
 
+const exampleTaskrc = `
+module.exports = {
+  // debug: true,
+  // file: 'Taskfile.mjs'
+}
+`
+
 let _tasks
 
 /* eslint-enable max-len */
 
 async function commandInit(argv) {
   const taskfile = argv.typescript ? 'Taskfile.ts' : 'Taskfile.js'
+  const taskrcPath = fp.join(process.cwd(), '.taskrc')
   const taskfilePath = fp.join(process.cwd(), taskfile)
   const content = argv['init-example']
     ? argv.typescript ? exampleTs : exampleJs
@@ -64,6 +72,11 @@ async function commandInit(argv) {
 
   if (await fs.exists(taskfilePath)) {
     exitError(`SKIPPED ${taskfilePath} exists`)
+  }
+
+  if (!await fs.exists(taskrcPath)) {
+    await fs.writeFile(taskrcPath, exampleTaskrc, 'utf8')
+    log.info('OK .taskrc created')
   }
 
   return fs
@@ -108,8 +121,21 @@ function taskArgs(argv) {
   }
 }
 
+function loadTaskrc(wd) {
+  const taskrc = fp.join(wd, '.taskrc')
+  if (fs.existsSync(taskrc)) {
+    return require(taskrc)
+  }
+  return {}
+}
+
 async function main() {
-  const argv = parseArgv()
+  let argv = parseArgv()
+  const taskfilePath = findTaskfile(argv)
+  if (taskfilePath) {
+    const taskrc = loadTaskrc(fp.dirname(taskfilePath))
+    argv = Object.assign(argv, taskrc)
+  }
 
   // if the there is no file flag and the first arg is a file then treat it as
   // the task file
@@ -130,7 +156,7 @@ async function main() {
   } else {
     log._setLevel('info')
   }
-  const tasks = (await loadTasks(argv)) || []
+  const tasks = (await loadTasks(argv, taskfilePath)) || []
 
   //setupTerminalAutoComplete(tasks)
 

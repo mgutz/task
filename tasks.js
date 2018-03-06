@@ -197,8 +197,7 @@ function trace(msg, obj) {
  *  _ran bool       // whether task ran on current watch change
  * }
  */
-async function loadTasks(argv) {
-  const taskfilePath = findTaskfile(argv)
+async function loadTasks(argv, taskfilePath) {
   if (!taskfilePath) {
     if (argv.file) {
       return exitError(`Tasks file not found: ${argv.file}`)
@@ -315,4 +314,4 @@ function uniqueName(prefix) {
   return `${prefix}_${_nameId}`
 }
 
-module.exports = {isRunnable, loadTasks, addSeriesRef}
+module.exports = {isRunnable, findTaskfile, loadTasks, addSeriesRef}

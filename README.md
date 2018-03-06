@@ -79,6 +79,22 @@ To invoke arg with an argument: `task arg foo`
 
 To run server in watch mode: `task server -w`
 
+## Configuration
+
+`task` reads `.taskrc` configuration file from same directory as the task file
+and merge the object value into command line arguments. The `.taskrc` is
+imported as a regular javascript file so it should be a simple `module.exports`
+
+```js
+module.exports = {
+  debug: true,
+  file: 'Taskfile.mjs'
+}
+```
+
+`task --init` creates an exmaple `.taskrc`
+
+
 ## Testing
 
 To run tests
