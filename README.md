@@ -81,9 +81,8 @@ To run server in watch mode: `task server -w`
 
 ## Configuration
 
-`task` reads `.taskrc` configuration file from same directory as the task file
-and merge the object value into command line arguments. The `.taskrc` is
-imported as a regular javascript file so it should be a simple `module.exports`
+`task` reads `.taskrc` configuration file from same directory as the Taskfile.
+`.taskrc` must be a node compatible Javascript file.
 
 ```js
 module.exports = {
@@ -92,7 +91,11 @@ module.exports = {
 }
 ```
 
-`task --init` creates an exmaple `.taskrc`
+Be aware that some short flag options are aliases for long flags on the command
+line. You should use long flag names in .taskrc. For example, use `file` instead
+of `f`.
+
+`task --init` creates an example `.taskrc`
 
 
 ## Testing
