@@ -214,8 +214,9 @@ const getTask = (tasks, name) => {
   return isRunnable(task) ? task : null
 }
 
-const clearTracking = tasksArr => {
-  for (let task of tasksArr) {
+const clearTracking = tasks => {
+  for (const name in tasks) {
+    const task = tasks[name]
     if (task.once) continue
     task._ran = false
   }
@@ -259,8 +260,13 @@ const runThenWatch = async (tasks, name, args) => {
   }
 
   const globs = task.watch
+  let first = true
   await watch(globs, args, async argsWithEvent => {
     clearTracking(tasks)
+    if (!first) {
+      log.info(`Restarting ${name}`)
+    }
+    first = false
     await run(tasks, name, argsWithEvent)
   })
 }

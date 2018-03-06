@@ -16,11 +16,11 @@ async function watch(globs, args, fn, opts = defaults) {
 
   const debounced = _.debounce(
     () => {
-      const newArgs = Object.assign({}, args, {event})
-      fn(newArgs)
       if (!firstRun) {
         log.info(message)
       }
+      const newArgs = Object.assign({}, args, {event})
+      fn(newArgs)
       firstRun = false
     },
     1000,
@@ -40,7 +40,7 @@ async function watch(globs, args, fn, opts = defaults) {
       const eventHandler = (ev, path) => {
         const idstr = `[${_.padStart(id++, 2, 0)}]`
 
-        message = `\n${idstr} ${ev.toUpperCase()} ${path} restarting ...`
+        message = `\n${idstr} ${ev.toUpperCase()} ${path}`
         event = {event: ev, path}
         debounced()
       }
