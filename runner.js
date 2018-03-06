@@ -8,7 +8,7 @@ const {inspect} = require('util')
 
 /**
  * A parallel task has shape: {name, _parallel: true, deps: []}
- * A series task within a parallel task has shape: {name, deps: []}
+ * A serial task has shape: {name, deps: []}
  *
  *  - `graph.push([a, b])` reads as `a` must run before `b`, in other words
  *    `b` depends on `a`
@@ -43,7 +43,9 @@ const execGraph = (tasks, processed, taskNames) => {
 
     // [a, b, c], d => [c, d], [b, c], [a, b]
     const dependRL = (deps, name) => {
+      // this flattens deps, [[a, b], c] => [a, b, c]
       const newDeps = [].concat(deps, name)
+
       for (let i = newDeps.length - 1; i > 0; i--) {
         const prev = newDeps[i - 1]
         const current = newDeps[i]
@@ -51,6 +53,7 @@ const execGraph = (tasks, processed, taskNames) => {
       }
     }
 
+    // [[a, b], c], name => [s_1, c, name], where s_1 = {deps: [a, b]}
     const addParallel = (refs, name) => {
       for (let i = 0; i < refs.length; i++) {
         let ref = refs[i]
@@ -62,17 +65,13 @@ const execGraph = (tasks, processed, taskNames) => {
         // get sub dependencies of each dependency
         let pdeps = toposort(execGraph(tasks, [], [ref]))
 
+        // if deps has no sub dependencies do nothing
         if (pdeps.length < 2) continue
-        // make subdependencies be deps of current parallel task, note
-        // we remove last entry which is [..., dep] since it is already
-        // a dep in parallel
 
+        // make subdependencies be deps of current parallel task
         // [a, b] name => [s_1, name], where s_1 == [a, b]
         ref = addSeriesRef(tasks, task, pdeps)
         refs[i] = ref
-
-        //graph.push([ref, name])
-        //dependRL(pdeps.slice(0, -1), name)
       }
     }
 
@@ -157,7 +156,6 @@ const runTask = async (tasks, task, args, wait = true) => {
     for (const ref of task.deps) {
       await runTask(tasks, tasks[ref], args, true)
     }
-    return
   }
 
   const childProcess = _childProcesses[task.name]
@@ -225,19 +223,19 @@ const track = task => (task._ran = true)
 const untrack = task => (task._ran = false)
 const didRun = task => task._ran
 
-const run = async (tasks, names, args) => {
+const run = async (tasks, refs, args) => {
   if (!tasks) {
     throw new Error('`tasks` property is required')
   }
-  if (!names) {
-    throw new Error('`names` is empty')
+  if (!refs) {
+    throw new Error('`refs` is empty')
   }
 
-  if (typeof names === 'string') {
-    names = [names]
+  if (typeof refs === 'string') {
+    refs = [refs]
   }
 
-  for (const name of names) {
+  for (const name of refs) {
     const deps = execOrder(tasks, name)
     log.debug('Tasks', tasks)
     log.debug('Exec order', deps)
