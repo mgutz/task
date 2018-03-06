@@ -153,12 +153,6 @@ function depToRef(tasks, task, dep) {
   return name
 }
 
-function clearRan(tasks) {
-  for (const task of tasks) {
-    task._ran = false
-  }
-}
-
 const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
@@ -321,4 +315,4 @@ function uniqueName(prefix) {
   return `${prefix}_${_nameId}`
 }
 
-module.exports = {clearRan, isRunnable, loadTasks, addSeriesRef}
+module.exports = {isRunnable, loadTasks, addSeriesRef}

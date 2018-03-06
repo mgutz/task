@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export async function test({globby, exec, argv}) {
   const which = argv._[0]
 

@@ -165,8 +165,8 @@ async function main() {
   return run(tasks, name, args).then(exitOKFn(), exitErrorFn())
 }
 
-// eslint-disable-next-line no-console
 process.on('unhandledRejection', (...args) => {
+  // eslint-disable-next-line no-console
   console.error(...args)
   process.exit(1)
 })

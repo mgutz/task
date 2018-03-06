@@ -54,7 +54,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     // [[a, b], c], name => [s_1, c, name], where s_1 = {deps: [a, b]}
-    const addParallel = (refs, name) => {
+    const addParallel = refs => {
       for (let i = 0; i < refs.length; i++) {
         let ref = refs[i]
         // a series in an array necessitates a new unit
