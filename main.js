@@ -110,6 +110,17 @@ function taskArgs(argv) {
 
 async function main() {
   const argv = parseArgv()
+
+  // if the there is no file flag and the first arg is a file then treat it as
+  // the task file
+  if (!argv.file && argv._.length) {
+    const firstArg = argv._[0]
+    if (firstArg.endsWith('.js') || firstArg.endsWith('.ts')) {
+      argv.file = firstArg
+      argv._.shift()
+    }
+  }
+
   if (argv.silent) {
     log.setLevel('silent')
   } else if (argv.trace) {

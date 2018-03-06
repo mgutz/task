@@ -164,14 +164,6 @@ const taskfileTs = 'Taskfile.ts'
 
 function findTaskfile(argv) {
   let filename = argv.file
-  // see if there is an arg that ends with .js or .ts
-  // if (!filename) {
-  //   filename = _.find(
-  //     argv._,
-  //     filename => ['.js', '.ts'].indexOf(fp.extname(filename)) > -1
-  //   )
-  // }
-
   const testFilename = fname => {
     const absolute = fp.join(process.cwd(), fname)
     log.debug(`Trying task file: ${absolute}`)
@@ -310,26 +302,6 @@ function standardizeTask(tasks, k, v) {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, k, v)
   } else if (isRunnable(v) || isTaskMeta(v)) {
-    // do is alias for run, if this is renamed, edit isTaskMeta
-    // if (typeof v.do === 'function') {
-    //   v.run = v.do
-    //   delete v.do
-    // }
-
-    // Handle case where second pass augments task in first pass
-    //
-    // A non-default exported function creates a task in the first pass.
-    // In the second pass, a prop in default of the same name augments
-    // it with metadata.
-    //
-    // For example:
-    //   // non defaults processed first pass
-    //   export async function foo() {}
-    //   export async function bar() {}
-    //
-    //   // foo in default aguments foo with deps
-    //   export default { foo: {deps: [bar]}
-
     // we also need to track original object to compare object references
     const existing = tasks[k]
     return Object.assign({_original: v}, existing, v, {name: k})
@@ -343,7 +315,7 @@ function standardizeTask(tasks, k, v) {
 let _nameId = 0
 function uniqueName(prefix) {
   _nameId++
-  // a=anonymous p=parallel
+  // a=anonymous p=parallel s=serial
   return `${prefix}_${_nameId}`
 }
 
