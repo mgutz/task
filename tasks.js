@@ -68,6 +68,15 @@ function standardizeDeps(tasks, task, deps) {
   return result.length ? result : null
 }
 
+function makeSeriesRef(tasks, task, deps) {
+  const name = uniqueName('s')
+  tasks.push({
+    name,
+    deps,
+  })
+  return name
+}
+
 function makeParallelRef(tasks, task, dep) {
   const name = uniqueName('p')
   const tsk = {
@@ -75,7 +84,18 @@ function makeParallelRef(tasks, task, dep) {
     _parallel: true,
   }
   tasks[name] = tsk
-  tsk.deps = standardizeDeps(tasks, tsk, dep.p)
+  // if an array exists in parallel deps then we need to create a series ref
+  // to treat it as one unit otherwise each dep runs parallelized
+  const deps =
+    Array.isArray(dep.p) &&
+    dep.p.map(it => {
+      if (Array.isArray(it)) {
+        return makeSeriesRef(tasks, task, it)
+      }
+      return it
+    })
+
+  tsk.deps = standardizeDeps(tasks, tsk, deps)
   tsk.desc = `Run ${task.name}`
   return name
 }

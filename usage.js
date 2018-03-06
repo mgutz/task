@@ -59,7 +59,7 @@ const minimistOpts = {
   string: ['f', 'file'],
   unknown: flag => {
     // omelette uses --comp*
-    if (flag.indexOf('-') > -1 && flag.indexOf('--comp') !== 0) {
+    if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       exitError(`Unknown option: ${flag}`)
     }
   },

@@ -10,6 +10,7 @@ const globby = require('globby')
 const log = require('./log')
 const sh = require('shelljs')
 const {parseArgv, /*setupTerminalAutoComplete,*/ usage} = require('./usage')
+const prompt = require('inquirer').createPromptModule()
 
 const exampleEmpty = ``
 
@@ -101,6 +102,7 @@ function taskArgs(argv) {
     contrib,
     exec: execAsync,
     globby,
+    prompt,
     sh,
     shawn: contrib.shawn,
   }

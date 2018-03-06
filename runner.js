@@ -37,7 +37,7 @@ const execGraph = (tasks, processed, taskNames) => {
 
     const addParallel = (deps, name) => {
       for (const dep of deps) {
-        // get sub dependencies of each depdency
+        // get sub dependencies of each dependency
         let pdeps = toposort(execGraph(tasks, [], [dep]))
 
         processed.push(dep)
@@ -54,15 +54,6 @@ const execGraph = (tasks, processed, taskNames) => {
         addParallel(task.deps, name)
       } else {
         dependRL(task.deps, name)
-        // let prev
-        // for (const dep of task.deps) {
-        //   graph.push([dep, name])
-        //   // in a series, the current task depends on prev
-        //   if (prev) {
-        //     graph.push([prev, dep])
-        //   }
-        //   prev = dep
-        // }
       }
       graph = graph.concat(execGraph(tasks, processed, task.deps))
     }

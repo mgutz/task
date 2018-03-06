@@ -24,56 +24,45 @@ npm install -g @mgutz/task@next
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
 ```js
-const version = require('package.json').version
+const sleep = async ms => new Promise(resolve => resolve(), ms)
 
-// argv is already parsed
-export const hello = ctx => {
-  console.log(`Hello, ${ctx.argv.name || 'world'}!`)
+export const name = async ({prompt}) => {
+  const answers = await prompt([{name: 'name', message: 'Name'}])
+  console.log(`Hello, ${answers.name}!`)
 }
 
-// simple tasks are exported functions
-export const clean = ({sh}) => {
-  sh.rm('-rf', 'build')
+export const clean = async () => {
+  await sleep(1)
+  console.log('clean')
 }
 
-// complex tasks are exported objects
-export const build = {
-  deps: [clean],
-  run: async ({exec}) => {
-    return exec(`
-      sleep 1
-      echo building...
-    `)
-  },
+export const build = { run: () => {
+  console.log('build')
+}
+}
+export const arg = ({argv}) => {
+  console.log(argv._[0])
 }
 
-export const copyAssets = ({sh}) => {
-  sh.mkdir('-rf', `build/public/${version}`)
-  sh.cp('-rf', 'public/*', `build/public/${version}`)
-}
-
-// Run deps in parallel.
-export const tar = {
-  deps: {p: [build, copyAssets]},
-  run: ({sh}) => {
-    sh.exec(`echo archiving app-${version}.tgz`)
-  },
-}
-
+// use shell spawn (shawn) to gracefully restart daemons
 export const server = {
-  deps: [build],
-  run: ({shawn}) => {
-    return shawn(`node build/main.js`, {
-      env: {port: 1111},
-    })
+  run: async ({shawn}) => {
+    return shawn(`node src/main.js`)
   },
   watch: ['src/**.js'],
 }
+
+export default {
+  // runs `name` then `a` and `b` in parallel
+  deps: [name, {p: [a, b]}],
+}
 ```
 
-To say hello: `task hello --name foo`
 
-To build archive: `task tar`
+
+To run default: `task`
+
+To invoke arg with an argument: `task arg foo`
 
 To run server in watch mode: `task server -w`
 
