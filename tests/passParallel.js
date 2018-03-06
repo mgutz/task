@@ -1,7 +1,7 @@
 import {sleep} from '../util'
 import * as assert from 'assert'
 
-let memo = ''
+let top = ''
 // parallel task need their own buffer since they complete as a unit
 let p1 = ''
 let p2 = ''
@@ -12,7 +12,7 @@ let p3 = ''
 
 export const a = async () => {
   await sleep(3)
-  memo += 'a'
+  top += 'a'
 }
 
 export const b = {
@@ -50,7 +50,7 @@ export const g = () => {
 export const test = {
   deps: {p: [b, c, {p: [d, e, {p: [f, g]}]}]},
   run: () => {
-    memo += p1
-    assert.equal(memo, 'acbegfd')
+    top += p1
+    assert.equal(top, 'acbegfd')
   },
 }

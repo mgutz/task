@@ -6,12 +6,13 @@ const minimist = require('minimist')
 const pkgJson = require('./package.json')
 
 function taskList(tasks) {
-  if (!tasks || tasks.length < 1) {
+  const taskArray = Object.values(tasks)
+  if (!taskArray || taskArray.length < 1) {
     return 'No tasks found.'
   }
 
   const indent = '  '
-  const items = _.sortBy(tasks, 'name')
+  const items = _.sortBy(taskArray, 'name')
     .map(it => ({
       name: it.name,
       desc: it.desc,
@@ -119,7 +120,7 @@ function usage(tasks, which = '') {
     tasksScreen(tasks)
   }
 
-  return tasks && tasks.length ? tasksScreen(tasks) : helpScreen()
+  return Object.keys(tasks).length ? tasksScreen(tasks) : helpScreen()
 }
 
 function tasksScreen(tasks) {

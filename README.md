@@ -24,7 +24,7 @@ npm install -g @mgutz/task@next
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
 ```js
-const sleep = async ms => new Promise(resolve => resolve(), ms)
+const sleep = ms => new Promise(resolve => resolve(), ms)
 
 export const name = async ({prompt}) => {
   const answers = await prompt([{name: 'name', message: 'Name'}])
@@ -36,12 +36,19 @@ export const clean = async () => {
   console.log('clean')
 }
 
-export const build = { run: () => {
-  console.log('build')
+export const build = {
+  deps: [clean],
+  run: () => {
+    console.log('build')
+  },
 }
-}
+
 export const arg = ({argv}) => {
   console.log(argv._[0])
+}
+
+export const docs = () => {
+  console.log('building docs')
 }
 
 // use shell spawn (shawn) to gracefully restart daemons
@@ -53,12 +60,10 @@ export const server = {
 }
 
 export default {
-  // runs `name` then `a` and `b` in parallel
-  deps: [name, {p: [a, b]}],
+  // runs `name` then ['clean', 'build'] and `docs` in parallel
+  deps: [name, {p: [build, docs]}],
 }
 ```
-
-
 
 To run default: `task`
 

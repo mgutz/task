@@ -1,4 +1,4 @@
-const sleep = async ms => new Promise(resolve => resolve(), ms)
+const sleep = ms => new Promise(resolve => resolve(), ms)
 
 export const name = async ({prompt}) => {
   const answers = await prompt([{name: 'name', message: 'Name'}])

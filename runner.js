@@ -3,10 +3,26 @@ const toposort = require('toposort')
 const {ChildProcess} = require('child_process')
 const log = require('./log')
 const watch = require('./watch')
-const {isRunnable} = require('./tasks')
+const {isRunnable, addSeriesRef} = require('./tasks')
 const {inspect} = require('util')
 
-// Very simple depdendency resolution. Will execute dependencies once.
+/**
+ * A parallel task has shape: {name, _parallel: true, deps: []}
+ * A series task within a parallel task has shape: {name, deps: []}
+ *
+ *  - `graph.push([a, b])` reads as `a` must run before `b`, in other words
+ *    `b` depends on `a`
+ *
+ *  - This function mutates ref tasks when it encounters a series task within a
+ *    parallel task.
+ *
+ *    Consider the parallel case `{p: [b, c]}`, where `b` further depends on `a`.
+ *    In that case `[a, b]` and `c` should be run in parallel.
+ *     `[a, b]` becomes an anonymous series task in tasks and the original
+ *     `b` ref is replaced with `s_1`
+ *
+ *    The end result `{p: [b, c]}` becomes `{p: [s_1, c]}` where `s_1.deps = [a, b]`
+ */
 const execGraph = (tasks, processed, taskNames) => {
   let graph = []
 
@@ -19,7 +35,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
     processed.push(name)
 
-    const task = _.find(tasks, {name})
+    const task = tasks[name]
 
     if (!isRunnable(task)) {
       throw new Error(`Name not found: ${name}`)
@@ -35,17 +51,28 @@ const execGraph = (tasks, processed, taskNames) => {
       }
     }
 
-    const addParallel = (deps, name) => {
-      for (const dep of deps) {
+    const addParallel = (refs, name) => {
+      for (let i = 0; i < refs.length; i++) {
+        let ref = refs[i]
+        // a series in an array necessitates a new unit
+        if (Array.isArray(ref)) {
+          ref = addSeriesRef(tasks, task, ref)
+          refs[i] = ref
+        }
         // get sub dependencies of each dependency
-        let pdeps = toposort(execGraph(tasks, [], [dep]))
+        let pdeps = toposort(execGraph(tasks, [], [ref]))
 
-        processed.push(dep)
         if (pdeps.length < 2) continue
         // make subdependencies be deps of current parallel task, note
         // we remove last entry which is [..., dep] since it is already
         // a dep in parallel
-        dependRL(pdeps.slice(0, -1), name)
+
+        // [a, b] name => [s_1, name], where s_1 == [a, b]
+        ref = addSeriesRef(tasks, task, pdeps)
+        refs[i] = ref
+
+        //graph.push([ref, name])
+        //dependRL(pdeps.slice(0, -1), name)
       }
     }
 
@@ -63,6 +90,13 @@ const execGraph = (tasks, processed, taskNames) => {
   return graph
 }
 
+/**
+ * This does not optimally reduce the order and relies on the task runner
+ * to smartly execute tasks which have not yet run. Parallelism introduces
+ * complexities that make it difficult to reduce the graph and order. I'm sure
+ * it can be done but for now I take advantage of knowing the behaviour of
+ * the execution engine.
+ */
 const execOrder = (tasks, name) => {
   const graph = execGraph(tasks, [], [name])
   graph.push([name, ''])
@@ -70,7 +104,7 @@ const execOrder = (tasks, name) => {
   const deps = toposort(graph)
   const result = deps.reduce((memo, dep) => {
     if (dep) {
-      const task = _.find(tasks, {name: dep})
+      const task = tasks[dep]
       if (isRunnable(task)) {
         memo.push(dep)
       }
@@ -113,12 +147,17 @@ const runTask = async (tasks, task, args, wait = true) => {
     return log.info(`DRYRUN ${task.name}`)
   }
   if (task._parallel) {
-    log.debug(`Run ${task.name} -> {${task.deps.join(', ')}}`)
-    const promises = task.deps.map(name => {
-      const task = getTask(tasks, name)
-      return runTask(tasks, task, args, false)
+    log.debug(`Run parallel ${task.name} -> {${task.deps.join(', ')}}`)
+    const promises = task.deps.map(ref => {
+      return runTask(tasks, tasks[ref], args, false)
     })
     return Promise.all(promises)
+  } else if (Array.isArray(task.deps)) {
+    log.debug(`Run series ${task.name} -> [${task.deps.join(', ')}]`)
+    for (const ref of task.deps) {
+      await runTask(tasks, tasks[ref], args, true)
+    }
+    return
   }
 
   const childProcess = _childProcesses[task.name]
@@ -170,8 +209,10 @@ const runTask = async (tasks, task, args, wait = true) => {
   return v
 }
 
-const getTask = (tasks, name) =>
-  _.find(tasks, task => task.name === name && isRunnable(task))
+const getTask = (tasks, name) => {
+  const task = tasks[name]
+  return isRunnable(task) ? task : null
+}
 
 const clearTracking = tasksArr => {
   for (let task of tasksArr) {
@@ -187,9 +228,6 @@ const run = async (tasks, names, args) => {
   if (!tasks) {
     throw new Error('`tasks` property is required')
   }
-  if (!tasks.length) {
-    throw new Error('`tasks` is empty')
-  }
   if (!names) {
     throw new Error('`names` is empty')
   }
@@ -200,6 +238,7 @@ const run = async (tasks, names, args) => {
 
   for (const name of names) {
     const deps = execOrder(tasks, name)
+    log.debug('Tasks', tasks)
     log.debug('Exec order', deps)
     for (const dep of deps) {
       const task = getTask(tasks, dep)

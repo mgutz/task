@@ -77,10 +77,10 @@ function taskToRun(argv) {
 
 function isRunnable(tasks, name) {
   if (name) {
-    const found = _.find(tasks, {name})
+    const found = tasks[name]
     if (found) return name
   } else {
-    const found = _.find(tasks, {name: 'default'})
+    const found = tasks.default
     if (found) return 'default'
   }
   return null

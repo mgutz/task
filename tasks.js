@@ -68,12 +68,9 @@ function standardizeDeps(tasks, task, deps) {
   return result.length ? result : null
 }
 
-function makeSeriesRef(tasks, task, deps) {
+function addSeriesRef(tasks, task, deps) {
   const name = uniqueName('s')
-  tasks.push({
-    name,
-    deps,
-  })
+  tasks[name] = {name, deps}
   return name
 }
 
@@ -90,7 +87,7 @@ function makeParallelRef(tasks, task, dep) {
     Array.isArray(dep.p) &&
     dep.p.map(it => {
       if (Array.isArray(it)) {
-        return makeSeriesRef(tasks, task, it)
+        return addSeriesRef(tasks, task, it)
       }
       return it
     })
@@ -165,7 +162,16 @@ function clearRan(tasks) {
 const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
-function findTaskfile(filename) {
+function findTaskfile(argv) {
+  let filename = argv.file
+  // see if there is an arg that ends with .js or .ts
+  // if (!filename) {
+  //   filename = _.find(
+  //     argv._,
+  //     filename => ['.js', '.ts'].indexOf(fp.extname(filename)) > -1
+  //   )
+  // }
+
   const testFilename = fname => {
     const absolute = fp.join(process.cwd(), fname)
     log.debug(`Trying task file: ${absolute}`)
@@ -204,7 +210,7 @@ function trace(msg, obj) {
  * }
  */
 async function loadTasks(argv) {
-  const taskfilePath = findTaskfile(argv.file)
+  const taskfilePath = findTaskfile(argv)
   if (!taskfilePath) {
     if (argv.file) {
       return exitError(`Tasks file not found: ${argv.file}`)
@@ -272,9 +278,7 @@ async function loadTasks(argv) {
 
   trace('Tasks after standardizing desc\n', tasks)
 
-  const all = Object.values(tasks)
-  trace('Final tasks array\n', all)
-  return all
+  return tasks
 }
 
 // standardizes a task file's task. Note for es6 this is called twice:
@@ -343,4 +347,4 @@ function uniqueName(prefix) {
   return `${prefix}_${_nameId}`
 }
 
-module.exports = {clearRan, isRunnable, loadTasks}
+module.exports = {clearRan, isRunnable, loadTasks, addSeriesRef}
