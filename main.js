@@ -7,7 +7,8 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const fp = require('path')
 const log = require('./log')
-const {parseArgv, /*setupTerminalAutoComplete,*/ usage} = require('./usage')
+const {defaults, parseArgv, usage} = require('./usage')
+const {trace} = require('./util')
 
 const exampleEmpty = ``
 
@@ -128,7 +129,20 @@ async function main() {
   let taskrc = loadTaskrc(process.cwd())
 
   const minArgv = parseArgv()
-  const argv = Object.assign({}, taskrc, minArgv)
+  const argv = Object.assign({}, defaults, taskrc, minArgv)
+
+  if (argv.silent) {
+    log._setLevel('silent')
+  } else if (argv.trace) {
+    log._setLevel('trace')
+  } else if (argv.debug) {
+    log._setLevel('debug')
+  } else {
+    log._setLevel('info')
+  }
+
+  trace('mingArgv', minArgv)
+  trace('ARGV', argv)
 
   if (argv.gui) {
     exitError('--gui not yet implemented')
@@ -146,15 +160,6 @@ async function main() {
   const taskfilePath = findTaskfile(argv)
   // TODO load taskrc again and merge with minArgv
 
-  if (argv.silent) {
-    log._setLevel('silent')
-  } else if (argv.trace) {
-    log._setLevel('trace')
-  } else if (argv.debug) {
-    log._setLevel('debug')
-  } else {
-    log._setLevel('info')
-  }
   const tasks = (await loadTasks(argv, taskfilePath)) || []
 
   //setupTerminalAutoComplete(tasks)

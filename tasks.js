@@ -3,8 +3,7 @@ const {exitError} = require('./exits')
 const fp = require('path')
 const fs = require('fs')
 const log = require('./log')
-const {prettify} = require('./util')
-const {inspect} = require('util')
+const {prettify, trace} = require('./util')
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -179,14 +178,6 @@ function findTaskfile(argv) {
   fname = testFilename(taskfileTs)
   if (fname) return fname
   return null
-}
-
-function trace(msg, obj) {
-  if (!log._istrace) return
-  if (arguments.length === 1) {
-    return log.debug(msg)
-  }
-  log.debug(msg, inspect(obj))
 }
 
 /**

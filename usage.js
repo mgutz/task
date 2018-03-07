@@ -4,6 +4,13 @@ const {exitError} = require('./exits')
 const minimist = require('minimist')
 const pkgJson = require('./package.json')
 
+const defaults = {
+  babel: true,
+  babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
+  dotenv: true,
+  file: '',
+}
+
 const minimistOpts = {
   alias: {
     babelExtensions: ['babel-extensions'],
@@ -17,9 +24,9 @@ const minimistOpts = {
   },
   boolean: [
     '?',
-    'babel',
+    //'babel', MUST not define these otherwise they default to false and override defaults
     'debug',
-    'dotenv',
+    //'dotenv', MUST not define these otherwise they default to false and override defaults
     'dry-run',
     'dryRun',
     'gui',
@@ -35,15 +42,9 @@ const minimistOpts = {
     'w',
     'watch',
   ],
-  default: {
-    babel: true,
-    babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
-    dotenv: true,
-    file: '',
-  },
   string: ['f', 'file'],
   unknown: flag => {
-    if (flag === '--babel-extensions') return
+    if (['--babel-extensions', '--babel', '--dotenv'].indexOf(flag) > -1) return
 
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       // omelette uses --comp*
@@ -84,7 +85,7 @@ Advanced options
 
 Configuration File .taskrc
     module.exports = {
-      "babel-extensions": ['.js','.jsx','.es6','.es','.mjs','.ts','.tsx','.es7'],
+      "babel-extensions": ['.js','.es6','.es','.mjs'],
       file: 'Taskfile.es7'
     }
 
@@ -177,4 +178,4 @@ async function setupTerminalAutoComplete(tasks) {
 }
 */
 
-module.exports = {minimistOpts, parseArgv, usage}
+module.exports = {defaults, minimistOpts, parseArgv, usage}
