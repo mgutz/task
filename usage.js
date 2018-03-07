@@ -44,7 +44,16 @@ const minimistOpts = {
   ],
   string: ['f', 'file'],
   unknown: flag => {
-    if (['--babel-extensions', '--babel', '--dotenv'].indexOf(flag) > -1) return
+    if (
+      [
+        '--babel-extensions',
+        '--babel',
+        '--dotenv',
+        '--no-babel',
+        '--no-dotenv',
+      ].indexOf(flag) > -1
+    )
+      return
 
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       // omelette uses --comp*
