@@ -99,17 +99,24 @@ const execGraph = (tasks, processed, taskNames) => {
 const execOrder = (tasks, name) => {
   const graph = execGraph(tasks, [], [name])
   graph.push([name, ''])
-
   const deps = toposort(graph)
-  const result = deps.reduce((memo, dep) => {
-    if (dep) {
-      const task = tasks[dep]
-      if (isRunnable(task)) {
-        memo.push(dep)
-      }
+
+  const result = []
+  for (let i = 0; i < deps.length; i++) {
+    const dep = deps[i]
+    if (!dep) continue
+
+    // stop at desired task
+    if (dep === name) {
+      result.push(dep)
+      break
     }
-    return memo
-  }, [])
+
+    const task = tasks[dep]
+    if (isRunnable(task)) {
+      result.push(dep)
+    }
+  }
 
   return result
 }
@@ -134,22 +141,25 @@ process.on('SIGINT', function() {
 const _childProcesses = {}
 const runTask = async (tasks, task, args, wait = true) => {
   if (didRun(task) && !task.every) {
-    log.debug(`SKIP ${task.name} already ran`)
+    logDryRun(args.argv, `skip ${task.name} ran already`)
     return
   }
   track(task)
 
   if (task._parallel) {
-    log.debug(`Run parallel ${task.name} -> {${task.deps.join(', ')}}`)
+    logDryRun(args.argv, `begin ${task.name}: {${task.deps.join(', ')}}`)
     const promises = task.deps.map(ref => {
       return runTask(tasks, tasks[ref], args, false)
     })
-    return Promise.all(promises)
+    return Promise.all(promises).then(() => {
+      logDryRun(args.argv, `end ${task.name}`)
+    })
   } else if (Array.isArray(task.deps)) {
-    log.debug(`Run series ${task.name} -> [${task.deps.join(', ')}]`)
+    logDryRun(args.argv, `begin ${task.name}: [${task.deps.join(', ')}]`)
     for (const ref of task.deps) {
       await runTask(tasks, tasks[ref], args, true)
     }
+    logDryRun(args.argv, `end ${task.name}`)
   }
 
   const childProcess = _childProcesses[task.name]
@@ -170,11 +180,10 @@ const runTask = async (tasks, task, args, wait = true) => {
 
   if (typeof task.run !== 'function') return
 
+  logDryRun(args.argv, `RUN ${task.name}...`)
   if (args.argv['dry-run']) {
-    log.info(`RUN ${task.name}...`)
     return
   }
-  log.debug(`RUN ${task.name}...`)
 
   let v
   if (wait) {
@@ -204,6 +213,14 @@ const runTask = async (tasks, task, args, wait = true) => {
   }
 
   return v
+}
+
+const logDryRun = (argv, msg) => {
+  if (argv['dry-run']) {
+    log.info(msg)
+    return
+  }
+  log.debug(msg)
 }
 
 const getTask = (tasks, name) => {
