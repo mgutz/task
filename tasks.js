@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const {exitError} = require('./exits')
-const fp = require('pn/path')
-const fs = require('pn/fs')
+const fp = require('path')
+const fs = require('fs')
 const log = require('./log')
 const {prettify} = require('./util')
 const {inspect} = require('util')
@@ -342,7 +342,7 @@ function standardizeTask(tasks, k, v) {
     return Object.assign({_original: v}, existing, v, {name: k})
   } else {
     throw new Error(
-      `Tasks must be a function or task meta: ${prettify({[k]: v})}`
+      `Tasks must be a function or task object: ${prettify({[k]: v})}`
     )
   }
 }

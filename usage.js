@@ -155,6 +155,9 @@ function tasksScreen(tasks) {
 
 Usage: task [options] [task] [task_options...]
 
+Options
+  --help,-?  Print all options
+
 Tasks
 ${taskList(tasks)}
 `

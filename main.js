@@ -4,7 +4,7 @@ const {runnableRef, findTaskfile, loadTasks} = require('./tasks')
 const {run, runThenWatch} = require('./runner')
 const contrib = require('./contrib')
 const dotenv = require('dotenv')
-const fs = require('pn/fs')
+const fs = require('fs')
 const fp = require('path')
 const globby = require('globby')
 const log = require('./log')
@@ -70,12 +70,12 @@ async function commandInit(argv) {
     ? argv.typescript ? exampleTs : exampleJs
     : exampleEmpty
 
-  if (await fs.exists(taskfilePath)) {
+  if (fs.existsSync(taskfilePath)) {
     exitError(`SKIPPED ${taskfilePath} exists`)
   }
 
-  if (!await fs.exists(taskrcPath)) {
-    await fs.writeFile(taskrcPath, exampleTaskrc, 'utf8')
+  if (!fs.existsSync(taskrcPath)) {
+    fs.writeFileSync(taskrcPath, exampleTaskrc, 'utf8')
     log.info('OK .taskrc created')
   }
 
