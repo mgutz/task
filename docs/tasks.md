@@ -127,16 +127,31 @@ export function server(ctx) {
 
 ## CLI Features
 
-### Babel and Typescript Support
-
-Typescript
-
-* Name your taskfile: `Taskfile.ts`
-* Or force typescript flag: `task --ts Taskfile hello`
-* Or specify any file with `.ts` extension: `task -f anyfile.ts hello`
+### Babel support
 
 ES6 is the default for any `.js` file. To use plain node to run scripts
 use `task --no-babel` flag.
+
+### TypeScript support via Babel
+
+* Name your taskfile: `Taskfile.ts`
+* Or force TypeScript flag: `task --ts hello`
+* Or specify any file with `.ts` extension: `task -f anyfile.ts hello`
+* JavaScript can import any TypeScript with the `--ts` flag
+
+TypeScript type checking is left to the user to keep `task` lean.
+Check types with your favorite editor, or from the command line, run `tsc`
+with the following `tsconfig.json`, or `tsc -w` to watch for changes:
+
+```json
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "pretty": true
+    // ...
+  }
+}
+```
 
 ## TODO
 
