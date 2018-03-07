@@ -6,11 +6,8 @@ const contrib = require('./contrib')
 const dotenv = require('dotenv')
 const fs = require('fs')
 const fp = require('path')
-const globby = require('globby')
 const log = require('./log')
-const sh = require('shelljs')
 const {parseArgv, /*setupTerminalAutoComplete,*/ usage} = require('./usage')
-const prompt = require('inquirer').createPromptModule()
 
 const exampleEmpty = ``
 
@@ -88,16 +85,20 @@ function taskToRun(argv) {
   return argv._[0]
 }
 
-const execAsync = (...args) => {
-  return new Promise((resolve, reject) => {
-    sh.exec(...args, (code, stdout, stderr) => {
-      if (code !== 0) return reject({code, stdout, stderr})
-      return resolve({code, stdout, stderr})
-    })
-  })
-}
-
 function taskArgs(argv) {
+  const sh = require('shelljs')
+  const globby = require('globby')
+  const prompt = require('inquirer').createPromptModule()
+
+  const execAsync = (...args) => {
+    return new Promise((resolve, reject) => {
+      sh.exec(...args, (code, stdout, stderr) => {
+        if (code !== 0) return reject({code, stdout, stderr})
+        return resolve({code, stdout, stderr})
+      })
+    })
+  }
+
   return {
     _,
     argv: Object.assign({}, argv, {_: argv._.slice(1)}), // drop the command

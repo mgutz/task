@@ -9,11 +9,14 @@ const {inspect} = require('util')
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
 function standardizeExports(argv, taskFile) {
-  if (
-    !argv.babel &&
-    (typeof taskFile === 'function' || _.isPlainObject(taskFile))
-  ) {
-    taskFile.default = taskFile
+  if (!argv.babel && typeof taskFile === 'function') {
+    return {
+      default: taskFile,
+      [taskFile.name]: {
+        run: taskFile,
+        _original: taskFile,
+      },
+    }
   }
   return taskFile
 }
@@ -103,17 +106,15 @@ function makeParallelRef(tasks, task, dep) {
 }
 
 function makeAnonymousRef(tasks, fn) {
-  if (fn.name) {
+  if (fn.name && tasks[fn.name]) {
     return fn.name
   }
 
-  // anonymous functions need to be in tasks too
   const name = uniqueName('a')
   tasks[name] = {
     name,
     run: fn,
   }
-
   return name
 }
 
@@ -319,7 +320,7 @@ function standardizeFile(v) {
     if (!task) {
       throw new Error(`Does not resolve to task: ${prettify(taskdef)}`)
     }
-    tasks[task.name] = task
+    tasks[key] = task
   }
 
   if (_.isObject(v)) {
