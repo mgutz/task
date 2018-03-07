@@ -28,3 +28,11 @@ export async function test({globby, exec, argv}) {
   })
   return Promise.all(promises)
 }
+
+export const gqlserver = {
+  desc: 'Runs GraphQL Server',
+  run: ctx => {
+    return ctx.shawn(`node gqlserver/index.js`)
+  },
+  watch: ['schemas/**.gql', 'gqlserver/**.js'],
+}

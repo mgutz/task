@@ -99,6 +99,11 @@ of `f`.
 
 `task --init` creates an example `.taskrc`
 
+## GUI
+
+[GUI Manual](docs/gui.md)
+
+
 ## Testing
 
 To run tests

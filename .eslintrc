@@ -22,5 +22,6 @@
       }
     ]
   },
+  "plugins": ["graphql"],
   "extends": ["eslint:recommended"]
 }

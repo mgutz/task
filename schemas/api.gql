@@ -1,0 +1,34 @@
+# Boolean, ID, Int, Float, String
+
+# Information about running tasks
+type ChildProcess {
+  pid: Int
+  command: String
+}
+
+type Status {
+  # Follows HTTP codes, ie 200 is success
+  code: Int!
+  message: String!
+  proc: ChildProcess
+}
+
+type Task {
+  name: String!
+  deps: [String]
+  desc: String!
+  every: Boolean
+  once: Boolean
+  # ui: Bool
+  # run is not applicable
+}
+
+type Query {
+  tasks: [Task]
+}
+
+# mutation: {
+#   run(ref: String!): Status!
+#   set_task_file(ref: String!): Status!
+#   watch(ref: String!): Status!
+# }
