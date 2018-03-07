@@ -124,17 +124,26 @@ function taskArgs(argv) {
 function loadTaskrc(wd) {
   const taskrc = fp.join(wd, '.taskrc')
   if (fs.existsSync(taskrc)) {
-    return require(taskrc)
+    const obj = require(taskrc)
+    if (obj.file) {
+      if (!fs.existsSync(fp.join(wd, obj.file))) {
+        exitError(`File specified in ${taskrc} not found: ${obj.file}`)
+      }
+    }
+    return obj
   }
   return {}
 }
 
 async function main() {
-  let argv = parseArgv()
+  // load taskrc early
+  let taskrc = loadTaskrc(process.cwd())
 
-  // if the there is no file flag and the first arg is a file then treat it as
-  // the task file
-  if (!argv.file && argv._.length) {
+  const minArgv = parseArgv()
+  const argv = Object.assign({}, taskrc, minArgv)
+
+  // if the first arg has a known extension, use it as the task file
+  if (argv._.length) {
     const firstArg = argv._[0]
     if (firstArg.endsWith('.js') || firstArg.endsWith('.ts')) {
       argv.file = firstArg
@@ -143,10 +152,7 @@ async function main() {
   }
 
   const taskfilePath = findTaskfile(argv)
-  if (taskfilePath) {
-    const taskrc = loadTaskrc(fp.dirname(taskfilePath))
-    argv = Object.assign(argv, taskrc)
-  }
+  // TODO load taskrc again and merge with minArgv
 
   if (argv.silent) {
     log._setLevel('silent')
