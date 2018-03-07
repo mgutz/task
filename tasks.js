@@ -184,16 +184,55 @@ function trace(msg, obj) {
   log.debug(msg, inspect(obj))
 }
 
+function configureBabel(argv, taskfilePath) {
+  const dotext = fp.extname(taskfilePath) || '.js'
+  const isTypeScript = argv.typescript || dotext === '.ts'
+
+  if (!argv.babel && !isTypeScript) return
+
+  // TODO if (argv.babelLocal)
+
+  const usingMsg = isTypeScript
+    ? 'Using @babel/preset-typescript for TypeScript'
+    : 'Using @babel/preset-env for ES6'
+  trace(usingMsg)
+
+  const extensions = [].concat(argv.babelExtensions)
+  if (extensions.indexOf(dotext) === -1) {
+    extensions.push(dotext)
+  }
+
+  // MUST use full path or babel tries to load @babel/preset-env relative to cwd
+  const babelrc = {
+    extensions,
+    presets: _.compact([
+      [
+        fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
+        {targets: {node: 'current'}},
+      ],
+      isTypeScript
+        ? fp.join(__dirname, 'node_modules', '@babel', 'preset-typescript')
+        : null,
+    ]),
+  }
+  require('@babel/register')(babelrc)
+}
+
+function configureUserBabel(argv, taskfilePath) {
+  exitError('--babel-local not yet implemented')
+}
+
 /**
  * Loads and standardize tasks.
  *
  * type task struct {
  *  deps []string
  *  desc string
+ *  every bool
  *  name string
  *  once bool
  *  run function
- *  parallel bool
+ *  _parallel bool
  *  _ran bool       // whether task ran on current watch change
  * }
  */
@@ -204,32 +243,14 @@ async function loadTasks(argv, taskfilePath) {
     }
     return null
   }
-  log.debug(`Loading ${taskfilePath}`)
-  const dotext = fp.extname(taskfilePath) || '.js'
 
-  const isTypeScript = argv.typescript || dotext === '.ts'
-
-  if (argv.babel || isTypeScript) {
-    trace('Using @babel/preset-env for ES6')
-    if (isTypeScript) {
-      trace('Using @babel/preset-typescript for TypeScript')
-    }
-    // MUST use full path or babel tries to load @babel/preset-env relative to cwd
-    const babelrc = {
-      extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx', dotext],
-      presets: _.compact([
-        [
-          fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
-          {targets: {node: 'current'}},
-        ],
-        isTypeScript
-          ? fp.join(__dirname, 'node_modules', '@babel', 'preset-typescript')
-          : null,
-      ]),
-    }
-    require('@babel/register')(babelrc)
+  if (argv.babelLocal) {
+    configureUserBabel(argv, taskfilePath)
+  } else {
+    configureBabel(argv, taskfilePath)
   }
 
+  log.debug(`Loading ${taskfilePath}`)
   const taskfileExports = require(taskfilePath)
   trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)

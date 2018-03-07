@@ -125,10 +125,8 @@ function loadTaskrc(wd) {
   const taskrc = fp.join(wd, '.taskrc')
   if (fs.existsSync(taskrc)) {
     const obj = require(taskrc)
-    if (obj.file) {
-      if (!fs.existsSync(fp.join(wd, obj.file))) {
-        exitError(`File specified in ${taskrc} not found: ${obj.file}`)
-      }
+    if (obj.file && !fs.existsSync(fp.join(wd, obj.file))) {
+      exitError(`File specified in ${taskrc} not found: ${obj.file}`)
     }
     return obj
   }
@@ -141,6 +139,10 @@ async function main() {
 
   const minArgv = parseArgv()
   const argv = Object.assign({}, taskrc, minArgv)
+
+  if (argv.gui) {
+    exitError('--gui not yet implemented')
+  }
 
   // if the first arg has a known extension, use it as the task file
   if (argv._.length) {

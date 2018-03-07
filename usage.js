@@ -5,28 +5,12 @@ const omelette = require('omelette')
 const minimist = require('minimist')
 const pkgJson = require('./package.json')
 
-function taskList(tasks) {
-  const taskArray = Object.values(tasks)
-  if (!taskArray || taskArray.length < 1) {
-    return 'No tasks found.'
-  }
-
-  const indent = '  '
-  const items = _.sortBy(taskArray, 'name')
-    .map(it => ({
-      name: it.name,
-      desc: it.desc,
-    }))
-    .filter(it => it.desc)
-  return columnify(items, {
-    showHeaders: false,
-    columnSplitter: '  ',
-  }).replace(/^/gm, indent)
-}
-
 const minimistOpts = {
   alias: {
+    babelExtensions: ['babel-extensions'],
+    babelLocal: ['babel-local'],
     debug: ['verbose'],
+    dryRun: ['dry-run'],
     file: ['f'],
     help: ['?'],
     typescript: ['ts'],
@@ -38,6 +22,8 @@ const minimistOpts = {
     'debug',
     'dotenv',
     'dry-run',
+    'dryRun',
+    'gui',
     'help',
     'init',
     'init-example',
@@ -52,14 +38,16 @@ const minimistOpts = {
   ],
   default: {
     babel: true,
+    babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
     dotenv: true,
-    silent: false,
     file: '',
   },
   string: ['f', 'file'],
   unknown: flag => {
-    // omelette uses --comp*
+    if (flag === '--babel-extensions') return
+
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
+      // omelette uses --comp*
       exitError(`Unknown option: ${flag}`)
     }
   },
@@ -75,8 +63,10 @@ function helpScreen() {
 Usage: task [options] [task] [task_options...]
 
 Options
+  --debug,--verbose   Debug logging
   --dry-run           Displays tasks that will run
   --file,-f           File
+  --gui               Run GUI server. Browse http://localhost:4200
   --init              Create empty Taskfile.js if not exists
   --init-example      Create example Taskfile.js if not exists
   --list              List tasks
@@ -85,9 +75,19 @@ Options
   --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript
-  --verbose,--debug   Verbose logging
   --watch,-w          Watch mode
   --help,-?           Display this screen
+
+Advanced options
+  --babel-extensions  File extensions that babel should process when requiring.
+                      Default ['.js','.jsx','.es6','.es','.mjs','.ts','.tsx']
+  --babel-local       Use local node project's babel.
+
+Configuration File .taskrc
+    module.exports = {
+      "babel-extensions": ['.js','.jsx','.es6','.es','.mjs','.ts','.tsx','.es7'],
+      file: 'Taskfile.es7'
+    }
 
 Quick Start
   1) Edit Taskfile.js
@@ -119,6 +119,25 @@ Examples
     Prints detailed internal diagnostics while task executes. --debug prints
     less information.
 `
+}
+
+function taskList(tasks) {
+  const taskArray = Object.values(tasks)
+  if (!taskArray || taskArray.length < 1) {
+    return 'No tasks found.'
+  }
+
+  const indent = '  '
+  const items = _.sortBy(taskArray, 'name')
+    .map(it => ({
+      name: it.name,
+      desc: it.desc,
+    }))
+    .filter(it => it.desc)
+  return columnify(items, {
+    showHeaders: false,
+    columnSplitter: '  ',
+  }).replace(/^/gm, indent)
 }
 
 function usage(tasks, which = '') {
