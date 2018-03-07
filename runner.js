@@ -139,12 +139,6 @@ const runTask = async (tasks, task, args, wait = true) => {
   }
   track(task)
 
-  if (args.argv['dry-run']) {
-    if (task._parallel) {
-      return log.info(`DRYRUN ${task.name} -> {${task.deps.join(', ')}}`)
-    }
-    return log.info(`DRYRUN ${task.name}`)
-  }
   if (task._parallel) {
     log.debug(`Run parallel ${task.name} -> {${task.deps.join(', ')}}`)
     const promises = task.deps.map(ref => {
@@ -175,6 +169,11 @@ const runTask = async (tasks, task, args, wait = true) => {
   }
 
   if (typeof task.run !== 'function') return
+
+  if (args.argv['dry-run']) {
+    log.info(`RUN ${task.name}...`)
+    return
+  }
   log.debug(`RUN ${task.name}...`)
 
   let v

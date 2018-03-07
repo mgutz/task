@@ -79,6 +79,8 @@ To invoke arg with an argument: `task arg foo`
 
 To run server in watch mode: `task server -w`
 
+To see which tasks will run: `task build --dry-run`
+
 ## Configuration
 
 `task` reads `.taskrc` configuration file from same directory as the Taskfile.
@@ -87,16 +89,15 @@ To run server in watch mode: `task server -w`
 ```js
 module.exports = {
   debug: true,
-  file: 'Taskfile.mjs'
+  file: 'Taskfile.mjs',
 }
 ```
 
-Be aware that some short flag options are aliases for long flags on the command
-line. You should use long flag names in .taskrc. For example, use `file` instead
+Be aware that some short flags are aliases for long flags on the command
+line. Use long flag names in `.taskrc`. For example, use `file` instead
 of `f`.
 
 `task --init` creates an example `.taskrc`
-
 
 ## Testing
 

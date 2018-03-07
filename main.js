@@ -131,11 +131,6 @@ function loadTaskrc(wd) {
 
 async function main() {
   let argv = parseArgv()
-  const taskfilePath = findTaskfile(argv)
-  if (taskfilePath) {
-    const taskrc = loadTaskrc(fp.dirname(taskfilePath))
-    argv = Object.assign(argv, taskrc)
-  }
 
   // if the there is no file flag and the first arg is a file then treat it as
   // the task file
@@ -145,6 +140,12 @@ async function main() {
       argv.file = firstArg
       argv._.shift()
     }
+  }
+
+  const taskfilePath = findTaskfile(argv)
+  if (taskfilePath) {
+    const taskrc = loadTaskrc(fp.dirname(taskfilePath))
+    argv = Object.assign(argv, taskrc)
   }
 
   if (argv.silent) {
