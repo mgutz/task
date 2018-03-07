@@ -2,8 +2,8 @@ const _ = require('lodash')
 const {exitError} = require('./exits')
 const fp = require('path')
 const fs = require('fs')
-const log = require('./log')
-const {prettify, trace} = require('./util')
+const log = require('../core/log')
+const {prettify, trace} = require('../core/util')
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -201,18 +201,21 @@ function configureBabel(argv, taskfilePath) {
 
   const babelPresetEnvPath = fp.join(
     __dirname,
+    '..',
     'node_modules',
     '@babel',
     'preset-env'
   )
   const babelPresetTypeScriptPath = fp.join(
     __dirname,
+    '..',
     'node_modules',
     '@babel',
     'preset-typescript'
   )
   const babelRegisterPath = fp.join(
     __dirname,
+    '..',
     'node_modules',
     '@babel',
     'register'

@@ -2,13 +2,13 @@ const _ = require('lodash')
 const {exitOKFn, exitError, exitMessage, exitErrorFn} = require('./exits')
 const {runnableRef, findTaskfile, loadTasks} = require('./tasks')
 const {run, runThenWatch} = require('./runner')
-const contrib = require('./contrib')
+const contrib = require('../contrib')
 const dotenv = require('dotenv')
 const fs = require('fs')
 const fp = require('path')
-const log = require('./log')
+const log = require('../core/log')
 const {defaults, parseArgv, usage} = require('./usage')
-const {trace} = require('./util')
+const {trace} = require('../core/util')
 
 const exampleEmpty = ``
 

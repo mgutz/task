@@ -2,8 +2,8 @@ const _ = require('lodash')
 const chokidar = require('chokidar')
 const defaults = {usePolling: true}
 const globby = require('globby')
-const log = require('./log')
-const util = require('./util')
+const log = require('../core/log')
+const util = require('../core/util')
 
 async function watch(globs, args, fn, opts = defaults) {
   const files = await globby(globs)

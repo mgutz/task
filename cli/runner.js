@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const toposort = require('toposort')
 const {ChildProcess} = require('child_process')
-const log = require('./log')
+const log = require('../core/log')
 const watch = require('./watch')
 const {isRunnable, addSeriesRef} = require('./tasks')
 const {inspect} = require('util')

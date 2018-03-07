@@ -1,4 +1,4 @@
-const log = require('./log')
+const log = require('../core/log')
 
 /* eslint-disable no-console */
 const exitError = (err, code = 1) => {
