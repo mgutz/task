@@ -207,26 +207,25 @@ async function loadTasks(argv, taskfilePath) {
   log.debug(`Loading ${taskfilePath}`)
   const dotext = fp.extname(taskfilePath) || '.js'
 
-  if (argv.typescript || dotext === '.ts') {
-    trace('Using ts-node for Typescript')
+  const isTypeScript = argv.typescript || dotext === '.ts'
 
-    const tsOptions = {
-      compilerOptions: {
-        target: 'es2015',
-        module: 'commonjs',
-      },
-    }
-    require('ts-node').register(tsOptions)
-  } else if (argv.babel) {
+  if (argv.babel || isTypeScript) {
     trace('Using @babel/preset-env for ES6')
+    if (isTypeScript) {
+      trace('Using @babel/preset-typescript for TypeScript')
+    }
     // MUST use full path or babel tries to load @babel/preset-env relative to cwd
     const babelrc = {
-      presets: [
+      extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx', dotext],
+      presets: _.compact([
         [
           fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
           {targets: {node: 'current'}},
         ],
-      ],
+        isTypeScript
+          ? fp.join(__dirname, 'node_modules', '@babel', 'preset-typescript')
+          : null,
+      ]),
     }
     require('@babel/register')(babelrc)
   }
