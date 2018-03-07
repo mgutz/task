@@ -5,7 +5,7 @@
 # Params and Props
 
 A task is either an exported function or exported object. Each task receives
-a single argument with packages used by `task` itself
+a single object argument with packages used by `task`
 
 | prop      | desc                                                    |
 | --------- | ------------------------------------------------------- |
@@ -18,9 +18,9 @@ a single argument with packages used by `task` itself
 | _sh_      | [shelljs](http://documentup.com/shelljs/shelljs)        |
 | _shawn_   | Shell spawn returning ChildProcess                      |
 
-* Tasks run once per run. See `once` and `every` props.
-* `task` accepts a single task from command line. To run multiple tasks,
-  add `deps`
+* Tasks run once per watch cycle. See `once` and `every` props.
+* `task` accepts a single task from command line. Add `deps` to run multiple
+  tasks
 
 Task props
 
@@ -28,21 +28,17 @@ Task props
 | ------- | ---------------------------------------------------------------- |
 | _deps_  | Tasks which must run before current task                         |
 | _desc_  | Description to display in task list                              |
-| _once_  | Task must only run once across watches and dependents            |
 | _every_ | Task must run every time it is a dependency                      |
+| _once_  | Task must only run once across watches and dependents            |
 | _run_   | The function to run.                                             |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js
 export function clean() {}
 
-export function generate() {}
-
-export function css() {}
-
 export const build = {
   desc: 'Builds project',
-  deps: [clean, {p: [generate, css]}],
+  deps: [clean],
   run: () => {
     // run build
   },
@@ -52,7 +48,7 @@ export const build = {
 ### Dependencies Execution
 
 Dependencies can execute in series `[dep1, dep2, ... depN]`, in parallel
-`{p: [par1, par2, ... parN]}` or a mixture of.
+`{p: [par1, par2, ... parN]}` or a mixture of
 
 ```js
 export const foo = {
@@ -133,6 +129,8 @@ export function server(ctx) {
 
 ### Babel and Typescript Support
 
+Typescript
+
 * Name your taskfile: `Taskfile.ts`
 * Or force typescript flag: `task --ts Taskfile hello`
 * Or specify any file with `.ts` extension: `task -f anyfile.ts hello`
@@ -142,6 +140,4 @@ use `task --no-babel` flag.
 
 ## TODO
 
-[ ] Shell Autocompletion
-
-Not
+[ ] Shell Autocompletion (omeletee was was terribly slow, suggest another in issues)

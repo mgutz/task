@@ -254,7 +254,7 @@ const run = async (tasks, refs, args) => {
   for (const name of refs) {
     const deps = execOrder(tasks, name)
     log.debug('Tasks', tasks)
-    log.debug('Exec order', deps)
+    logDryRun(args.argv, `Exec order [${deps.join(', ')}]`)
     for (const dep of deps) {
       const task = getTask(tasks, dep)
       // tasks can just be deps

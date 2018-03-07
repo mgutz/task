@@ -43,7 +43,6 @@ const minimistOpts = {
     'init-example',
     'list',
     'silent',
-    'setup-completion',
     'trace',
     'ts',
     'typescript',
@@ -83,7 +82,6 @@ Options
   --list              List tasks
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
-  --setup-completion  Integrates auto completion with shell
   --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript
@@ -109,6 +107,17 @@ Examples
 
   task hello --name world
     Runs task 'hello' with argv = {name: 'world'}
+
+  task hello --dry-run
+    Print the sequence of tasks that run up to and including hello
+
+  task otherTaskFile.js hello world
+    If first arg is a file that ends with {.js,.ts}, use it as the task file
+    without requiring --file
+
+  task hello world --trace
+    Prints detailed internal diagnostics while task executes. --debug prints
+    less information.
 `
 }
 
