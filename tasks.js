@@ -140,10 +140,10 @@ function depToRef(tasks, task, dep) {
     // reference to an object
     name = _.findKey(tasks, o => o._original == dep)
     if (!name) {
-      log.Error(`Can't standardize dependency`, {task, dep})
+      log.Error(`Can't match object reference`, {task, dep})
     }
   } else {
-    log.error(`Can't standardize dependency`, {task, dep})
+    log.error(`Dependency type is not handled`, {task, dep})
     return null
   }
 
@@ -180,22 +180,22 @@ function trace(msg, obj) {
   if (arguments.length === 1) {
     return log.debug(msg)
   }
-
   log.debug(msg, inspect(obj))
 }
 
+/**
+ * Use task's built-in babel.
+ */
 function configureBabel(argv, taskfilePath) {
   const dotext = fp.extname(taskfilePath) || '.js'
   const isTypeScript = argv.typescript || dotext === '.ts'
 
   if (!argv.babel && !isTypeScript) return
 
-  // TODO if (argv.babelLocal)
-
   const usingMsg = isTypeScript
     ? 'Using @babel/preset-typescript for TypeScript'
     : 'Using @babel/preset-env for ES6'
-  trace(usingMsg)
+  log.debug(usingMsg)
 
   const extensions = [].concat(argv.babelExtensions)
   if (extensions.indexOf(dotext) === -1) {
@@ -218,6 +218,10 @@ function configureBabel(argv, taskfilePath) {
   require('@babel/register')(babelrc)
 }
 
+/**
+ * Use babel inside of user's node project.
+ */
+// eslint-disable-next-line
 function configureUserBabel(argv, taskfilePath) {
   exitError('--babel-local not yet implemented')
 }
@@ -251,14 +255,14 @@ async function loadTasks(argv, taskfilePath) {
   }
 
   log.debug(`Loading ${taskfilePath}`)
+
   const taskfileExports = require(taskfilePath)
   trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)
   trace('Standardized as ES6\n', taskfile)
 
-  let tasks = {}
+  const tasks = standardizeFile(taskfile)
 
-  standardizePartial(tasks, taskfile)
   trace('Tasks after standardizing functions and objects\n', tasks)
 
   // standardize depdencies
@@ -288,12 +292,9 @@ async function loadTasks(argv, taskfilePath) {
   return tasks
 }
 
-// standardizes a task file's task. Note for es6 this is called twice:
-// 1) non-default exports
-// 2) default
-//
-// mutates task
-function standardizePartial(tasks, v) {
+// standardizes a task file's task.
+function standardizeFile(v) {
+  const tasks = {}
   const assignTask = (key, taskdef) => {
     const task = standardizeTask(tasks, key, taskdef)
     if (!task) {
@@ -307,10 +308,10 @@ function standardizePartial(tasks, v) {
     for (let name in v) {
       assignTask(name, v[name])
     }
-    return
+    return tasks
   }
-
   assignTask('', v)
+  return tasks
 }
 
 function standardizeTask(tasks, k, v) {
