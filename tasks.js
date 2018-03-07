@@ -30,6 +30,11 @@ const isRunnable = task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
+const runnableRef = (tasks, ref) => {
+  const task = tasks[ref]
+  return isRunnable(task) ? ref : ''
+}
+
 const isTaskMeta = task =>
   task && (task.desc || task.deps || task.every || task.once || task.watch)
 
@@ -202,20 +207,34 @@ function configureBabel(argv, taskfilePath) {
     extensions.push(dotext)
   }
 
+  const babelPresetEnvPath = fp.join(
+    __dirname,
+    'node_modules',
+    '@babel',
+    'preset-env'
+  )
+  const babelPresetTypeScriptPath = fp.join(
+    __dirname,
+    'node_modules',
+    '@babel',
+    'preset-typescript'
+  )
+  const babelRegisterPath = fp.join(
+    __dirname,
+    'node_modules',
+    '@babel',
+    'register'
+  )
+
   // MUST use full path or babel tries to load @babel/preset-env relative to cwd
   const babelrc = {
     extensions,
     presets: _.compact([
-      [
-        fp.join(__dirname, 'node_modules', '@babel', 'preset-env'),
-        {targets: {node: 'current'}},
-      ],
-      isTypeScript
-        ? fp.join(__dirname, 'node_modules', '@babel', 'preset-typescript')
-        : null,
+      [babelPresetEnvPath, {targets: {node: 'current'}}],
+      isTypeScript ? babelPresetTypeScriptPath : null,
     ]),
   }
-  require('@babel/register')(babelrc)
+  require(babelRegisterPath)(babelrc)
 }
 
 /**
@@ -335,4 +354,10 @@ function uniqueName(prefix) {
   return `${prefix}_${_nameId}`
 }
 
-module.exports = {isRunnable, findTaskfile, loadTasks, addSeriesRef}
+module.exports = {
+  isRunnable,
+  runnableRef,
+  findTaskfile,
+  loadTasks,
+  addSeriesRef,
+}

@@ -1,7 +1,6 @@
 const _ = require('lodash')
 const columnify = require('columnify')
 const {exitError} = require('./exits')
-const omelette = require('omelette')
 const minimist = require('minimist')
 const pkgJson = require('./package.json')
 
@@ -161,6 +160,7 @@ ${taskList(tasks)}
 `
 }
 
+/*
 async function setupTerminalAutoComplete(tasks) {
   const completion = omelette(`task <task>`)
   if (~process.argv.indexOf('--setup-completion')) {
@@ -172,5 +172,6 @@ async function setupTerminalAutoComplete(tasks) {
   })
   completion.init()
 }
+*/
 
-module.exports = {minimistOpts, parseArgv, setupTerminalAutoComplete, usage}
+module.exports = {minimistOpts, parseArgv, usage}

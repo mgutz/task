@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const {exitOKFn, exitError, exitMessage, exitErrorFn} = require('./exits')
-const {findTaskfile, loadTasks} = require('./tasks')
+const {runnableRef, findTaskfile, loadTasks} = require('./tasks')
 const {run, runThenWatch} = require('./runner')
 const contrib = require('./contrib')
 const dotenv = require('dotenv')
@@ -88,17 +88,6 @@ function taskToRun(argv) {
   return argv._[0]
 }
 
-function isRunnable(tasks, name) {
-  if (name) {
-    const found = tasks[name]
-    if (found) return name
-  } else {
-    const found = tasks.default
-    if (found) return 'default'
-  }
-  return null
-}
-
 const execAsync = (...args) => {
   return new Promise((resolve, reject) => {
     sh.exec(...args, (code, stdout, stderr) => {
@@ -183,11 +172,11 @@ async function main() {
   }
 
   const taskName = taskToRun(argv)
-  if (!taskName && !isRunnable(tasks, 'default')) {
+  if (!taskName && !runnableRef(tasks, 'default')) {
     exitMessage(usage(tasks))
   }
 
-  const name = isRunnable(tasks, taskName || 'default')
+  const name = runnableRef(tasks, taskName || 'default')
   if (!name) {
     exitError(`Task not found:  ${argv._[0]}`)
   }
