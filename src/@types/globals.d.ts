@@ -3,21 +3,21 @@ declare module 'toposort'
 
 declare interface Options {
   _: string[]
+  babel: boolean
   babelExtensions: string[]
   debug: boolean
+  dotenv: boolean
   dryRun: boolean
   file: string
   gui: boolean
+  help: boolean
   init: boolean
   initExample: boolean
   list: boolean
-  babel: boolean
-  dotenv: boolean
   silent: boolean
   trace: boolean
   typescript: boolean
   watch: boolean
-  help: boolean
 }
 
 declare interface AppContext {
@@ -34,11 +34,11 @@ declare interface RunFunc {
 }
 
 declare interface RawTask {
-  desc?: string
   deps?: any[]
+  desc?: string
   every?: boolean
-  once?: boolean
   name?: string
+  once?: boolean
   run?: RunFunc
   watch?: string[]
   _original?: Task

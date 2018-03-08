@@ -30,6 +30,3 @@ type Query {
 type Mutation {
   run(ref: String!): Status!
 }
-#   set_task_file(ref: String!): Status!
-#   watch(ref: String!): Status!
-# }

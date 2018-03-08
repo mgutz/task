@@ -83,8 +83,9 @@ To see which tasks will run: `task build --dry-run`
 
 ## Configuration
 
-`task` reads `.taskrc` configuration file from same directory as the Taskfile.
-`.taskrc` must be a node compatible Javascript file.
+`task` reads `.taskrc` configuration file. `.taskrc` must be a node compatible
+Javascript file. See `Options` in [types](src/@types/glboals.d.ts) for available
+options (same as command-line)
 
 ```js
 module.exports = {
@@ -93,24 +94,17 @@ module.exports = {
 }
 ```
 
-Be aware that some short flags are aliases for long flags on the command
-line. Use long flag names in `.taskrc`. For example, use `file` instead
-of `f`.
-
 `task --init` creates an example `.taskrc`
 
 ## GUI
 
+`task --gui` starts the GUI in browser (wip)
+
 [GUI Manual](docs/gui.md)
 
+## Hacking
 
-## Testing
-
-To run tests
-
-```sh
-task test
-```
+[Hacking Manual](docs/hacking.md)
 
 ## LICENSE
 
