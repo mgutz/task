@@ -4,13 +4,6 @@ const {exitError} = require('./exits')
 const minimist = require('minimist')
 const pkgJson = require('../package.json')
 
-const defaults = {
-  babel: true,
-  babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
-  dotenv: true,
-  file: '',
-}
-
 const minimistOpts = {
   alias: {
     babelExtensions: ['babel-extensions'],
@@ -22,12 +15,17 @@ const minimistOpts = {
     typescript: ['ts'],
     watch: ['w'],
   },
+  default: {
+    babel: true,
+    babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
+    dotenv: true,
+    file: '',
+  },
   boolean: [
     '?',
-    //'babel', MUST not define these otherwise they default to false and override defaults
+    'babel',
     'debug',
-    //'dotenv', MUST not define these otherwise they default to false and override defaults
-    'dry-run',
+    'dotenv',
     'dryRun',
     'gui',
     'help',
@@ -42,19 +40,8 @@ const minimistOpts = {
     'w',
     'watch',
   ],
-  string: ['f', 'file'],
+  string: ['f', 'file', 'babelExtensions'],
   unknown: flag => {
-    if (
-      [
-        '--babel-extensions',
-        '--babel',
-        '--dotenv',
-        '--no-babel',
-        '--no-dotenv',
-      ].indexOf(flag) > -1
-    )
-      return
-
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       // omelette uses --comp*
       exitError(`Unknown option: ${flag}`)
@@ -62,8 +49,11 @@ const minimistOpts = {
   },
 }
 
-function parseArgv() {
-  return minimist(process.argv.slice(2), minimistOpts)
+function parseArgv(defaultOverrides = {}) {
+  return minimist(process.argv.slice(2), {
+    ...minimistOpts,
+    default: {...minimistOpts.default, ...defaultOverrides},
+  })
 }
 
 function helpScreen() {
@@ -187,4 +177,4 @@ async function setupTerminalAutoComplete(tasks) {
 }
 */
 
-module.exports = {defaults, minimistOpts, parseArgv, usage}
+module.exports = {minimistOpts, parseArgv, usage}

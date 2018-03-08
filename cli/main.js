@@ -7,7 +7,7 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const fp = require('path')
 const log = require('../core/log')
-const {defaults, parseArgv, usage} = require('./usage')
+const {parseArgv, usage} = require('./usage')
 const {trace} = require('../core/util')
 
 const exampleEmpty = ``
@@ -128,8 +128,7 @@ async function main() {
   // load taskrc early
   let taskrc = loadTaskrc(process.cwd())
 
-  const minArgv = parseArgv()
-  const argv = Object.assign({}, defaults, taskrc, minArgv)
+  const argv = parseArgv(taskrc)
 
   if (argv.silent) {
     log._setLevel('silent')
@@ -141,7 +140,6 @@ async function main() {
     log._setLevel('info')
   }
 
-  trace('mingArgv', minArgv)
   trace('ARGV', argv)
 
   if (argv.gui) {
