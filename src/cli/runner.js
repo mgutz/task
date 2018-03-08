@@ -164,8 +164,8 @@ const runTask = async (tasks, task, args, wait = true) => {
 
   const childProcess = _childProcesses[task.name]
   if (childProcess) {
-    childProcess.on('close', () => {
-      log.debug('Old process closed')
+    childProcess.once('close', code => {
+      log.debug(`Task '${task.name}' process exited ${code}`)
       _childProcesses[task.name] = null
       // ensure it is not being tracked so the immediate call to rerun
       // does not think it has already run
@@ -205,8 +205,15 @@ const runTask = async (tasks, task, args, wait = true) => {
     log.debug('Tracking old process')
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
-      v.on('error', err => {
+      v.once('close', code => {
+        log.debug(`Task '${task.name}' process exited: ${code}`)
+        _childProcesses[task.name] = null
+        untrack(task)
+        resolve({code})
+      })
+      v.once('error', err => {
         log.info('error occured', err)
+        untrack(task)
         reject(err)
       })
     })

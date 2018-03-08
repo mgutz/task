@@ -1,5 +1,5 @@
-const loglevel = require('loglevel')
-const log = loglevel.getLogger('task')
+const pino = require('pino')
+const log = pino()
 
 log._setLevel = level => {
   log.setLevel(level)

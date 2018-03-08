@@ -2,7 +2,7 @@ const _ = require('lodash')
 const columnify = require('columnify')
 const {exitError} = require('./exits')
 const minimist = require('minimist')
-const pkgJson = require('../package.json')
+const pkgJson = require('../../package.json')
 
 const defaults = {
   babel: true,

@@ -199,23 +199,22 @@ function configureBabel(argv, taskfilePath) {
     extensions.push(dotext)
   }
 
+  const taskDir = fp.join(__dirname, '..', '..')
+
   const babelPresetEnvPath = fp.join(
-    __dirname,
-    '..',
+    taskDir,
     'node_modules',
     '@babel',
     'preset-env'
   )
   const babelPresetTypeScriptPath = fp.join(
-    __dirname,
-    '..',
+    taskDir,
     'node_modules',
     '@babel',
     'preset-typescript'
   )
   const babelRegisterPath = fp.join(
-    __dirname,
-    '..',
+    taskDir,
     'node_modules',
     '@babel',
     'register'

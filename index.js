@@ -1,2 +1,2 @@
 #!/usr/bin/env  node
-require('./cli/main')
+require('./dist/cli/main')

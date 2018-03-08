@@ -22,9 +22,7 @@ const start = async opts => {
     })
   )
   app.listen(opts.port)
-  console.log(
-    `Running a GraphQL API server at http://localhost:${opts.port}/graphql`
-  )
+  console.log(`Running GraphQLserver at http://localhost:${opts.port}/graphql`)
 }
 
 module.exports = {start}

@@ -1,6 +1,7 @@
 const fp = require('path')
 
-async function init(argv) {
+async function init(ctx) {
+  const argv = ctx.options
   const taskfile = argv.typescript ? 'Taskfile.ts' : 'Taskfile.js'
   const taskrcPath = fp.join(process.cwd(), '.taskrc')
   const taskfilePath = fp.join(process.cwd(), taskfile)

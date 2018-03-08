@@ -1,8 +1,10 @@
 const log = require('../core/log')
 
 class TerminalVM {
+  process
+
   exit(code) {
-    process.exit(code)
+    this.process.exit(code)
   }
 
   /* eslint-disable no-console */
@@ -31,3 +33,12 @@ class TerminalVM {
 }
 
 module.exports = {TerminalVM}
+
+/*
+
+  TerminalProcess {
+    exit()
+    a=
+  }
+
+*/
