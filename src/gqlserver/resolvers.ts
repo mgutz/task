@@ -2,7 +2,11 @@ export const tasks = () => {
   return [{name: 'foo'}, {name: 'bar'}]
 }
 
-export const run = ({ref}) => {
+interface RunParams {
+  ref: string
+}
+
+export const run = ({ref}: RunParams) => {
   return {
     code: 0,
     message: '',

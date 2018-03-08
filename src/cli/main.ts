@@ -8,8 +8,8 @@ import * as server from '../gqlserver'
 import * as terminal from './terminal'
 import log, {setLevel} from '../core/log'
 import {defaults, parseArgv, usage} from './usage'
-import {findTaskfile, loadTasks, runnableRef} from './tasks'
-import {run, runThenWatch} from './runner'
+import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
+import {run, runThenWatch} from '../core/runner'
 import {run as commandInit} from '../core/commands/init'
 import {trace} from '../core/util'
 
@@ -63,7 +63,7 @@ async function main() {
   const taskfilePath = findTaskfile(argv)
   // TODO load taskrc again and merge with minArgv
 
-  const tasks = (await loadTasks(argv, taskfilePath)) || []
+  const tasks = await loadTasks(argv, taskfilePath)
 
   //setupTerminalAutoComplete(tasks)
 
@@ -76,18 +76,19 @@ async function main() {
   if (argv.list) {
     return exits.message(usage(tasks, 'list'))
   }
-  if (argv.init || argv['init-example']) {
-    return await commandInit(argv)
-  }
 
   const ctx = {tasks, options: argv}
+  if (argv.init || argv.initExample) {
+    return await commandInit(ctx)
+  }
+
   if (argv.gui) {
     return server.run(ctx)
   }
   return terminal.run(ctx)
 }
 
-process.on('unhandledRejection', (...args) => {
+process.on('unhandledRejection', (...args: any[]) => {
   // eslint-disable-next-line no-console
   console.error(...args)
   process.exit(1)

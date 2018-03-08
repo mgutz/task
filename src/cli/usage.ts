@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
-import * as exits from '../core/exits'
 import * as columnify from 'columnify'
+import * as exits from '../core/exits'
 import * as minimist from 'minimist'
 const pkgJson = require('../../package.json')
 
@@ -19,6 +19,7 @@ const minimistOpts = {
     dryRun: ['dry-run'],
     file: ['f'],
     help: ['?'],
+    initExample: ['init-example'],
     typescript: ['ts'],
     watch: ['w'],
   },
@@ -43,7 +44,7 @@ const minimistOpts = {
     'watch',
   ],
   string: ['f', 'file'],
-  unknown: flag => {
+  unknown: (flag: string) => {
     if (
       [
         '--babel-extensions',
@@ -62,8 +63,8 @@ const minimistOpts = {
   },
 }
 
-export function parseArgv() {
-  return minimist(process.argv.slice(2), minimistOpts)
+export function parseArgv(): Options {
+  return minimist(process.argv.slice(2), minimistOpts as any) as Options
 }
 
 function helpScreen() {
@@ -160,7 +161,7 @@ export function usage(tasks: Tasks, which = ''): string {
   return Object.keys(tasks).length ? tasksScreen(tasks) : helpScreen()
 }
 
-function tasksScreen(tasks) {
+function tasksScreen(tasks: Tasks): string {
   return `task v${pkgJson.version}
 
 Usage: task [options] [task] [task_options...]

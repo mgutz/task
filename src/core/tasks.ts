@@ -1,13 +1,13 @@
-import * as exits from '../core/exits'
-import log from '../core/log'
 import * as _ from 'lodash'
+import * as exits from './exits'
 import * as fp from 'path'
 import * as fs from 'fs'
-import {prettify, trace} from '../core/util'
+import log from './log'
+import {prettify, trace} from './util'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
-function standardizeExports(argv, taskFile) {
+function standardizeExports(argv: Options, taskFile: any): any {
   if (!argv.babel && typeof taskFile === 'function') {
     return {
       default: taskFile,
@@ -21,23 +21,23 @@ function standardizeExports(argv, taskFile) {
 }
 
 // {p: [dep1, dep2]}
-const isParallel = dep => dep && Array.isArray(dep.p)
+const isParallel = (dep: any): boolean => dep && Array.isArray(dep.p)
 
 // [dep1, dep2]
-const isSerial = dep => Array.isArray(dep)
+const isSerial = (dep: any): boolean => Array.isArray(dep)
 
-const isDep = dep => isParallel(dep) || isSerial(dep)
+const isDep = (dep: any): boolean => isParallel(dep) || isSerial(dep)
 
-export const isRunnable = task => {
+export const isRunnable = (task: any): task is Task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
-export const runnableRef = (tasks, ref) => {
+export const runnableRef = (tasks: Tasks, ref: string): string => {
   const task = tasks[ref]
   return isRunnable(task) ? ref : ''
 }
 
-const isTaskMeta = task =>
+const isTaskMeta = (task: any): boolean =>
   task && (task.desc || task.deps || task.every || task.once || task.watch)
 
 /**
@@ -53,7 +53,7 @@ const isTaskMeta = task =>
  *  _parallel: true
  * }
  */
-function standardizeDeps(tasks, task, deps) {
+function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] {
   if (!isDep(deps)) return null
   const result = []
   let name
@@ -75,13 +75,13 @@ function standardizeDeps(tasks, task, deps) {
   return result.length ? result : null
 }
 
-export function addSeriesRef(tasks, task, deps) {
+export function addSeriesRef(tasks: Tasks, task: Task, deps: any[]): string {
   const name = uniqueName('s')
   tasks[name] = {name, deps}
   return name
 }
 
-function makeParallelRef(tasks, task, dep) {
+function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
   const name = uniqueName('p')
   const tsk: Task = {
     name,
@@ -92,7 +92,7 @@ function makeParallelRef(tasks, task, dep) {
   // to treat it as one unit otherwise each dep runs parallelized
   const deps =
     Array.isArray(dep.p) &&
-    dep.p.map(it => {
+    dep.p.map((it: any): string => {
       if (Array.isArray(it)) {
         return addSeriesRef(tasks, task, it)
       }
@@ -104,7 +104,7 @@ function makeParallelRef(tasks, task, dep) {
   return name
 }
 
-function makeAnonymousRef(tasks: Tasks, fn: Function) {
+function makeAnonymousRef(tasks: Tasks, fn: Function): string {
   if (fn.name && tasks[fn.name]) {
     return fn.name
   }
@@ -113,22 +113,22 @@ function makeAnonymousRef(tasks: Tasks, fn: Function) {
   tasks[name] = {
     name,
     run: fn,
-  }
+  } as RawTask
   return name
 }
 
-function makeFunctionTask(tasks: Tasks, key: string, fn: Function) {
+function makeFunctionTask(tasks: Tasks, key: string, fn: Function): RawTask {
   if (fn.name || key) {
     return {
       name: fn.name || key,
       run: fn,
-    }
+    } as RawTask
   }
   // anonymous functions need to be in tasks too
   return {
     name: uniqueName('a'),
     run: fn,
-  }
+  } as RawTask
 }
 
 function depToRef(tasks: Tasks, task: Task, dep: string | Function | Task) {
@@ -163,7 +163,7 @@ const taskfileTs = 'Taskfile.ts'
 
 export function findTaskfile(argv: Options) {
   let filename = argv.file
-  const testFilename = fname => {
+  const testFilename = (fname: string) => {
     const absolute = fp.join(process.cwd(), fname)
     log.debug(`Trying task file: ${absolute}`)
     return fs.existsSync(absolute) ? absolute : null
@@ -245,10 +245,14 @@ function configureBabel(argv: Options, taskfilePath: string) {
  *  _ran bool       // whether task ran on current watch change
  * }
  */
-export async function loadTasks(argv: Options, taskfilePath: string) {
+export async function loadTasks(
+  argv: Options,
+  taskfilePath: string
+): Promise<Tasks> {
   if (!taskfilePath) {
     if (argv.file) {
-      return exits.error(`Tasks file not found: ${argv.file}`)
+      exits.error(`Tasks file not found: ${argv.file}`)
+      return null
     }
     return null
   }
@@ -294,9 +298,9 @@ export async function loadTasks(argv: Options, taskfilePath: string) {
 }
 
 // standardizes a task file's task.
-function standardizeFile(v) {
-  const tasks = {}
-  const assignTask = (key, taskdef) => {
+function standardizeFile(v: any): Tasks {
+  const tasks: Tasks = {}
+  const assignTask = (key: string, taskdef: any) => {
     const task = standardizeTask(tasks, key, taskdef)
     if (!task) {
       throw new Error(`Does not resolve to task: ${prettify(taskdef)}`)

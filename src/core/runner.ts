@@ -1,11 +1,14 @@
 import * as _ from 'lodash'
 import * as contrib from '../contrib'
 import * as toposort from 'toposort'
-import log from '../core/log'
+import log from './log'
 import {addSeriesRef, isRunnable} from './tasks'
 import {ChildProcess} from 'child_process'
 import {inspect} from 'util'
 import {watch} from './watch'
+
+const isParallelTask = (task: any): task is ParallelTask =>
+  task._parallel && task.deps
 
 /**
  * A parallel task has shape: {name, _parallel: true, deps: []}
@@ -24,8 +27,12 @@ import {watch} from './watch'
  *
  *    The end result `{p: [b, c]}` becomes `{p: [s_1, c]}` where `s_1.deps = [a, b]`
  */
-const execGraph = (tasks, processed, taskNames) => {
-  let graph = []
+const execGraph = (
+  tasks: Tasks,
+  processed: string[],
+  taskNames: string[]
+): string[][] => {
+  let graph: string[][] = []
 
   if (!taskNames) return graph
 
@@ -43,7 +50,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     // [a, b, c], d => [c, d], [b, c], [a, b]
-    const dependRL = (deps, name) => {
+    const dependRL = (deps: string[], name: string) => {
       // this flattens deps, [[a, b], c] => [a, b, c]
       const newDeps = [].concat(deps, name)
 
@@ -77,7 +84,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     if (task.deps) {
-      if (task._parallel) {
+      if (isParallelTask(task)) {
         addParallel(task.deps)
       } else {
         dependRL(task.deps, name)
@@ -97,7 +104,7 @@ const execGraph = (tasks, processed, taskNames) => {
  * it can be done but for now I take advantage of knowing the behaviour of
  * the execution engine.
  */
-const execOrder = (tasks, name) => {
+const execOrder = (tasks: Tasks, name: string) => {
   const graph = execGraph(tasks, [], [name])
   graph.push([name, ''])
   const deps = toposort(graph)
@@ -122,9 +129,10 @@ const execOrder = (tasks, name) => {
   return result
 }
 
-const isChildProcess = (v: any): v is ChildProcess => v && v.pid
+const isChildProcess = (v: any): v is ChildProcess =>
+  v && typeof v.kill === 'function'
 
-const isPromise = v => v && typeof v.then === 'function'
+const isPromise = (v: any) => v && typeof v.then === 'function'
 
 process.on('SIGINT', function() {
   log.info('cleaning up...')
@@ -140,15 +148,20 @@ process.on('SIGINT', function() {
   process.exit()
 })
 
-const _childProcesses = {}
-const runTask = async (tasks, task, args, wait = true) => {
+const _childProcesses: {[k: string]: ChildProcess} = {}
+const runTask = async (
+  tasks: Tasks,
+  task: Task,
+  args: TaskParam,
+  wait = true
+): Promise<any> => {
   if (didRun(task) && !task.every) {
     logDryRun(args.argv, `skip ${task.name} ran already`)
     return
   }
   track(task)
 
-  if (task._parallel) {
+  if (isParallelTask(task)) {
     logDryRun(args.argv, `begin ${task.name}: {${task.deps.join(', ')}}`)
     const promises = task.deps.map(ref => {
       return runTask(tasks, tasks[ref], args, false)
@@ -188,14 +201,14 @@ const runTask = async (tasks, task, args, wait = true) => {
     return
   }
 
-  let v
+  let v: any
   if (wait) {
     v = await task.run(args)
     log.debug(`END ${task.name}`)
   } else {
     v = task.run(args)
     if (isPromise(v)) {
-      v = v.then(res => {
+      v = v.then((res: any) => {
         log.debug(`END ${task.name}`)
         return res
       })
@@ -208,13 +221,13 @@ const runTask = async (tasks, task, args, wait = true) => {
     log.debug('Tracking old process')
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
-      v.once('close', code => {
+      v.once('close', (code: number) => {
         log.debug(`Task '${task.name}' process exited: ${code}`)
         _childProcesses[task.name] = null
         untrack(task)
         resolve({code})
       })
-      v.on('error', err => {
+      v.on('error', (err: any) => {
         log.info('error occured', err)
         untrack(task)
         reject(err)
@@ -225,29 +238,29 @@ const runTask = async (tasks, task, args, wait = true) => {
   return v
 }
 
-const logDryRun = (argv, msg) => {
-  if (argv['dry-run']) {
+const logDryRun = (argv: Options, msg: string) => {
+  if (argv.dryRun) {
     log.info(msg)
     return
   }
   log.debug(msg)
 }
 
-const getTask = (tasks, name) => {
+const getTask = (tasks: Tasks, name: string): Task => {
   const task = tasks[name]
   return isRunnable(task) ? task : null
 }
 
-const clearTracking = tasks => {
+const clearTracking = (tasks: Tasks) => {
   for (const name in tasks) {
     const task = tasks[name]
     if (task.once) continue
     task._ran = false
   }
 }
-const track = task => (task._ran = true)
-const untrack = task => (task._ran = false)
-const didRun = task => task._ran
+const track = (task: Task) => (task._ran = true)
+const untrack = (task: Task) => (task._ran = false)
+const didRun = (task: Task) => task._ran
 
 export const run = async (
   ctx: AppContext,
@@ -298,7 +311,7 @@ export const runThenWatch = async (ctx: AppContext, name: string) => {
 
   const globs = task.watch
   let first = true
-  await watch(globs, args, async argsWithEvent => {
+  await watch(globs, args, async (argsWithEvent: TaskParam) => {
     clearTracking(tasks)
     if (!first) {
       log.info(`Restarting ${name}`)
@@ -313,9 +326,9 @@ function taskArgs(argv: Options): TaskParam {
   const globby = require('globby')
   const prompt = require('inquirer').createPromptModule()
 
-  const execAsync = (...args) => {
+  const execAsync = (...args: any[]) => {
     return new Promise((resolve, reject) => {
-      sh.exec(...args, (code, stdout, stderr) => {
+      sh.exec(...args, (code: number, stdout: string, stderr: string) => {
         if (code !== 0) return reject({code, stdout, stderr})
         return resolve({code, stdout, stderr})
       })

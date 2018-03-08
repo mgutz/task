@@ -10,7 +10,12 @@ const loadSchema = async () => {
   return buildSchema(content)
 }
 
-export const start = async opts => {
+interface StartOptions {
+  port: number
+  resolvers: {[k: string]: Function}
+}
+
+export const start = async (opts: StartOptions) => {
   const schema = await loadSchema()
   var app = express()
   app.use(

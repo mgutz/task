@@ -1,3 +1,6 @@
+declare module 'columnify'
+declare module 'toposort'
+
 declare interface Options {
   _: string[]
   babelExtensions: string[]
@@ -26,18 +29,32 @@ declare interface Command {
   run(): void
 }
 
-declare interface Task {
+declare interface RunFunc {
+  (arg: TaskParam): any
+}
+
+declare interface RawTask {
   desc?: string
   deps?: any[]
   every?: boolean
   once?: boolean
   name?: string
-  run?: Function
+  run?: RunFunc
   watch?: string[]
   _original?: Task
-  _parallel?: boolean
   _ran?: boolean
 }
+
+declare interface SerialTask extends RawTask {
+  deps: string[]
+}
+
+declare interface ParallelTask extends RawTask {
+  deps: string[]
+  _parallel: boolean
+}
+
+declare type Task = ParallelTask | SerialTask | RawTask
 
 declare interface Tasks {
   [k: string]: Task

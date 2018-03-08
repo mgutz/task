@@ -6,7 +6,7 @@ export const error = (err: any, code = 1) => {
   process.exit(code)
 }
 
-export const errorFn = (code = 1) => err => {
+export const errorFn = (code = 1) => (err: any) => {
   error(err, code)
 }
 
