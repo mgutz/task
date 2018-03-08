@@ -322,7 +322,7 @@ function standardizeTask(tasks, k, v) {
   } else if (isRunnable(v) || isTaskMeta(v)) {
     // we also need to track original object to compare object references
     const existing = tasks[k]
-    return Object.assign({_original: v}, existing, v, {name: k})
+    return {_original: v, ...existing, ...v, name: k}
   } else {
     throw new Error(
       `Tasks must be a function or task object: ${prettify({[k]: v})}`
