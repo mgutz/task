@@ -31,8 +31,7 @@
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
     "shelljs": "^0.8.1",
-    "toposort": "^1.0.6",
-    "typescript": "^2.7.2"
+    "toposort": "^1.0.6"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
