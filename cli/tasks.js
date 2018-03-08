@@ -233,14 +233,6 @@ function configureBabel(argv, taskfilePath) {
 }
 
 /**
- * Use babel inside of user's node project.
- */
-// eslint-disable-next-line
-function configureUserBabel(argv, taskfilePath) {
-  exitError('--babel-local not yet implemented')
-}
-
-/**
  * Loads and standardize tasks.
  *
  * type task struct {
@@ -262,11 +254,7 @@ async function loadTasks(argv, taskfilePath) {
     return null
   }
 
-  if (argv.babelLocal) {
-    configureUserBabel(argv, taskfilePath)
-  } else {
-    configureBabel(argv, taskfilePath)
-  }
+  configureBabel(argv, taskfilePath)
 
   log.debug(`Loading ${taskfilePath}`)
 
