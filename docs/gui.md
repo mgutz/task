@@ -7,16 +7,29 @@ Graphql-based GUI
 To run
 
 ```sh
-task gqlserver -w
+task server -w
 ```
 
-Browse `http://localhost/graphql` and enter query
+Browse `http://localhost/graphql`
+
+To do a query
 
 ```graphql
 {
   tasks {
    name
   }
+}
+```
+
+To exec a mutation
+
+```graphql
+mutation {
+    run(ref: "foo") {
+      code
+      message
+    }
 }
 ```
 

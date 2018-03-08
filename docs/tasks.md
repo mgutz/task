@@ -30,7 +30,7 @@ Task props
 | _desc_  | Description to display in task list                              |
 | _every_ | Task must run every time it is a dependency                      |
 | _once_  | Task must only run once across watches and dependents            |
-| _run_   | The function to run.                                             |
+|  _run_  | The function to run.                                             |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
 
 ```js

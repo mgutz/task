@@ -29,7 +29,7 @@ export async function test({globby, exec, argv}) {
   return Promise.all(promises)
 }
 
-export const gqlserver = {
+export const server = {
   desc: 'Runs GraphQL Server',
   run: ctx => {
     return ctx.shawn(`node gqlserver/index.js`)
