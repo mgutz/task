@@ -19,7 +19,7 @@ async function watch(globs, args, fn, opts = defaults) {
       if (!firstRun) {
         log.info(message)
       }
-      const newArgs = Object.assign({}, args, {event})
+      const newArgs = {...args, event}
       fn(newArgs)
       firstRun = false
     },
