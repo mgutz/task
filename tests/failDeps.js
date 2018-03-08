@@ -1,6 +1,6 @@
 // task -f testDeps.js test
 
-const {sleep} = require('../core/util')
+import {sleep} from './sleep'
 
 let memo = ''
 export async function a() {

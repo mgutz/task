@@ -1,5 +1,5 @@
-import {sleep} from '../core/util'
 import * as assert from 'assert'
+import {sleep} from './sleep'
 
 let memo = ''
 export function a() {

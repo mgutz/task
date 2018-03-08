@@ -1,4 +1,4 @@
-import {sleep} from '../core/util'
+import {sleep} from './sleep'
 import * as assert from 'assert'
 
 let memo = ''

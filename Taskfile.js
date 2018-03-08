@@ -37,8 +37,9 @@ export const server = {
 }
 
 export const build = {
-  desc: 'Builds typescript',
+  desc: 'Builds project',
   run: ctx => {
+    ctx.sh.rm('-rf', 'dist')
     return ctx.shawn(`node_modules/.bin/tsc`)
   },
   watch: ['src/**/*.{js,ts}'],

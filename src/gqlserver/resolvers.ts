@@ -1,13 +1,11 @@
-const tasks = () => {
+export const tasks = () => {
   return [{name: 'foo'}, {name: 'bar'}]
 }
 
-const run = ({ref}) => {
+export const run = ({ref}) => {
   return {
     code: 0,
     message: '',
     payload: '',
   }
 }
-
-module.exports = {tasks, run}

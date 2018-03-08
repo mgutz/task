@@ -1,10 +1,10 @@
-const _ = require('lodash')
-const columnify = require('columnify')
-const {exitError} = require('./exits')
-const minimist = require('minimist')
+import * as _ from 'lodash'
+import * as exits from '../core/exits'
+import * as columnify from 'columnify'
+import * as minimist from 'minimist'
 const pkgJson = require('../../package.json')
 
-const defaults = {
+export const defaults = {
   babel: true,
   babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
   dotenv: true,
@@ -57,12 +57,12 @@ const minimistOpts = {
 
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       // omelette uses --comp*
-      exitError(`Unknown option: ${flag}`)
+      exits.error(`Unknown option: ${flag}`)
     }
   },
 }
 
-function parseArgv() {
+export function parseArgv() {
   return minimist(process.argv.slice(2), minimistOpts)
 }
 
@@ -130,7 +130,7 @@ Examples
 `
 }
 
-function taskList(tasks) {
+function taskList(tasks: Tasks) {
   const taskArray = Object.values(tasks)
   if (!taskArray || taskArray.length < 1) {
     return 'No tasks found.'
@@ -149,7 +149,7 @@ function taskList(tasks) {
   }).replace(/^/gm, indent)
 }
 
-function usage(tasks, which = '') {
+export function usage(tasks: Tasks, which = ''): string {
   if (which === 'help') {
     return helpScreen()
   }
@@ -186,5 +186,3 @@ async function setupTerminalAutoComplete(tasks) {
   completion.init()
 }
 */
-
-module.exports = {defaults, minimistOpts, parseArgv, usage}

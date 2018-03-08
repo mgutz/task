@@ -1,6 +1,12 @@
-const fp = require('path')
+import * as exits from '../exits'
+import * as fp from 'path'
+import * as fs from 'fs'
+import log from '../log'
+import {promisify} from 'util'
 
-async function init(ctx) {
+const writeFile = promisify(fs.writeFile)
+
+export async function run(ctx: AppContext) {
   const argv = ctx.options
   const taskfile = argv.typescript ? 'Taskfile.ts' : 'Taskfile.js'
   const taskrcPath = fp.join(process.cwd(), '.taskrc')
@@ -10,7 +16,7 @@ async function init(ctx) {
     : empty
 
   if (fs.existsSync(taskfilePath)) {
-    exitError(`SKIPPED ${taskfilePath} exists`)
+    exits.error(`SKIPPED ${taskfilePath} exists`)
   }
 
   if (!fs.existsSync(taskrcPath)) {
@@ -18,9 +24,10 @@ async function init(ctx) {
     log.info('OK .taskrc created')
   }
 
-  return fs
-    .writeFile(taskfilePath, content, 'utf8')
-    .then(exitOKFn(`${taskfilePath} created`), exitErrorFn())
+  return writeFile(taskfilePath, content).then(
+    exits.okFn(`${taskfilePath} created`),
+    exits.errorFn()
+  )
 }
 
 const empty = ``
@@ -68,5 +75,3 @@ module.exports = {
   // file: 'Taskfile.mjs'
 }
 `
-
-module.exports = {init}

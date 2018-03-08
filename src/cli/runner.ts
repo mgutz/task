@@ -1,10 +1,11 @@
-const _ = require('lodash')
-const toposort = require('toposort')
-const {ChildProcess} = require('child_process')
-const log = require('../core/log')
-const watch = require('./watch')
-const {isRunnable, addSeriesRef} = require('./tasks')
-const {inspect} = require('util')
+import * as _ from 'lodash'
+import * as contrib from '../contrib'
+import * as toposort from 'toposort'
+import log from '../core/log'
+import {addSeriesRef, isRunnable} from './tasks'
+import {ChildProcess} from 'child_process'
+import {inspect} from 'util'
+import {watch} from './watch'
 
 /**
  * A parallel task has shape: {name, _parallel: true, deps: []}
@@ -54,7 +55,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
 
     // [[a, b], c], name => [s_1, c, name], where s_1 = {deps: [a, b]}
-    const addParallel = refs => {
+    const addParallel = (refs: string[]) => {
       for (let i = 0; i < refs.length; i++) {
         let ref = refs[i]
         // a series in an array necessitates a new unit
@@ -77,7 +78,7 @@ const execGraph = (tasks, processed, taskNames) => {
 
     if (task.deps) {
       if (task._parallel) {
-        addParallel(task.deps, name)
+        addParallel(task.deps)
       } else {
         dependRL(task.deps, name)
       }
@@ -85,7 +86,7 @@ const execGraph = (tasks, processed, taskNames) => {
     }
   }
 
-  if (log._isdebug) log.debug('Dependency graph', inspect(graph))
+  if (log.level === 'debug') log.debug('Dependency graph', inspect(graph))
   return graph
 }
 
@@ -121,7 +122,8 @@ const execOrder = (tasks, name) => {
   return result
 }
 
-const isChildProcess = v => v instanceof ChildProcess
+const isChildProcess = (v: any): v is ChildProcess => v && v.pid
+
 const isPromise = v => v && typeof v.then === 'function'
 
 process.on('SIGINT', function() {
@@ -164,6 +166,7 @@ const runTask = async (tasks, task, args, wait = true) => {
 
   const childProcess = _childProcesses[task.name]
   if (childProcess) {
+    childProcess.removeAllListeners()
     childProcess.once('close', code => {
       log.debug(`Task '${task.name}' process exited ${code}`)
       _childProcesses[task.name] = null
@@ -211,7 +214,7 @@ const runTask = async (tasks, task, args, wait = true) => {
         untrack(task)
         resolve({code})
       })
-      v.once('error', err => {
+      v.on('error', err => {
         log.info('error occured', err)
         untrack(task)
         reject(err)
@@ -246,7 +249,17 @@ const track = task => (task._ran = true)
 const untrack = task => (task._ran = false)
 const didRun = task => task._ran
 
-const run = async (tasks, refs, args) => {
+export const run = async (
+  ctx: AppContext,
+  refs: string | string[],
+  args?: TaskParam
+) => {
+  const {tasks} = ctx
+
+  if (!args) {
+    args = taskArgs(ctx.options)
+  }
+
   if (!tasks) {
     throw new Error('`tasks` property is required')
   }
@@ -274,7 +287,10 @@ const run = async (tasks, refs, args) => {
   }
 }
 
-const runThenWatch = async (tasks, name, args) => {
+export const runThenWatch = async (ctx: AppContext, name: string) => {
+  const {tasks} = ctx
+  const args = taskArgs(ctx.options)
+
   const task = getTask(tasks, name)
   if (!(task && Array.isArray(task.watch))) {
     throw new Error(`${name} is not a watchable task.`)
@@ -288,8 +304,32 @@ const runThenWatch = async (tasks, name, args) => {
       log.info(`Restarting ${name}`)
     }
     first = false
-    await run(tasks, name, argsWithEvent)
+    await run(ctx, name, argsWithEvent)
   })
 }
 
-module.exports = {run, runThenWatch}
+function taskArgs(argv: Options): TaskParam {
+  const sh = require('shelljs')
+  const globby = require('globby')
+  const prompt = require('inquirer').createPromptModule()
+
+  const execAsync = (...args) => {
+    return new Promise((resolve, reject) => {
+      sh.exec(...args, (code, stdout, stderr) => {
+        if (code !== 0) return reject({code, stdout, stderr})
+        return resolve({code, stdout, stderr})
+      })
+    })
+  }
+
+  return {
+    _,
+    argv: Object.assign({}, argv, {_: argv._.slice(1)}), // drop the command
+    contrib,
+    exec: execAsync,
+    globby,
+    prompt,
+    sh,
+    shawn: contrib.shawn,
+  }
+}

@@ -1,8 +1,8 @@
-const express = require('express')
-const graphqlHTTP = require('express-graphql')
-const {buildSchema} = require('graphql')
-const fs = require('fs')
-const fp = require('path')
+import * as express from 'express'
+import * as graphqlHTTP from 'express-graphql'
+import {buildSchema} from 'graphql'
+import * as fs from 'fs'
+import * as fp from 'path'
 
 const loadSchema = async () => {
   const path = fp.join(__dirname, '..', 'schemas', 'api.gql')
@@ -10,7 +10,7 @@ const loadSchema = async () => {
   return buildSchema(content)
 }
 
-const start = async opts => {
+export const start = async opts => {
   const schema = await loadSchema()
   var app = express()
   app.use(
@@ -24,5 +24,3 @@ const start = async opts => {
   app.listen(opts.port)
   console.log(`Running GraphQLserver at http://localhost:${opts.port}/graphql`)
 }
-
-module.exports = {start}

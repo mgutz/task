@@ -1,9 +1,9 @@
-const _ = require('lodash')
-const {exitError} = require('./exits')
-const fp = require('path')
-const fs = require('fs')
-const log = require('../core/log')
-const {prettify, trace} = require('../core/util')
+import * as exits from '../core/exits'
+import log from '../core/log'
+import * as _ from 'lodash'
+import * as fp from 'path'
+import * as fs from 'fs'
+import {prettify, trace} from '../core/util'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -28,11 +28,11 @@ const isSerial = dep => Array.isArray(dep)
 
 const isDep = dep => isParallel(dep) || isSerial(dep)
 
-const isRunnable = task => {
+export const isRunnable = task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
 
-const runnableRef = (tasks, ref) => {
+export const runnableRef = (tasks, ref) => {
   const task = tasks[ref]
   return isRunnable(task) ? ref : ''
 }
@@ -75,7 +75,7 @@ function standardizeDeps(tasks, task, deps) {
   return result.length ? result : null
 }
 
-function addSeriesRef(tasks, task, deps) {
+export function addSeriesRef(tasks, task, deps) {
   const name = uniqueName('s')
   tasks[name] = {name, deps}
   return name
@@ -83,7 +83,7 @@ function addSeriesRef(tasks, task, deps) {
 
 function makeParallelRef(tasks, task, dep) {
   const name = uniqueName('p')
-  const tsk = {
+  const tsk: Task = {
     name,
     _parallel: true,
   }
@@ -104,7 +104,7 @@ function makeParallelRef(tasks, task, dep) {
   return name
 }
 
-function makeAnonymousRef(tasks, fn) {
+function makeAnonymousRef(tasks: Tasks, fn: Function) {
   if (fn.name && tasks[fn.name]) {
     return fn.name
   }
@@ -117,7 +117,7 @@ function makeAnonymousRef(tasks, fn) {
   return name
 }
 
-function makeFunctionTask(tasks, key, fn) {
+function makeFunctionTask(tasks: Tasks, key: string, fn: Function) {
   if (fn.name || key) {
     return {
       name: fn.name || key,
@@ -131,7 +131,7 @@ function makeFunctionTask(tasks, key, fn) {
   }
 }
 
-function depToRef(tasks, task, dep) {
+function depToRef(tasks: Tasks, task: Task, dep: string | Function | Task) {
   if (!dep) return null
   let name
 
@@ -153,7 +153,7 @@ function depToRef(tasks, task, dep) {
   }
 
   if (!tasks[name]) {
-    exitError(`Task ${task.name} has invalid ${name} dependency`)
+    exits.error(`Task ${task.name} has invalid ${name} dependency`)
   }
   return name
 }
@@ -161,7 +161,7 @@ function depToRef(tasks, task, dep) {
 const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
-function findTaskfile(argv) {
+export function findTaskfile(argv: Options) {
   let filename = argv.file
   const testFilename = fname => {
     const absolute = fp.join(process.cwd(), fname)
@@ -183,7 +183,7 @@ function findTaskfile(argv) {
 /**
  * Use task's built-in babel.
  */
-function configureBabel(argv, taskfilePath) {
+function configureBabel(argv: Options, taskfilePath: string) {
   const dotext = fp.extname(taskfilePath) || '.js'
   const isTypeScript = argv.typescript || dotext === '.ts'
 
@@ -232,14 +232,6 @@ function configureBabel(argv, taskfilePath) {
 }
 
 /**
- * Use babel inside of user's node project.
- */
-// eslint-disable-next-line
-function configureUserBabel(argv, taskfilePath) {
-  exitError('--babel-local not yet implemented')
-}
-
-/**
  * Loads and standardize tasks.
  *
  * type task struct {
@@ -253,19 +245,15 @@ function configureUserBabel(argv, taskfilePath) {
  *  _ran bool       // whether task ran on current watch change
  * }
  */
-async function loadTasks(argv, taskfilePath) {
+export async function loadTasks(argv: Options, taskfilePath: string) {
   if (!taskfilePath) {
     if (argv.file) {
-      return exitError(`Tasks file not found: ${argv.file}`)
+      return exits.error(`Tasks file not found: ${argv.file}`)
     }
     return null
   }
 
-  if (argv.babelLocal) {
-    configureUserBabel(argv, taskfilePath)
-  } else {
-    configureBabel(argv, taskfilePath)
-  }
+  configureBabel(argv, taskfilePath)
 
   log.debug(`Loading ${taskfilePath}`)
 
@@ -327,7 +315,7 @@ function standardizeFile(v) {
   return tasks
 }
 
-function standardizeTask(tasks, k, v) {
+function standardizeTask(tasks: Tasks, k: string, v: any): Task {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, k, v)
   } else if (isRunnable(v) || isTaskMeta(v)) {
@@ -342,16 +330,8 @@ function standardizeTask(tasks, k, v) {
 }
 
 let _nameId = 0
-function uniqueName(prefix) {
+function uniqueName(prefix: string): string {
   _nameId++
   // a=anonymous p=parallel s=serial
   return `${prefix}_${_nameId}`
-}
-
-module.exports = {
-  isRunnable,
-  runnableRef,
-  findTaskfile,
-  loadTasks,
-  addSeriesRef,
 }

@@ -1,11 +1,17 @@
-const _ = require('lodash')
-const chokidar = require('chokidar')
-const defaults = {usePolling: true}
-const globby = require('globby')
-const log = require('../core/log')
-const util = require('../core/util')
+import log from '../core/log'
+import * as _ from 'lodash'
+import * as chokidar from 'chokidar'
+import * as globby from 'globby'
+import * as util from '../core/util'
 
-async function watch(globs, args, fn, opts = defaults) {
+const defaults = {usePolling: true}
+
+export async function watch(
+  globs: string[],
+  args: TaskParam,
+  fn,
+  opts = defaults
+) {
   const files = await globby(globs)
   if (files.length < 1) {
     log.warn('No files match watch globs', util.prettify(globs))
@@ -38,7 +44,7 @@ async function watch(globs, args, fn, opts = defaults) {
       debounced()
       let id = 1
       const eventHandler = (ev, path) => {
-        const idstr = `[${_.padStart(id++, 2, 0)}]`
+        const idstr = `[${_.padStart(String(id++), 2, '0')}]`
 
         message = `\n${idstr} ${ev.toUpperCase()} ${path}`
         event = {event: ev, path}
@@ -54,5 +60,3 @@ async function watch(globs, args, fn, opts = defaults) {
     })
   })
 }
-
-module.exports = watch

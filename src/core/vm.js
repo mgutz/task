@@ -1,4 +1,4 @@
-const log = require('../core/log')
+import log from '../core/log'
 
 class TerminalVM {
   process
