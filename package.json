@@ -24,8 +24,8 @@
     "graphql": "^0.13.1",
     "inquirer": "^5.1.0",
     "lodash": "^4.17.5",
-    "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
+    "pino": "^4.13.0",
     "shelljs": "^0.8.1",
     "toposort": "^1.0.6",
     "typescript": "^2.7.2"
