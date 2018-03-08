@@ -14,7 +14,6 @@ const defaults = {
 const minimistOpts = {
   alias: {
     babelExtensions: ['babel-extensions'],
-    babelLocal: ['babel-local'],
     debug: ['verbose'],
     dryRun: ['dry-run'],
     file: ['f'],
@@ -90,7 +89,6 @@ Options
 Advanced options
   --babel-extensions  File extensions that babel should process when requiring.
                       Default ['.js','.jsx','.es6','.es','.mjs','.ts','.tsx']
-  --babel-local       Use local node project's babel.
 
 Configuration File .taskrc
     module.exports = {
