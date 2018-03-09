@@ -3,8 +3,8 @@ import * as exits from './exits'
 import * as fp from 'path'
 import * as fs from 'fs'
 import * as is from './is'
+import {appWorkDirectory, prettify, trace} from './util'
 import {getLogger} from './log'
-import {prettify, trace} from './util'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -225,22 +225,20 @@ export const configureBabel = (argv: Options, taskfilePath: string) => {
     extensions.push(dotext)
   }
 
-  const taskDir = fp.join(__dirname, '..', '..')
-
   const babelPresetEnvPath = fp.join(
-    taskDir,
+    appWorkDirectory,
     'node_modules',
     '@babel',
     'preset-env'
   )
   const babelPresetTypeScriptPath = fp.join(
-    taskDir,
+    appWorkDirectory,
     'node_modules',
     '@babel',
     'preset-typescript'
   )
   const babelRegisterPath = fp.join(
-    taskDir,
+    appWorkDirectory,
     'node_modules',
     '@babel',
     'register'

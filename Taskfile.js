@@ -9,11 +9,12 @@ export const build = {
 }
 
 export const server = {
+  deps: [build],
   desc: 'Runs GraphQL Server',
-  run: (ctx) => {
-    return ctx.shawn(`node gqlserver/index.js`)
+  run: ({shawn}) => {
+    return shawn(`node index.js --gui`)
   },
-  watch: ['schemas/**.gql', 'gqlserver/**.js'],
+  watch: ['schemas/*.gql', 'src/**/*.ts'],
 }
 
 export const test = {

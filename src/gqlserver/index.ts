@@ -8,5 +8,5 @@ const defaults = {
 }
 
 export const run = (ctx: AppContext) => {
-  start(defaults)
+  start(ctx, defaults)
 }

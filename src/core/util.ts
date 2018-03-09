@@ -1,5 +1,8 @@
 import {inspect} from 'util'
 import {getLogger} from './log'
+import * as fp from 'path'
+
+export const appWorkDirectory: string = fp.resolve(__dirname, '..', '..')
 
 export const prettify = (o: any) => inspect(o)
 
