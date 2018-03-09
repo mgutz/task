@@ -7,7 +7,7 @@ import {konsole} from '../../core/log'
 
 const writeFile = promisify(fs.writeFile)
 
-export async function run(ctx: AppContext) {
+export const run = async (ctx: AppContext) => {
   const argv = ctx.options
   const taskfile = argv.typescript ? 'Taskfile.ts' : 'Taskfile.js'
   const taskrcPath = fp.join(process.cwd(), '.taskrc')

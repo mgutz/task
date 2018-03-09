@@ -6,12 +6,12 @@ import * as util from './util'
 
 const defaults = {usePolling: true}
 
-export async function watch(
+export const watch = async (
   globs: string[],
   args: TaskParam,
   fn: TaskFunc,
   opts = defaults
-) {
+) => {
   const log = getLogger()
   const files = await globby(globs)
   if (files.length < 1) {

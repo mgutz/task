@@ -52,11 +52,11 @@ const minimistOpts = {
   },
 }
 
-export function parseArgv(): Options {
+export const parseArgv = (): Options => {
   return minimist(process.argv.slice(2), minimistOpts as any) as Options
 }
 
-export function helpScreen() {
+export const helpScreen = () => {
   return `${pkgJson.name} v${pkgJson.version} - no config task runner
 
 Usage: task [options] [task] [task_options...]
@@ -121,7 +121,7 @@ Examples
 `
 }
 
-function taskList(tasks: Tasks) {
+const taskList = (tasks: Tasks) => {
   const taskArray = Object.values(tasks)
   if (!taskArray || taskArray.length < 1) {
     return 'No tasks found.'
@@ -140,7 +140,7 @@ function taskList(tasks: Tasks) {
   }).replace(/^/gm, indent)
 }
 
-export function usage(tasks: Tasks, which = ''): string {
+export const usage = (tasks: Tasks, which = ''): string => {
   if (which === 'help') {
     return helpScreen()
   }
@@ -151,7 +151,7 @@ export function usage(tasks: Tasks, which = ''): string {
   return Object.keys(tasks).length ? tasksScreen(tasks) : helpScreen()
 }
 
-function tasksScreen(tasks: Tasks): string {
+export const tasksScreen = (tasks: Tasks): string => {
   return `task v${pkgJson.version}
 
 Usage: task [options] [task] [task_options...]

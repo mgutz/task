@@ -346,7 +346,7 @@ export const runThenWatch = async (ctx: AppContext, name: string) => {
   })
 }
 
-function taskArgs(argv: Options): TaskParam {
+const taskArgs = (argv: Options): TaskParam => {
   const sh = require('shelljs')
   const globby = require('globby')
   const prompt = require('inquirer').createPromptModule()

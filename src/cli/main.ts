@@ -14,7 +14,7 @@ import {helpScreen, parseArgv, usage} from './usage'
 import {AppContext} from '../core/AppContext'
 import {konsole, newTerminalLogger, setLevel} from '../core/log'
 
-function loadTaskrc(workDir: string): Options {
+const loadTaskrc = (workDir: string): Options => {
   const taskrc = fp.join(workDir, '.taskrc')
   if (fs.existsSync(taskrc)) {
     const obj = require(taskrc)
@@ -26,7 +26,7 @@ function loadTaskrc(workDir: string): Options {
   return {} as Options
 }
 
-async function main() {
+const main = async () => {
   // load taskrc early
   const taskrc = loadTaskrc(process.cwd())
 

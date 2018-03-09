@@ -7,7 +7,7 @@ import {prettify, trace} from './util'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
-function standardizeExports(argv: Options, taskFile: any): any {
+const standardizeExports = (argv: Options, taskFile: any): any => {
   if (!argv.babel && typeof taskFile === 'function') {
     return {
       default: taskFile,
@@ -53,7 +53,11 @@ const isTaskMeta = (task: any): boolean =>
  *  _parallel: true
  * }
  */
-function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] | null {
+const standardizeDeps = (
+  tasks: Tasks,
+  task: Task,
+  deps: any
+): string[] | null => {
   if (!isDep(deps)) {
     return null
   }
@@ -77,13 +81,17 @@ function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] | null {
   return result.length ? result : null
 }
 
-export function addSeriesRef(tasks: Tasks, task: Task, deps: any[]): string {
+export const addSeriesRef = (tasks: Tasks, task: Task, deps: any[]): string => {
   const name = uniqueName('s')
   tasks[name] = {name, deps}
   return name
 }
 
-function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
+export const makeParallelRef = (
+  tasks: Tasks,
+  task: Task,
+  dep: any[] | any
+): string => {
   const name = uniqueName('p')
   const tsk: Task = {
     _parallel: true,
@@ -106,7 +114,7 @@ function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
   return name
 }
 
-function makeAnonymousRef(tasks: Tasks, fn: TaskFunc): string {
+const makeAnonymousRef = (tasks: Tasks, fn: TaskFunc): string => {
   if (fn.name && tasks[fn.name]) {
     return fn.name
   }
@@ -119,11 +127,11 @@ function makeAnonymousRef(tasks: Tasks, fn: TaskFunc): string {
   return name
 }
 
-function makeFunctionTask(
+const makeFunctionTask = (
   tasks: Tasks,
   key: string,
   fn: TaskFunc
-): ReifiedTask {
+): ReifiedTask => {
   if (fn.name || key) {
     return {
       name: fn.name || key,
@@ -137,7 +145,7 @@ function makeFunctionTask(
   } as ReifiedTask
 }
 
-function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
+export const depToRef = (tasks: Tasks, task: Task, dep: any): string | null => {
   const log = getLogger()
   if (!dep) {
     return null
@@ -173,7 +181,7 @@ function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
 const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
-export function findTaskfile(argv: Options): string | null {
+export const findTaskfile = (argv: Options): string | null => {
   const log = getLogger()
   const filename = argv.file
   const testFilename = (path: string) => {
@@ -200,7 +208,7 @@ export function findTaskfile(argv: Options): string | null {
 /**
  * Use task's built-in babel.
  */
-function configureBabel(argv: Options, taskfilePath: string) {
+export const configureBabel = (argv: Options, taskfilePath: string) => {
   const dotext = fp.extname(taskfilePath) || '.js'
   const isTypeScript = argv.typescript || dotext === '.ts'
 
@@ -266,10 +274,10 @@ function configureBabel(argv: Options, taskfilePath: string) {
  *  _ran bool       // whether task ran on current watch change
  * }
  */
-export async function loadTasks(
+export const loadTasks = async (
   argv: Options,
   taskfilePath: string
-): Promise<Tasks | null> {
+): Promise<Tasks | null> => {
   if (!taskfilePath) {
     return null
   }
@@ -321,7 +329,7 @@ export async function loadTasks(
 }
 
 // standardizes a task file's task.
-function standardizeFile(v: any): Tasks {
+export const standardizeFile = (v: any): Tasks => {
   const tasks: Tasks = {}
   const assignTask = (key: string, taskdef: any) => {
     const task = standardizeTask(tasks, key, taskdef)
@@ -343,7 +351,7 @@ function standardizeFile(v: any): Tasks {
   return tasks
 }
 
-function standardizeTask(tasks: Tasks, k: string, v: any): Task {
+export const standardizeTask = (tasks: Tasks, k: string, v: any): Task => {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, k, v)
   } else if (isRunnable(v) || isTaskMeta(v)) {
@@ -358,7 +366,7 @@ function standardizeTask(tasks: Tasks, k: string, v: any): Task {
 }
 
 let _nameId = 0
-function uniqueName(prefix: string): string {
+const uniqueName = (prefix: string): string => {
   _nameId++
   // a=anonymous p=parallel s=serial
   return `${prefix}_${_nameId}`

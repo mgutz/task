@@ -23,6 +23,6 @@ export const run = async (ctx: AppContext) => {
   return runRef(ctx, name).then(exits.okFn(), exits.errorFn())
 }
 
-function taskToRun(argv: any): string {
+const taskToRun = (argv: any): string => {
   return argv._[0]
 }

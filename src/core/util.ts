@@ -3,7 +3,7 @@ import {getLogger} from './log'
 
 export const prettify = (o: any) => inspect(o)
 
-export function trace(msg: string, obj: any) {
+export const trace = (msg: string, obj: any) => {
   const log = getLogger()
   if (log.level !== 'trace') {
     return

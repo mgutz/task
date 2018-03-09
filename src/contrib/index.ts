@@ -7,7 +7,7 @@ const defaults = {
 }
 
 // shawn returns a spawned shell (defaults to bash) which must be executed
-export function shawn(script: string, options = defaults) {
+export const shawn = (script: string, options = defaults) => {
   const {shell, shellArgs, ...otherOpts} = options
 
   // regarding detached, see https://stackoverflow.com/a/33367711
