@@ -2,6 +2,9 @@
   "extends": "tslint:recommended",
   "rulesDirectory": [],
   "rules": {
+    "curly": [true, "ignore-same-line"],
+    "forin": false,
+    "interface-name": [true, "never-prefix"],
     "max-line-length": {
       "options": [80]
     },
@@ -15,6 +18,24 @@
       "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
     },
     "quotemark": [true, "single", "avoid-escape"],
-    "semicolon": [true, "never"]
+    "semicolon": [true, "never"],
+    "trailing-comma": [
+      true,
+      {
+        "multiline": {
+          "objects": "always",
+          "arrays": "ignore",
+          "functions": "never",
+          "typeLiterals": "ignore"
+        },
+        "esSpecCompliant": true
+      }
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ]
   }
 }

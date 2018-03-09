@@ -1,7 +1,9 @@
-import * as _ from 'lodash'
 import * as columnify from 'columnify'
-import * as exits from '../core/exits'
+import * as _ from 'lodash'
 import * as minimist from 'minimist'
+import * as exits from '../core/exits'
+
+// tslint:disable-next-line
 const pkgJson = require('../../package.json')
 
 const minimistOpts = {
@@ -17,9 +19,9 @@ const minimistOpts = {
   },
   boolean: [
     '?',
-    //'babel', MUST not define these otherwise they default to false and override defaults
+    'babel',
     'debug',
-    //'dotenv', MUST not define these otherwise they default to false and override defaults
+    'dotenv',
     'dry-run',
     'dryRun',
     'gui',
@@ -60,6 +62,7 @@ export function helpScreen() {
 Usage: task [options] [task] [task_options...]
 
 Options
+
   --debug,--verbose   Debug logging
   --dry-run           Displays tasks that will run
   --file,-f           File
@@ -126,14 +129,14 @@ function taskList(tasks: Tasks) {
 
   const indent = '  '
   const items = _.sortBy(taskArray, 'name')
-    .map(it => ({
-      name: it.name,
+    .map((it: Task) => ({
       desc: it.desc,
+      name: it.name,
     }))
-    .filter(it => it.desc)
+    .filter((it: Task) => it.desc)
   return columnify(items, {
-    showHeaders: false,
     columnSplitter: '  ',
+    showHeaders: false,
   }).replace(/^/gm, indent)
 }
 

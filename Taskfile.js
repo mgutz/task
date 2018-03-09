@@ -47,3 +47,11 @@ export const test = {
     return Promise.all(promises)
   },
 }
+
+export const lint = {
+  desc: 'Lints the project',
+  deps: [build],
+  run: ({sh}) => {
+    sh.exec(`tslint --fix -c ./tslint.json 'src/**/*.ts'`)
+  },
+}

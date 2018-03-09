@@ -1,5 +1,5 @@
-import {start} from './server'
 import * as resolvers from './resolvers'
+import {start} from './server'
 
 const defaults = {
   port: 4200,

@@ -1,19 +1,17 @@
-import * as _ from 'lodash'
-import * as contrib from '../contrib'
 import * as dotenv from 'dotenv'
-import * as exits from '../core/exits'
-import * as fp from 'path'
 import * as fs from 'fs'
+import * as _ from 'lodash'
+import * as fp from 'path'
+import * as contrib from '../contrib'
+import {run as commandInit} from '../core/commands/init'
+import * as exits from '../core/exits'
+import log, {setLevel} from '../core/log'
+import {run, runThenWatch} from '../core/runner'
+import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
+import {trace} from '../core/util'
 import * as server from '../gqlserver'
 import * as terminal from './terminal'
-import log, {setLevel} from '../core/log'
-import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {helpScreen, parseArgv, usage} from './usage'
-import {run, runThenWatch} from '../core/runner'
-import {run as commandInit} from '../core/commands/init'
-import {trace} from '../core/util'
-
-let _tasks
 
 function loadTaskrc(workDir: string): Options {
   const taskrc = fp.join(workDir, '.taskrc')
@@ -29,7 +27,7 @@ function loadTaskrc(workDir: string): Options {
 
 async function main() {
   // load taskrc early
-  let taskrc = loadTaskrc(process.cwd())
+  const taskrc = loadTaskrc(process.cwd())
 
   const argv = parseArgv()
   if (argv.help) {
@@ -69,8 +67,6 @@ async function main() {
   if (!tasks) {
     return exits.error(`Cannot load tasks from: ${taskfilePath}`)
   }
-
-  //setupTerminalAutoComplete(tasks)
 
   if (argv.dotenv) {
     dotenv.config()

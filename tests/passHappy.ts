@@ -1,5 +1,5 @@
-import {sleep} from './sleep'
 import * as assert from 'assert'
+import {sleep} from './sleep'
 
 let memo = ''
 export function a() {
@@ -16,6 +16,7 @@ export async function c() {
   memo += sum(10, 20)
 }
 
+// tslint:disable-next-line
 function sum(a: number, b: number): number {
   return a + b
 }

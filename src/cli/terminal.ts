@@ -1,6 +1,6 @@
 import * as exits from '../core/exits'
-import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {run as runRef, runThenWatch} from '../core/runner'
+import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {usage} from './usage'
 
 export const run = async (ctx: AppContext) => {

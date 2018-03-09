@@ -1,15 +1,15 @@
-import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
 import * as globby from 'globby'
-import * as util from './util'
+import * as _ from 'lodash'
 import log from './log'
+import * as util from './util'
 
 const defaults = {usePolling: true}
 
 export async function watch(
   globs: string[],
   args: TaskParam,
-  fn: Function,
+  fn: TaskFunc,
   opts = defaults
 ) {
   const files = await globby(globs)
@@ -33,7 +33,7 @@ export async function watch(
     {leading: true, trailing: false}
   )
 
-  return new Promise((resolve: Function, reject: Function) => {
+  return new Promise<void>((resolve, reject) => {
     const watcher = chokidar.watch(globs, {
       ...opts,
       ignoreInitial: true,

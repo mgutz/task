@@ -1,7 +1,7 @@
-import * as _ from 'lodash'
-import * as exits from './exits'
-import * as fp from 'path'
 import * as fs from 'fs'
+import * as _ from 'lodash'
+import * as fp from 'path'
+import * as exits from './exits'
 import log from './log'
 import {prettify, trace} from './util'
 
@@ -12,8 +12,8 @@ function standardizeExports(argv: Options, taskFile: any): any {
     return {
       default: taskFile,
       [taskFile.name]: {
-        run: taskFile,
         _original: taskFile,
+        run: taskFile,
       },
     }
   }
@@ -54,7 +54,9 @@ const isTaskMeta = (task: any): boolean =>
  * }
  */
 function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] | null {
-  if (!isDep(deps)) return null
+  if (!isDep(deps)) {
+    return null
+  }
   const result = []
   let name
 
@@ -84,8 +86,8 @@ export function addSeriesRef(tasks: Tasks, task: Task, deps: any[]): string {
 function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
   const name = uniqueName('p')
   const tsk: Task = {
-    name,
     _parallel: true,
+    name,
   }
   tasks[name] = tsk
   // if an array exists in parallel deps then we need to create a series ref
@@ -104,7 +106,7 @@ function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
   return name
 }
 
-function makeAnonymousRef(tasks: Tasks, fn: Function): string {
+function makeAnonymousRef(tasks: Tasks, fn: TaskFunc): string {
   if (fn.name && tasks[fn.name]) {
     return fn.name
   }
@@ -120,7 +122,7 @@ function makeAnonymousRef(tasks: Tasks, fn: Function): string {
 function makeFunctionTask(
   tasks: Tasks,
   key: string,
-  fn: Function
+  fn: TaskFunc
 ): ReifiedTask {
   if (fn.name || key) {
     return {
@@ -136,7 +138,9 @@ function makeFunctionTask(
 }
 
 function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
-  if (!dep) return null
+  if (!dep) {
+    return null
+  }
   let name: string
 
   if (_.isString(dep)) {
@@ -147,7 +151,7 @@ function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
     name = makeParallelRef(tasks, task, dep)
   } else if (isRunnable(dep)) {
     // reference to an object
-    const key = _.findKey(tasks, o => o._original == dep)
+    const key = _.findKey(tasks, (o: RawTask) => o._original === dep)
     if (key) {
       name = key
     } else {
@@ -169,9 +173,9 @@ const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
 export function findTaskfile(argv: Options): string | null {
-  let filename = argv.file
-  const testFilename = (fname: string) => {
-    const absolute = fp.join(process.cwd(), fname)
+  const filename = argv.file
+  const testFilename = (path: string) => {
+    const absolute = fp.join(process.cwd(), path)
     log.debug(`Trying task file: ${absolute}`)
     return fs.existsSync(absolute) ? absolute : null
   }
@@ -181,9 +185,13 @@ export function findTaskfile(argv: Options): string | null {
   }
 
   let fname = testFilename(taskfileJs)
-  if (fname) return fname
+  if (fname) {
+    return fname
+  }
   fname = testFilename(taskfileTs)
-  if (fname) return fname
+  if (fname) {
+    return fname
+  }
   return null
 }
 
@@ -194,7 +202,9 @@ function configureBabel(argv: Options, taskfilePath: string) {
   const dotext = fp.extname(taskfilePath) || '.js'
   const isTypeScript = argv.typescript || dotext === '.ts'
 
-  if (!argv.babel && !isTypeScript) return
+  if (!argv.babel && !isTypeScript) {
+    return
+  }
 
   const usingMsg = isTypeScript
     ? 'Using @babel/preset-typescript for TypeScript'
@@ -256,7 +266,9 @@ export async function loadTasks(
   argv: Options,
   taskfilePath: string
 ): Promise<Tasks | null> {
-  if (!taskfilePath) return null
+  if (!taskfilePath) {
+    return null
+  }
   configureBabel(argv, taskfilePath)
 
   log.debug(`Loading ${taskfilePath}`)
@@ -270,8 +282,9 @@ export async function loadTasks(
 
   trace('Tasks after standardizing functions and objects\n', tasks)
 
-  // standardize depdencies
-  for (let name in tasks) {
+  // standardize dependencies
+  // tslint:disable-next-line
+  for (const name in tasks) {
     const task = tasks[name]
     // deps come in as function variables, convert to name references
     // for depedency resolution
@@ -284,9 +297,12 @@ export async function loadTasks(
   trace('Tasks after standardizing deps\n', tasks)
 
   // standardizing deps can create anonymous tasks for dep-only tasks
-  for (let name in tasks) {
+  // tslint:disable-next-line
+  for (const name in tasks) {
     const task = tasks[name]
-    if (task.desc) continue
+    if (task.desc) {
+      continue
+    }
 
     const desc = task.deps
       ? `Run ${task.deps.join(', ')}${task.run ? ', ' + task.name : ''}`
@@ -312,7 +328,8 @@ function standardizeFile(v: any): Tasks {
 
   if (_.isObject(v)) {
     // convert exported default object
-    for (let name in v) {
+    // tslint:disable-next-line
+    for (const name in v) {
       assignTask(name, v[name])
     }
     return tasks

@@ -12,8 +12,8 @@ export function shawn(script: string, options = defaults) {
 
   // regarding detached, see https://stackoverflow.com/a/33367711
   const opts = {
-    stdio: 'inherit',
     detached: true,
+    stdio: 'inherit',
     ...otherOpts,
   }
 

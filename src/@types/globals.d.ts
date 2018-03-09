@@ -25,13 +25,9 @@ declare interface AppContext {
   tasks: Tasks
 }
 
-declare interface Command {
-  run(): void
-}
+declare type TaskFunc = (arg: TaskParam) => any
 
-declare interface RunFunc {
-  (arg: TaskParam): any
-}
+declare type ResolverFunc = (...v: any[]) => void
 
 declare interface RawTask {
   deps?: any[]
@@ -39,7 +35,7 @@ declare interface RawTask {
   every?: boolean
   name?: string
   once?: boolean
-  run?: RunFunc
+  run?: TaskFunc
   watch?: string[]
   _original?: Task
   _ran?: boolean

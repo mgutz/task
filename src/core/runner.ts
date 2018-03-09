@@ -1,10 +1,10 @@
+import {ChildProcess} from 'child_process'
 import * as _ from 'lodash'
-import * as contrib from '../contrib'
 import * as toposort from 'toposort'
+import {inspect} from 'util'
+import * as contrib from '../contrib'
 import log from './log'
 import {addSeriesRef, isRunnable} from './tasks'
-import {ChildProcess} from 'child_process'
-import {inspect} from 'util'
 import {watch} from './watch'
 
 const isParallelTask = (task: any): task is ParallelTask =>
@@ -23,12 +23,14 @@ const isSerialTask = (task: any): task is SerialTask =>
  *  - This function mutates ref tasks when it encounters a series task within a
  *    parallel task.
  *
- *    Consider the parallel case `{p: [b, c]}`, where `b` further depends on `a`.
- *    In that case `[a, b]` and `c` should be run in parallel.
- *     `[a, b]` becomes an anonymous series task in tasks and the original
- *     `b` ref is replaced with `s_1`
+ *    Consider the parallel case `{p: [b, c]}`, where `b` further depends on
+ *    `a`. In that case `[a, b]` and `c` should be run in parallel.
  *
- *    The end result `{p: [b, c]}` becomes `{p: [s_1, c]}` where `s_1.deps = [a, b]`
+ *    `[a, b]` becomes an anonymous series task in tasks and the original
+ *    `b` ref is replaced with `s_1`
+ *
+ *    The end result `{p: [b, c]}` becomes `{p: [s_1, c]}` where
+ *    `s_1.deps = [a, b]`
  */
 const execGraph = (
   tasks: Tasks,
@@ -37,7 +39,9 @@ const execGraph = (
 ): string[][] => {
   let graph: string[][] = []
 
-  if (!taskNames) return graph
+  if (!taskNames) {
+    return graph
+  }
 
   for (const name of taskNames) {
     // guard against infinite loop
@@ -53,9 +57,9 @@ const execGraph = (
     }
 
     // [a, b, c], d => [c, d], [b, c], [a, b]
-    const dependRL = (deps: string[], name: string) => {
+    const dependRL = (deps: string[], depName: string) => {
       // this flattens deps, [[a, b], c] => [a, b, c]
-      const newDeps = [...deps, name]
+      const newDeps = [...deps, depName]
 
       for (let i = newDeps.length - 1; i > 0; i--) {
         const prev = newDeps[i - 1]
@@ -74,10 +78,12 @@ const execGraph = (
           refs[i] = ref
         }
         // get sub dependencies of each dependency
-        let pdeps = toposort(execGraph(tasks, [], [ref]))
+        const pdeps = toposort(execGraph(tasks, [], [ref]))
 
         // if deps has no sub dependencies do nothing
-        if (pdeps.length < 2) continue
+        if (pdeps.length < 2) {
+          continue
+        }
 
         // make subdependencies be deps of current parallel task
         // [a, b] name => [s_1, name], where s_1 == [a, b]
@@ -97,7 +103,9 @@ const execGraph = (
     }
   }
 
-  if (log.level === 'debug') log.debug('Dependency graph', inspect(graph))
+  if (log.level === 'debug') {
+    log.debug('Dependency graph', inspect(graph))
+  }
   return graph
 }
 
@@ -114,9 +122,10 @@ const execOrder = (tasks: Tasks, name: string) => {
   const deps = toposort(graph)
 
   const result = []
-  for (let i = 0; i < deps.length; i++) {
-    const dep = deps[i]
-    if (!dep) continue
+  for (const dep of deps) {
+    if (!dep) {
+      continue
+    }
 
     // stop at desired task
     if (dep === name) {
@@ -138,10 +147,10 @@ const isChildProcess = (v: any): v is ChildProcess =>
 
 const isPromise = (v: any) => v && typeof v.then === 'function'
 
-process.on('SIGINT', function() {
+process.on('SIGINT', () => {
   log.info('cleaning up...')
 
-  for (let name in _childProcesses) {
+  for (const name in _childProcesses) {
     const proc = _childProcesses[name]
     if (proc) {
       log.debug(`SIGHUP ${name}`)
@@ -153,6 +162,7 @@ process.on('SIGINT', function() {
 })
 
 const _childProcesses: {[k: string]: ChildProcess | null} = {}
+
 const runTask = async (
   tasks: Tasks,
   task: Task,
@@ -167,7 +177,7 @@ const runTask = async (
 
   if (isParallelTask(task)) {
     logDryRun(args.argv, `begin ${task.name}: {${task.deps.join(', ')}}`)
-    const promises = task.deps.map(ref => {
+    const promises = task.deps.map((ref: string) => {
       return runTask(tasks, tasks[ref], args, false)
     })
     return Promise.all(promises).then(() => {
@@ -198,7 +208,9 @@ const runTask = async (
     return
   }
 
-  if (typeof task.run !== 'function') return
+  if (typeof task.run !== 'function') {
+    return
+  }
 
   logDryRun(args.argv, `RUN ${task.name}...`)
   if (args.argv['dry-run']) {
@@ -258,7 +270,9 @@ const getTask = (tasks: Tasks, name: string): Task | null => {
 const clearTracking = (tasks: Tasks) => {
   for (const name in tasks) {
     const task = tasks[name]
-    if (task.once) continue
+    if (task.once) {
+      continue
+    }
     task._ran = false
   }
 }
@@ -333,7 +347,9 @@ function taskArgs(argv: Options): TaskParam {
   const execAsync = (...args: any[]) => {
     return new Promise((resolve, reject) => {
       sh.exec(...args, (code: number, stdout: string, stderr: string) => {
-        if (code !== 0) return reject({code, stdout, stderr})
+        if (code !== 0) {
+          return reject({code, stdout, stderr})
+        }
         return resolve({code, stdout, stderr})
       })
     })

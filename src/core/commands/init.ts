@@ -1,8 +1,8 @@
-import * as exits from '../exits'
-import * as fp from 'path'
 import * as fs from 'fs'
-import log from '../log'
+import * as fp from 'path'
 import {promisify} from 'util'
+import * as exits from '../exits'
+import log from '../log'
 
 const writeFile = promisify(fs.writeFile)
 
