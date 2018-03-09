@@ -1,5 +1,6 @@
 import * as resolvers from './resolvers'
 import {start} from './server'
+import {AppContext} from '../core/AppContext'
 
 const defaults = {
   port: 4200,

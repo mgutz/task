@@ -1,8 +1,9 @@
-import * as fs from 'fs'
-import * as fp from 'path'
-import {promisify} from 'util'
 import * as exits from '../exits'
-import log from '../log'
+import * as fp from 'path'
+import * as fs from 'fs'
+import {AppContext} from '../AppContext'
+import {promisify} from 'util'
+import {konsole} from '../../core/log'
 
 const writeFile = promisify(fs.writeFile)
 
@@ -21,7 +22,7 @@ export async function run(ctx: AppContext) {
 
   if (!fs.existsSync(taskrcPath)) {
     fs.writeFileSync(taskrcPath, taskrc, 'utf8')
-    log.info('OK .taskrc created')
+    konsole.info('OK .taskrc created')
   }
 
   return writeFile(taskfilePath, content).then(

@@ -3,9 +3,10 @@ import * as _ from 'lodash'
 import * as toposort from 'toposort'
 import {inspect} from 'util'
 import * as contrib from '../contrib'
-import log from './log'
 import {addSeriesRef, isRunnable} from './tasks'
 import {watch} from './watch'
+import {AppContext} from './AppContext'
+import {getLogger} from './log'
 
 const isParallelTask = (task: any): task is ParallelTask =>
   task && task._parallel && task.deps
@@ -42,6 +43,8 @@ const execGraph = (
   if (!taskNames) {
     return graph
   }
+
+  const log = getLogger()
 
   for (const name of taskNames) {
     // guard against infinite loop
@@ -148,6 +151,7 @@ const isChildProcess = (v: any): v is ChildProcess =>
 const isPromise = (v: any) => v && typeof v.then === 'function'
 
 process.on('SIGINT', () => {
+  const log = getLogger()
   log.info('cleaning up...')
 
   for (const name in _childProcesses) {
@@ -169,6 +173,8 @@ const runTask = async (
   args: TaskParam,
   wait = true
 ): Promise<any> => {
+  const log = getLogger()
+
   if (didRun(task) && !task.every) {
     logDryRun(args.argv, `skip ${task.name} ran already`)
     return
@@ -255,6 +261,7 @@ const runTask = async (
 }
 
 const logDryRun = (argv: Options, msg: string) => {
+  const log = getLogger()
   if (argv.dryRun) {
     log.info(msg)
     return
@@ -285,7 +292,7 @@ export const run = async (
   refs: string | string[],
   args?: TaskParam
 ) => {
-  const {tasks} = ctx
+  const {log, tasks} = ctx
 
   if (!args) {
     args = taskArgs(ctx.options)
@@ -319,7 +326,7 @@ export const run = async (
 }
 
 export const runThenWatch = async (ctx: AppContext, name: string) => {
-  const {tasks} = ctx
+  const {log, tasks} = ctx
   const args = taskArgs(ctx.options)
 
   const task = getTask(tasks, name)

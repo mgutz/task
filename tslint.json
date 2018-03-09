@@ -17,6 +17,7 @@
       "severity": "warning",
       "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
     },
+    "ordered-imports": false,
     "quotemark": [true, "single", "avoid-escape"],
     "semicolon": [true, "never"],
     "trailing-comma": [

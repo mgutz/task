@@ -1,8 +1,8 @@
-import log from './log'
+import {konsole} from './log'
 
 /* eslint-disable no-console */
 export const error = (err: any, code = 1) => {
-  log.error(err)
+  konsole.error(err)
   process.exit(code)
 }
 
@@ -11,7 +11,7 @@ export const errorFn = (code = 1) => (err: any) => {
 }
 
 export const ok = (msg: string) => {
-  log.info(msg ? `OK ${msg}` : 'OK')
+  konsole.info(msg ? `OK ${msg}` : 'OK')
   process.exit(0)
 }
 
@@ -20,6 +20,6 @@ export const okFn = (msg: string = '') => () => {
 }
 
 export const message = (msg: string, code = 0) => {
-  log.info(msg)
+  konsole.info(msg)
   process.exit(code)
 }

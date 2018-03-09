@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as _ from 'lodash'
 import * as fp from 'path'
 import * as exits from './exits'
-import log from './log'
+import {getLogger} from './log'
 import {prettify, trace} from './util'
 
 // Standardize differences between es6 exports and commonJs exports. Code
@@ -138,6 +138,7 @@ function makeFunctionTask(
 }
 
 function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
+  const log = getLogger()
   if (!dep) {
     return null
   }
@@ -173,6 +174,7 @@ const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
 export function findTaskfile(argv: Options): string | null {
+  const log = getLogger()
   const filename = argv.file
   const testFilename = (path: string) => {
     const absolute = fp.join(process.cwd(), path)
@@ -205,6 +207,8 @@ function configureBabel(argv: Options, taskfilePath: string) {
   if (!argv.babel && !isTypeScript) {
     return
   }
+
+  const log = getLogger()
 
   const usingMsg = isTypeScript
     ? 'Using @babel/preset-typescript for TypeScript'
@@ -271,6 +275,7 @@ export async function loadTasks(
   }
   configureBabel(argv, taskfilePath)
 
+  const log = getLogger()
   log.debug(`Loading ${taskfilePath}`)
 
   const taskfileExports = require(taskfilePath)

@@ -3,7 +3,7 @@ import * as graphqlHTTP from 'express-graphql'
 import * as fs from 'fs'
 import {buildSchema} from 'graphql'
 import * as fp from 'path'
-import log from '../core/log'
+import {konsole} from '../core/log'
 
 const loadSchema = async () => {
   const path = fp.join(__dirname, '..', 'schemas', 'api.gql')
@@ -28,5 +28,5 @@ export const start = async (opts: StartOptions) => {
     })
   )
   app.listen(opts.port)
-  log.info(`Running GraphQLserver at http://localhost:${opts.port}/graphql`)
+  konsole.info(`Running GraphQLserver at http://localhost:${opts.port}/graphql`)
 }

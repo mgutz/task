@@ -1,7 +1,7 @@
 import * as chokidar from 'chokidar'
 import * as globby from 'globby'
 import * as _ from 'lodash'
-import log from './log'
+import {getLogger} from './log'
 import * as util from './util'
 
 const defaults = {usePolling: true}
@@ -12,6 +12,7 @@ export async function watch(
   fn: TaskFunc,
   opts = defaults
 ) {
+  const log = getLogger()
   const files = await globby(globs)
   if (files.length < 1) {
     log.warn('No files match watch globs', util.prettify(globs))

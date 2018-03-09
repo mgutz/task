@@ -5,13 +5,14 @@ import * as fp from 'path'
 import * as contrib from '../contrib'
 import {run as commandInit} from '../core/commands/init'
 import * as exits from '../core/exits'
-import log, {setLevel} from '../core/log'
 import {run, runThenWatch} from '../core/runner'
 import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {trace} from '../core/util'
 import * as server from '../gqlserver'
 import * as terminal from './terminal'
 import {helpScreen, parseArgv, usage} from './usage'
+import {AppContext} from '../core/AppContext'
+import {konsole, newTerminalLogger, setLevel} from '../core/log'
 
 function loadTaskrc(workDir: string): Options {
   const taskrc = fp.join(workDir, '.taskrc')
@@ -75,7 +76,8 @@ async function main() {
     return exits.message(usage(tasks, 'list'))
   }
 
-  const ctx = {tasks, options: argv}
+  const ctx = new AppContext(tasks, argv, konsole)
+
   if (argv.init || argv.initExample) {
     return await commandInit(ctx)
   }
@@ -83,6 +85,7 @@ async function main() {
   if (argv.gui) {
     return server.run(ctx)
   }
+  ctx.log = newTerminalLogger()
   return terminal.run(ctx)
 }
 

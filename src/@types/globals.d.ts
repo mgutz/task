@@ -20,11 +20,6 @@ declare interface Options {
   watch: boolean
 }
 
-declare interface AppContext {
-  options: Options
-  tasks: Tasks
-}
-
 declare type TaskFunc = (arg: TaskParam) => any
 
 declare type ResolverFunc = (...v: any[]) => void
@@ -61,10 +56,6 @@ declare type Task = ParallelTask | SerialTask | ReifiedTask
 
 declare interface Tasks {
   [k: string]: Task
-}
-
-declare interface App {
-  run(ctx: AppContext): void
 }
 
 /**
