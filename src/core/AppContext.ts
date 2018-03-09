@@ -7,7 +7,7 @@ export class AppContext {
   constructor(
     public tasks: Tasks,
     public options: Options,
-    public konsole: pino.Logger // always logs to console of cli or server
+    public konsole: pino.Logger // Always logs to host's console
   ) {
     this.log = newTerminalLogger()
   }

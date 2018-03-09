@@ -1,5 +1,4 @@
 import * as _ from 'lodash'
-import * as contrib from '../contrib'
 import * as dotenv from 'dotenv'
 import * as exits from '../core/exits'
 import * as fp from 'path'
@@ -7,12 +6,10 @@ import * as fs from 'fs'
 import * as server from '../gqlserver'
 import * as terminal from './terminal'
 import {AppContext} from '../core/AppContext'
-import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
-import {helpScreen, parseArgv, usage} from './usage'
+import {findTaskfile, loadTasks} from '../core/tasks'
+import {helpScreen, parseArgv, tasksScreen} from './usage'
 import {konsole, newTerminalLogger, setLevel} from '../core/log'
 import {run as commandInit} from '../core/commands/init'
-import {run, runThenWatch} from '../core/runner'
-import {trace} from '../core/util'
 
 const loadTaskrc = (workDir: string): Options => {
   const taskrc = fp.join(workDir, '.taskrc')
@@ -30,7 +27,7 @@ const main = async () => {
   // load taskrc early
   const taskrc = loadTaskrc(process.cwd())
 
-  const argv = parseArgv()
+  const argv = parseArgv(taskrc)
   if (argv.help) {
     return exits.message(helpScreen())
   }
@@ -48,8 +45,10 @@ const main = async () => {
   // if the first arg has a known extension, use it as the task file
   if (argv._.length) {
     const firstArg = argv._[0]
-    if (firstArg.endsWith('.js') || firstArg.endsWith('.ts')) {
+    const dotExt = fp.extname(firstArg)
+    if (dotExt && argv.babelExtensions.indexOf(dotExt) > -1) {
       argv.file = firstArg
+      // remove file from argv
       argv._.shift()
     }
   }
@@ -73,15 +72,13 @@ const main = async () => {
     dotenv.config()
   }
   if (argv.list) {
-    return exits.message(usage(tasks, 'list'))
+    return exits.message(tasksScreen(tasks))
   }
 
   const ctx = new AppContext(tasks, argv, konsole)
-
   if (argv.init || argv.initExample) {
     return await commandInit(ctx)
   }
-
   if (argv.gui) {
     return server.run(ctx)
   }
@@ -92,9 +89,8 @@ const main = async () => {
 /**
  * Handler for unhandled promises.
  */
-process.on('unhandledRejection', (...args: any[]) => {
-  // eslint-disable-next-line no-console
-  console.error(...args)
+process.on('unhandledRejection', (rejected: any) => {
+  konsole.error(rejected)
   process.exit(1)
 })
 

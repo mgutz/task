@@ -6,7 +6,11 @@ const defaults = {
   shellArgs: ['-c'],
 }
 
-// shawn returns a spawned shell (defaults to bash) which must be executed
+/**
+ * shawn is short for shell spawns. It defaults to `bin/bash -c`. The options
+ * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
+ * option props can be set to configure the the shell used.
+ */
 export const shawn = (script: string, options = defaults) => {
   const {shell, shellArgs, ...otherOpts} = options
 
@@ -22,3 +26,9 @@ export const shawn = (script: string, options = defaults) => {
   const proc = cp.spawn(shell, params, opts)
   return proc
 }
+
+/**
+ * sleep is use dto sleep for arbitrary milliseconds.
+ */
+export const sleep = async (millis: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, millis))

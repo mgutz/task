@@ -1,6 +1,6 @@
 import * as exits from '../core/exits'
 import {run as runRef, runThenWatch} from '../core/runner'
-import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
+import {runnableRef} from '../core/tasks'
 import {usage} from './usage'
 import {AppContext} from '../core/AppContext'
 

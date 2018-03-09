@@ -1,7 +1,8 @@
-import * as fs from 'fs'
 import * as _ from 'lodash'
-import * as fp from 'path'
 import * as exits from './exits'
+import * as fp from 'path'
+import * as fs from 'fs'
+import * as is from './is'
 import {getLogger} from './log'
 import {prettify, trace} from './util'
 
@@ -28,13 +29,9 @@ const isSerial = (dep: any): boolean => Array.isArray(dep)
 
 const isDep = (dep: any): boolean => isParallel(dep) || isSerial(dep)
 
-export const isRunnable = (task: any): task is Task => {
-  return task && (typeof task.run === 'function' || Array.isArray(task.deps))
-}
-
 export const runnableRef = (tasks: Tasks, ref: string): string => {
   const task = tasks[ref]
-  return isRunnable(task) ? ref : ''
+  return is.runnable(task) ? ref : ''
 }
 
 const isTaskMeta = (task: any): boolean =>
@@ -158,7 +155,7 @@ export const depToRef = (tasks: Tasks, task: Task, dep: any): string | null => {
     name = makeAnonymousRef(tasks, dep)
   } else if (isParallel(dep)) {
     name = makeParallelRef(tasks, task, dep)
-  } else if (isRunnable(dep)) {
+  } else if (is.runnable(dep)) {
     // reference to an object
     const key = _.findKey(tasks, (o: RawTask) => o._original === dep)
     if (key) {
@@ -354,7 +351,7 @@ export const standardizeFile = (v: any): Tasks => {
 export const standardizeTask = (tasks: Tasks, k: string, v: any): Task => {
   if (typeof v === 'function') {
     return makeFunctionTask(tasks, k, v)
-  } else if (isRunnable(v) || isTaskMeta(v)) {
+  } else if (is.runnable(v) || isTaskMeta(v)) {
     // we also need to track original object to compare object references
     const existing = tasks[k]
     return {_original: v, ...existing, ...v, name: k}

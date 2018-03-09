@@ -17,6 +17,7 @@
       "severity": "warning",
       "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
     },
+    "no-unused-variable": [true, {"ignore-pattern": "^_"}],
     "only-arrow-functions": true,
     "ordered-imports": false,
     "quotemark": [true, "single", "avoid-escape"],

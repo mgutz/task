@@ -28,6 +28,7 @@ const minimistOpts = {
     'help',
     'init',
     'init-example',
+    'initExample',
     'list',
     'silent',
     'trace',
@@ -52,8 +53,11 @@ const minimistOpts = {
   },
 }
 
-export const parseArgv = (): Options => {
-  return minimist(process.argv.slice(2), minimistOpts as any) as Options
+export const parseArgv = (defaultOverrides = {}): Options => {
+  return minimist(process.argv.slice(2), {
+    ...minimistOpts,
+    default: {...minimistOpts.default, ...defaultOverrides},
+  } as any) as Options
 }
 
 export const helpScreen = () => {
@@ -62,7 +66,6 @@ export const helpScreen = () => {
 Usage: task [options] [task] [task_options...]
 
 Options
-
   --debug,--verbose   Debug logging
   --dry-run           Displays tasks that will run
   --file,-f           File
@@ -81,7 +84,6 @@ Options
 Advanced options
   --babel-extensions  File extensions that babel should process when requiring.
                       Default ['.js','.jsx','.es6','.es','.mjs','.ts','.tsx']
-  --babel-local       Use local node project's babel.
 
 Configuration File .taskrc
     module.exports = {
@@ -140,14 +142,7 @@ const taskList = (tasks: Tasks) => {
   }).replace(/^/gm, indent)
 }
 
-export const usage = (tasks: Tasks, which = ''): string => {
-  if (which === 'help') {
-    return helpScreen()
-  }
-  if (which === 'list') {
-    tasksScreen(tasks)
-  }
-
+export const usage = (tasks: Tasks): string => {
   return Object.keys(tasks).length ? tasksScreen(tasks) : helpScreen()
 }
 
@@ -163,17 +158,3 @@ Tasks
 ${taskList(tasks)}
 `
 }
-
-/*
-async function setupTerminalAutoComplete(tasks) {
-  const completion = omelette(`task <task>`)
-  if (~process.argv.indexOf('--setup-completion')) {
-    completion.setupShellInitFile()
-  }
-  const names = tasks.map(t => t.name)
-  completion.on('task', async ({reply}) => {
-    reply(names)
-  })
-  completion.init()
-}
-*/

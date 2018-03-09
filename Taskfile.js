@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 export const build = {
   desc: 'Builds project',
-  run: ctx => {
+  run: (ctx) => {
     ctx.sh.rm('-rf', 'dist')
     return ctx.shawn(`node_modules/.bin/tsc`)
   },
@@ -10,7 +10,7 @@ export const build = {
 
 export const server = {
   desc: 'Runs GraphQL Server',
-  run: ctx => {
+  run: (ctx) => {
     return ctx.shawn(`node gqlserver/index.js`)
   },
   watch: ['schemas/**.gql', 'gqlserver/**.js'],
@@ -26,10 +26,10 @@ export const test = {
         : which === 'fail' ? 'tests/fail*.{js,ts}' : 'tests/pass*.{js,ts}'
     const tests = await globby([pattern])
 
-    const promises = tests.map(testfile => {
+    const promises = tests.map((testfile) => {
       const command = `task -f ${testfile} --silent test`
       return exec(command).then(
-        res => {
+        (res) => {
           const {code, stderr} = res
           if (code !== 0 || (testfile.indexOf('fail') > -1 && !stderr)) {
             return console.error(`FAIL ${testfile}`)
@@ -52,6 +52,8 @@ export const lint = {
   desc: 'Lints the project',
   deps: [build],
   run: ({sh}) => {
-    sh.exec(`tslint --fix -c ./tslint.json 'src/**/*.ts'`)
+    sh.exec(
+      `tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`
+    )
   },
 }

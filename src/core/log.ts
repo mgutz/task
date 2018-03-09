@@ -17,7 +17,7 @@ const newKonsole = (): pino.Logger => {
 }
 
 /**
- * Konsole logs to terminal where task started.
+ * Konsole logs to terminal on host.
  */
 export const konsole = newKonsole()
 
@@ -34,7 +34,7 @@ export const newTerminalLogger = (): pino.Logger => {
 }
 
 /**
- * Log logs to terminal if local or through websockets if gui.
+ * Log logs to terminal if task runs in cli mode or through websockets if gui.
  */
 const _log = newTerminalLogger()
 

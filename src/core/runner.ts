@@ -1,154 +1,11 @@
-import {ChildProcess} from 'child_process'
 import * as _ from 'lodash'
-import * as toposort from 'toposort'
-import {inspect} from 'util'
 import * as contrib from '../contrib'
-import {addSeriesRef, isRunnable} from './tasks'
-import {watch} from './watch'
+import * as is from './is'
 import {AppContext} from './AppContext'
+import {ChildProcess} from 'child_process'
+import {execOrder} from './depsGraph'
 import {getLogger} from './log'
-
-const isParallelTask = (task: any): task is ParallelTask =>
-  task && task._parallel && task.deps
-
-const isSerialTask = (task: any): task is SerialTask =>
-  task && Array.isArray(task.deps)
-
-/**
- * A parallel task has shape: {name, _parallel: true, deps: []}
- * A serial task has shape: {name, deps: []}
- *
- *  - `graph.push([a, b])` reads as `a` must run before `b`, in other words
- *    `b` depends on `a`
- *
- *  - This function mutates ref tasks when it encounters a series task within a
- *    parallel task.
- *
- *    Consider the parallel case `{p: [b, c]}`, where `b` further depends on
- *    `a`. In that case `[a, b]` and `c` should be run in parallel.
- *
- *    `[a, b]` becomes an anonymous series task in tasks and the original
- *    `b` ref is replaced with `s_1`
- *
- *    The end result `{p: [b, c]}` becomes `{p: [s_1, c]}` where
- *    `s_1.deps = [a, b]`
- */
-const execGraph = (
-  tasks: Tasks,
-  processed: string[],
-  taskNames: string[]
-): string[][] => {
-  let graph: string[][] = []
-
-  if (!taskNames) {
-    return graph
-  }
-
-  const log = getLogger()
-
-  for (const name of taskNames) {
-    // guard against infinite loop
-    if (processed.indexOf(name) > -1) {
-      continue
-    }
-    processed.push(name)
-
-    const task = tasks[name]
-
-    if (!isRunnable(task)) {
-      throw new Error(`Name not found: ${name}`)
-    }
-
-    // [a, b, c], d => [c, d], [b, c], [a, b]
-    const dependRL = (deps: string[], depName: string) => {
-      // this flattens deps, [[a, b], c] => [a, b, c]
-      const newDeps = [...deps, depName]
-
-      for (let i = newDeps.length - 1; i > 0; i--) {
-        const prev = newDeps[i - 1]
-        const current = newDeps[i]
-        graph.push([prev, current])
-      }
-    }
-
-    // [[a, b], c], name => [s_1, c, name], where s_1 = {deps: [a, b]}
-    const addParallel = (refs: string[]) => {
-      for (let i = 0; i < refs.length; i++) {
-        let ref = refs[i]
-        // a series in an array necessitates a new unit
-        if (Array.isArray(ref)) {
-          ref = addSeriesRef(tasks, task, ref)
-          refs[i] = ref
-        }
-        // get sub dependencies of each dependency
-        const pdeps = toposort(execGraph(tasks, [], [ref]))
-
-        // if deps has no sub dependencies do nothing
-        if (pdeps.length < 2) {
-          continue
-        }
-
-        // make subdependencies be deps of current parallel task
-        // [a, b] name => [s_1, name], where s_1 == [a, b]
-        ref = addSeriesRef(tasks, task, pdeps)
-        refs[i] = ref
-      }
-    }
-
-    if (task.deps) {
-      if (isParallelTask(task)) {
-        addParallel(task.deps)
-        graph = graph.concat(execGraph(tasks, processed, task.deps))
-      } else if (isSerialTask(task.deps)) {
-        dependRL(task.deps, name)
-        graph = graph.concat(execGraph(tasks, processed, task.deps))
-      }
-    }
-  }
-
-  if (log.level === 'debug') {
-    log.debug('Dependency graph', inspect(graph))
-  }
-  return graph
-}
-
-/**
- * This does not optimally reduce the order and relies on the task runner
- * to smartly execute tasks which have not yet run. Parallelism introduces
- * complexities that make it difficult to reduce the graph and order. I'm sure
- * it can be done but for now I take advantage of knowing the behaviour of
- * the execution engine.
- */
-const execOrder = (tasks: Tasks, name: string) => {
-  const graph = execGraph(tasks, [], [name])
-  graph.push([name, ''])
-  const deps = toposort(graph)
-
-  const result = []
-  for (const dep of deps) {
-    if (!dep) {
-      continue
-    }
-
-    // stop at desired task
-    if (dep === name) {
-      result.push(dep)
-      break
-    }
-
-    const task = tasks[dep]
-    if (isRunnable(task)) {
-      result.push(dep)
-    }
-  }
-
-  return result
-}
-
-const isChildProcess = (v: any): v is ChildProcess =>
-  v && typeof v.kill === 'function'
-
-const isPromise = (v: any) => v && typeof v.then === 'function'
+import {watch} from './watch'
 
 process.on('SIGINT', () => {
   const log = getLogger()
@@ -181,7 +38,7 @@ const runTask = async (
   }
   track(task)
 
-  if (isParallelTask(task)) {
+  if (is.parallelTask(task)) {
     logDryRun(args.argv, `begin ${task.name}: {${task.deps.join(', ')}}`)
     const promises = task.deps.map((ref: string) => {
       return runTask(tasks, tasks[ref], args, false)
@@ -229,7 +86,7 @@ const runTask = async (
     log.debug(`END ${task.name}`)
   } else {
     v = task.run(args)
-    if (isPromise(v)) {
+    if (is.promise(v)) {
       v = v.then((res: any) => {
         log.debug(`END ${task.name}`)
         return res
@@ -239,7 +96,7 @@ const runTask = async (
     }
   }
 
-  if (isChildProcess(v)) {
+  if (is.childProcess(v)) {
     log.debug('Tracking old process')
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
@@ -271,7 +128,7 @@ const logDryRun = (argv: Options, msg: string) => {
 
 const getTask = (tasks: Tasks, name: string): Task | null => {
   const task = tasks[name]
-  return isRunnable(task) ? task : null
+  return is.runnable(task) ? task : null
 }
 
 const clearTracking = (tasks: Tasks) => {
@@ -295,7 +152,7 @@ export const run = async (
   const {log, tasks} = ctx
 
   if (!args) {
-    args = taskArgs(ctx.options)
+    args = taskParam(ctx.options)
   }
 
   if (!tasks) {
@@ -327,7 +184,7 @@ export const run = async (
 
 export const runThenWatch = async (ctx: AppContext, name: string) => {
   const {log, tasks} = ctx
-  const args = taskArgs(ctx.options)
+  const args = taskParam(ctx.options)
 
   const task = getTask(tasks, name)
   if (!(task && Array.isArray(task.watch))) {
@@ -346,7 +203,7 @@ export const runThenWatch = async (ctx: AppContext, name: string) => {
   })
 }
 
-const taskArgs = (argv: Options): TaskParam => {
+const taskParam = (argv: Options): TaskParam => {
   const sh = require('shelljs')
   const globby = require('globby')
   const prompt = require('inquirer').createPromptModule()
