@@ -1,4 +1,4 @@
-import {sleep} from './sleep'
+export const sleep = async ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export const name = async ({prompt}) => {
   const answers = await prompt([{name: 'name', message: 'Name'}])

@@ -32,7 +32,7 @@ npm install -g @mgutz/task@next
 Edit `Taskfile.js` or `Taskfile.ts`. _Does not need to be inside a node project_
 
 ```js
-const sleep = ms => new Promise(resolve => resolve(), ms)
+export const sleep = async ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export const name = async ({prompt}) => {
   const answers = await prompt([{name: 'name', message: 'Name'}])
