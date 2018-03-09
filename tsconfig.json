@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "lib": ["es6", "esnext"], // es2017 needed for object.values
     "target": "es6",
     "module": "commonjs",
@@ -7,6 +8,7 @@
     "outDir": "dist",
     "preserveConstEnums": true,
     "sourceMap": true,
+    "strict": true,
     "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
   "include": ["src/**/*.js", "src/**/*.ts"],

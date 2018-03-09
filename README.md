@@ -84,7 +84,7 @@ To see which tasks will run: `task build --dry-run`
 ## Configuration
 
 `task` reads `.taskrc` configuration file. `.taskrc` must be a node compatible
-Javascript file. See `Options` in [types](src/@types/glboals.d.ts) for available
+Javascript file. See `Options` in [types](src/@types/globals.d.ts) for available
 options (same as command-line)
 
 ```js

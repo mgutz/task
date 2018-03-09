@@ -8,7 +8,10 @@ import {inspect} from 'util'
 import {watch} from './watch'
 
 const isParallelTask = (task: any): task is ParallelTask =>
-  task._parallel && task.deps
+  task && task._parallel && task.deps
+
+const isSerialTask = (task: any): task is SerialTask =>
+  task && Array.isArray(task.deps)
 
 /**
  * A parallel task has shape: {name, _parallel: true, deps: []}
@@ -52,7 +55,7 @@ const execGraph = (
     // [a, b, c], d => [c, d], [b, c], [a, b]
     const dependRL = (deps: string[], name: string) => {
       // this flattens deps, [[a, b], c] => [a, b, c]
-      const newDeps = [].concat(deps, name)
+      const newDeps = [...deps, name]
 
       for (let i = newDeps.length - 1; i > 0; i--) {
         const prev = newDeps[i - 1]
@@ -86,10 +89,11 @@ const execGraph = (
     if (task.deps) {
       if (isParallelTask(task)) {
         addParallel(task.deps)
-      } else {
+        graph = graph.concat(execGraph(tasks, processed, task.deps))
+      } else if (isSerialTask(task.deps)) {
         dependRL(task.deps, name)
+        graph = graph.concat(execGraph(tasks, processed, task.deps))
       }
-      graph = graph.concat(execGraph(tasks, processed, task.deps))
     }
   }
 
@@ -148,7 +152,7 @@ process.on('SIGINT', function() {
   process.exit()
 })
 
-const _childProcesses: {[k: string]: ChildProcess} = {}
+const _childProcesses: {[k: string]: ChildProcess | null} = {}
 const runTask = async (
   tasks: Tasks,
   task: Task,
@@ -180,7 +184,7 @@ const runTask = async (
   const childProcess = _childProcesses[task.name]
   if (childProcess) {
     childProcess.removeAllListeners()
-    childProcess.once('close', code => {
+    childProcess.once('close', (code: number) => {
       log.debug(`Task '${task.name}' process exited ${code}`)
       _childProcesses[task.name] = null
       // ensure it is not being tracked so the immediate call to rerun
@@ -246,7 +250,7 @@ const logDryRun = (argv: Options, msg: string) => {
   log.debug(msg)
 }
 
-const getTask = (tasks: Tasks, name: string): Task => {
+const getTask = (tasks: Tasks, name: string): Task | null => {
   const task = tasks[name]
   return isRunnable(task) ? task : null
 }

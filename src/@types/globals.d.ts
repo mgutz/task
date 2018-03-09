@@ -46,15 +46,22 @@ declare interface RawTask {
 }
 
 declare interface SerialTask extends RawTask {
+  name: string
   deps: string[]
 }
 
 declare interface ParallelTask extends RawTask {
+  name: string
   deps: string[]
   _parallel: boolean
 }
 
-declare type Task = ParallelTask | SerialTask | RawTask
+declare interface ReifiedTask extends RawTask {
+  name: string
+  deps?: string[]
+}
+
+declare type Task = ParallelTask | SerialTask | ReifiedTask
 
 declare interface Tasks {
   [k: string]: Task

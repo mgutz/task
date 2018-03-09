@@ -7,7 +7,7 @@ import * as fs from 'fs'
 import * as server from '../gqlserver'
 import * as terminal from './terminal'
 import log, {setLevel} from '../core/log'
-import {defaults, parseArgv, usage} from './usage'
+import {defaults, helpScreen, parseArgv, usage} from './usage'
 import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {run, runThenWatch} from '../core/runner'
 import {run as commandInit} from '../core/commands/init'
@@ -44,6 +44,10 @@ async function main() {
     setLevel('info')
   }
 
+  if (argv.help) {
+    return exits.message(helpScreen())
+  }
+
   trace('mingArgv', minArgv)
   trace('ARGV', argv)
 
@@ -61,17 +65,24 @@ async function main() {
   }
 
   const taskfilePath = findTaskfile(argv)
+  if (!taskfilePath) {
+    if (argv.file) {
+      exits.error(`Tasks file not found: ${argv.file}`)
+      return null
+    }
+    return exits.message(helpScreen())
+  }
   // TODO load taskrc again and merge with minArgv
 
   const tasks = await loadTasks(argv, taskfilePath)
+  if (!tasks) {
+    return exits.error(`Cannot load tasks from: ${taskfilePath}`)
+  }
 
   //setupTerminalAutoComplete(tasks)
 
   if (argv.dotenv) {
     dotenv.config()
-  }
-  if (argv.help) {
-    return exits.message(usage(tasks, 'help'))
   }
   if (argv.list) {
     return exits.message(usage(tasks, 'list'))

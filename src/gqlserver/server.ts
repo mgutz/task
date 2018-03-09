@@ -10,7 +10,7 @@ const loadSchema = async () => {
   return buildSchema(content)
 }
 
-interface StartOptions {
+export interface StartOptions {
   port: number
   resolvers: {[k: string]: Function}
 }

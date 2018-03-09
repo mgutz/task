@@ -67,7 +67,7 @@ export function parseArgv(): Options {
   return minimist(process.argv.slice(2), minimistOpts as any) as Options
 }
 
-function helpScreen() {
+export function helpScreen() {
   return `${pkgJson.name} v${pkgJson.version} - no config task runner
 
 Usage: task [options] [task] [task_options...]

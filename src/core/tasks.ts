@@ -53,7 +53,7 @@ const isTaskMeta = (task: any): boolean =>
  *  _parallel: true
  * }
  */
-function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] {
+function standardizeDeps(tasks: Tasks, task: Task, deps: any): string[] | null {
   if (!isDep(deps)) return null
   const result = []
   let name
@@ -99,7 +99,7 @@ function makeParallelRef(tasks: Tasks, task: Task, dep: any[] | any): string {
       return it
     })
 
-  tsk.deps = standardizeDeps(tasks, tsk, deps)
+  tsk.deps = standardizeDeps(tasks, tsk, deps) || []
   tsk.desc = `Run ${task.name}`
   return name
 }
@@ -113,27 +113,31 @@ function makeAnonymousRef(tasks: Tasks, fn: Function): string {
   tasks[name] = {
     name,
     run: fn,
-  } as RawTask
+  } as ReifiedTask
   return name
 }
 
-function makeFunctionTask(tasks: Tasks, key: string, fn: Function): RawTask {
+function makeFunctionTask(
+  tasks: Tasks,
+  key: string,
+  fn: Function
+): ReifiedTask {
   if (fn.name || key) {
     return {
       name: fn.name || key,
       run: fn,
-    } as RawTask
+    } as ReifiedTask
   }
   // anonymous functions need to be in tasks too
   return {
     name: uniqueName('a'),
     run: fn,
-  } as RawTask
+  } as ReifiedTask
 }
 
-function depToRef(tasks: Tasks, task: Task, dep: string | Function | Task) {
+function depToRef(tasks: Tasks, task: Task, dep: any): string | null {
   if (!dep) return null
-  let name
+  let name: string
 
   if (_.isString(dep)) {
     name = dep
@@ -143,9 +147,12 @@ function depToRef(tasks: Tasks, task: Task, dep: string | Function | Task) {
     name = makeParallelRef(tasks, task, dep)
   } else if (isRunnable(dep)) {
     // reference to an object
-    name = _.findKey(tasks, o => o._original == dep)
-    if (!name) {
+    const key = _.findKey(tasks, o => o._original == dep)
+    if (key) {
+      name = key
+    } else {
       log.Error(`Can't match object reference`, {task, dep})
+      return null
     }
   } else {
     log.error(`Dependency type is not handled`, {task, dep})
@@ -161,7 +168,7 @@ function depToRef(tasks: Tasks, task: Task, dep: string | Function | Task) {
 const taskfileJs = 'Taskfile.js'
 const taskfileTs = 'Taskfile.ts'
 
-export function findTaskfile(argv: Options) {
+export function findTaskfile(argv: Options): string | null {
   let filename = argv.file
   const testFilename = (fname: string) => {
     const absolute = fp.join(process.cwd(), fname)
@@ -194,7 +201,7 @@ function configureBabel(argv: Options, taskfilePath: string) {
     : 'Using @babel/preset-env for ES6'
   log.debug(usingMsg)
 
-  const extensions = [].concat(argv.babelExtensions)
+  const extensions = [...argv.babelExtensions]
   if (extensions.indexOf(dotext) === -1) {
     extensions.push(dotext)
   }
@@ -248,15 +255,8 @@ function configureBabel(argv: Options, taskfilePath: string) {
 export async function loadTasks(
   argv: Options,
   taskfilePath: string
-): Promise<Tasks> {
-  if (!taskfilePath) {
-    if (argv.file) {
-      exits.error(`Tasks file not found: ${argv.file}`)
-      return null
-    }
-    return null
-  }
-
+): Promise<Tasks | null> {
+  if (!taskfilePath) return null
   configureBabel(argv, taskfilePath)
 
   log.debug(`Loading ${taskfilePath}`)
@@ -276,7 +276,9 @@ export async function loadTasks(
     // deps come in as function variables, convert to name references
     // for depedency resolution
     const deps = standardizeDeps(tasks, task, task.deps)
-    task.deps = deps
+    if (deps) {
+      task.deps = deps
+    }
   }
 
   trace('Tasks after standardizing deps\n', tasks)
