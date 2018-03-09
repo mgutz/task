@@ -1,9 +1,12 @@
-import {AppContext} from '../core/AppContext'
-import {ResolverContext} from './types'
-import {safeParseJSON} from '../core/util'
+import * as _ from 'lodash'
 import * as iss from '../core/iss'
 import * as runner from '../core/runner'
-import * as _ from 'lodash'
+import * as Worker from 'tiny-worker'
+import {AppContext} from '../core/AppContext'
+import {appWorkDirectory, safeParseJSON} from '../core/util'
+import {ResolverContext} from './types'
+import {shawn} from '../contrib'
+import {inspect} from 'util'
 
 export const tasks = (arg: any, ctx: ResolverContext) => {
   return ctx.tasks
@@ -31,13 +34,10 @@ export const run = async (a: any, ctx: ResolverContext) => {
     }
   }
 
-  // In the CLI, arbitrary flags become props on argv. From the GUI we need
-  // to merge them in.
-  //
-  // TODO: should the gui start from blank argv? argv currently has all the
-  //       all the flags from starting server
-  const args = runner.taskParam(context.options, argv)
-  const v = await runner.run(context, arg.name, args)
+  // In the CLI, arbitrary flags become props on argv. For the GUI we need
+  // to merge in user's args.
+  const args = {...context.options, ...argv}
+  const v = await runner.runTaskAsProcess(arg.name, args as any)
 
-  return {code: 0, payload: JSON.stringify(v)}
+  return {code: 0, payload: 'asda'}
 }

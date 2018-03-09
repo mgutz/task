@@ -26,8 +26,10 @@
     "minimist": "^1.2.0",
     "pino": "^4.13.0",
     "shelljs": "^0.8.1",
+    "tiny-worker": "^2.1.2",
     "toposort": "^1.0.6",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "webworker-threads": "^0.7.13"
   },
   "devDependencies": {
     "@types/chokidar": "^1.7.5",

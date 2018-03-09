@@ -1,4 +1,5 @@
 import * as cp from 'child_process'
+import * as fp from 'path'
 
 const defaults = {
   shell: '/bin/bash',
@@ -28,7 +29,7 @@ export const shawn = (script: string, options = defaults) => {
 }
 
 /**
- * sleep is use dto sleep for arbitrary milliseconds.
+ * sleep is used to sleep for arbitrary milliseconds.
  */
 export const sleep = async (millis: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, millis))

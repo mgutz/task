@@ -10,6 +10,7 @@ import {findTaskfile, loadTasks} from '../core/tasks'
 import {helpScreen, parseArgv, tasksScreen} from './usage'
 import {konsole, newTerminalLogger, setLevel} from '../core/log'
 import {run as commandInit} from '../core/commands/init'
+import {safeParseJSON} from '../core/util'
 
 const loadTaskrc = (workDir: string): Options => {
   const taskrc = fp.join(workDir, '.taskrc')
@@ -24,10 +25,24 @@ const loadTaskrc = (workDir: string): Options => {
 }
 
 const main = async () => {
-  // load taskrc early
-  const taskrc = loadTaskrc(process.cwd())
+  let argv
 
-  const argv = parseArgv(taskrc)
+  // when task is spawned by server, it passes in options through environment
+  // variable
+  if (process.env.task_ipc_options) {
+    const [argv2, err] = safeParseJSON(process.env.task_ipc_options)
+    if (err) {
+      exits.error(err)
+      return
+    }
+    argv = argv2
+    process.env.task_ipc_options = undefined
+  } else {
+    // load taskrc early
+    const taskrc = loadTaskrc(process.cwd())
+    argv = parseArgv(taskrc)
+  }
+
   if (argv.help) {
     return exits.message(helpScreen())
   }

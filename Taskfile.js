@@ -69,6 +69,17 @@ export const lint = {
 
 export const hello = {
   run: ({argv}) => {
+    console.log(`Hello ${argv.name}`)
     return `Hello ${argv.name}`
+  },
+}
+
+// TODO set `_` with task name, clear gui flag
+export const ipc = {
+  run: ({shawn}) => {
+    return shawn(`
+    export task_ipc_options='{"_":["hello"],"?":false,"help":false,"babel":true,"debug":false,"verbose":false,"dotenv":true,"dry-run":false,"dryRun":false,"gui":false,"init":false,"init-example":false,"initExample":false,"list":false,"silent":false,"trace":false,"ts":false,"typescript":false,"w":false,"watch":false,"babelExtensions":[".js",".jsx",".es6",".es",".mjs",".ts",".tsx"],"babel-extensions":[".js",".jsx",".es6",".es",".mjs",".ts",".tsx"],"file":"","f":"","name":"foo"}'
+    task
+    `)
   },
 }
