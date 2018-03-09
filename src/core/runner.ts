@@ -341,7 +341,7 @@ function taskArgs(argv: Options): TaskParam {
 
   return {
     _,
-    argv: Object.assign({}, argv, {_: argv._.slice(1)}), // drop the command
+    argv: {...argv, _: argv._.slice(1)}, // drop the command
     contrib,
     exec: execAsync,
     globby,

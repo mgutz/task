@@ -25,7 +25,7 @@ export async function watch(
       if (!firstRun) {
         log.info(message)
       }
-      const newArgs = Object.assign({}, args, {event})
+      const newArgs = {...args, event}
       fn(newArgs)
       firstRun = false
     },

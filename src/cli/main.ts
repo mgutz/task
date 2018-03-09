@@ -7,7 +7,7 @@ import * as fs from 'fs'
 import * as server from '../gqlserver'
 import * as terminal from './terminal'
 import log, {setLevel} from '../core/log'
-import {defaults, helpScreen, parseArgv, usage} from './usage'
+import {helpScreen, parseArgv, usage} from './usage'
 import {findTaskfile, loadTasks, runnableRef} from '../core/tasks'
 import {run, runThenWatch} from '../core/runner'
 import {run as commandInit} from '../core/commands/init'
@@ -15,11 +15,11 @@ import {trace} from '../core/util'
 
 let _tasks
 
-function loadTaskrc(wd: string): Options {
-  const taskrc = fp.join(wd, '.taskrc')
+function loadTaskrc(workDir: string): Options {
+  const taskrc = fp.join(workDir, '.taskrc')
   if (fs.existsSync(taskrc)) {
     const obj = require(taskrc)
-    if (obj.file && !fs.existsSync(fp.join(wd, obj.file))) {
+    if (obj.file && !fs.existsSync(fp.join(workDir, obj.file))) {
       exits.error(`File specified in ${taskrc} not found: ${obj.file}`)
     }
     return obj
@@ -31,8 +31,10 @@ async function main() {
   // load taskrc early
   let taskrc = loadTaskrc(process.cwd())
 
-  const minArgv = parseArgv()
-  const argv = Object.assign({}, defaults, taskrc, minArgv)
+  const argv = parseArgv()
+  if (argv.help) {
+    return exits.message(helpScreen())
+  }
 
   if (argv.silent) {
     setLevel('silent')
@@ -42,17 +44,6 @@ async function main() {
     setLevel('debug')
   } else {
     setLevel('info')
-  }
-
-  if (argv.help) {
-    return exits.message(helpScreen())
-  }
-
-  trace('mingArgv', minArgv)
-  trace('ARGV', argv)
-
-  if (argv.gui) {
-    exits.error('--gui not yet implemented')
   }
 
   // if the first arg has a known extension, use it as the task file
@@ -99,6 +90,9 @@ async function main() {
   return terminal.run(ctx)
 }
 
+/**
+ * Handler for unhandled promises.
+ */
 process.on('unhandledRejection', (...args: any[]) => {
   // eslint-disable-next-line no-console
   console.error(...args)

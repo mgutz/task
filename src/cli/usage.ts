@@ -4,17 +4,9 @@ import * as exits from '../core/exits'
 import * as minimist from 'minimist'
 const pkgJson = require('../../package.json')
 
-export const defaults = {
-  babel: true,
-  babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
-  dotenv: true,
-  file: '',
-}
-
 const minimistOpts = {
   alias: {
     babelExtensions: ['babel-extensions'],
-    babelLocal: ['babel-local'],
     debug: ['verbose'],
     dryRun: ['dry-run'],
     file: ['f'],
@@ -43,19 +35,14 @@ const minimistOpts = {
     'w',
     'watch',
   ],
-  string: ['f', 'file'],
+  default: {
+    babel: true,
+    babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
+    dotenv: true,
+    file: '',
+  },
+  string: ['f', 'file', 'babelExtensions'],
   unknown: (flag: string) => {
-    if (
-      [
-        '--babel-extensions',
-        '--babel',
-        '--dotenv',
-        '--no-babel',
-        '--no-dotenv',
-      ].indexOf(flag) > -1
-    )
-      return
-
     if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
       // omelette uses --comp*
       exits.error(`Unknown option: ${flag}`)
