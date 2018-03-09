@@ -1,4 +1,4 @@
-import * as is from './is'
+import * as iss from './iss'
 import * as toposort from 'toposort'
 import {getLogger} from './log'
 import {inspect} from 'util'
@@ -45,7 +45,7 @@ const dependencyGraph = (
 
     const task = tasks[name]
 
-    if (!is.runnable(task)) {
+    if (!iss.runnable(task)) {
       throw new Error(`Name not found: ${name}`)
     }
 
@@ -86,10 +86,10 @@ const dependencyGraph = (
     }
 
     if (task.deps) {
-      if (is.parallelTask(task)) {
+      if (iss.parallelTask(task)) {
         addParallel(task.deps)
         graph = graph.concat(dependencyGraph(tasks, processed, task.deps))
-      } else if (is.serialTask(task.deps)) {
+      } else if (iss.serialTask(task.deps)) {
         dependRL(task.deps, name)
         graph = graph.concat(dependencyGraph(tasks, processed, task.deps))
       }
@@ -125,7 +125,7 @@ export const execOrder = (tasks: Tasks, name: string) => {
       break
     }
     const task = tasks[dep]
-    if (is.runnable(task)) {
+    if (iss.runnable(task)) {
       result.push(dep)
     }
   }

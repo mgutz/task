@@ -1,8 +1,16 @@
 /* eslint-disable no-console */
+
+export const clean = {
+  run: ({sh}) => {
+    sh.rm('-rf', 'dist')
+  },
+  once: true,
+}
+
 export const build = {
+  deps: [clean],
   desc: 'Builds project',
   run: (ctx) => {
-    ctx.sh.rm('-rf', 'dist')
     return ctx.shawn(`node_modules/.bin/tsc`)
   },
   watch: ['src/**/*.{js,ts}'],
@@ -56,5 +64,11 @@ export const lint = {
     sh.exec(
       `tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`
     )
+  },
+}
+
+export const hello = {
+  run: ({argv}) => {
+    return `Hello ${argv.name}`
   },
 }

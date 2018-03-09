@@ -24,6 +24,11 @@ declare type TaskFunc = (arg: TaskParam) => any
 
 declare type ResolverFunc = (...v: any[]) => void
 
+declare interface TaskResult {
+  name: string
+  result: any
+}
+
 declare interface RawTask {
   deps?: any[]
   desc?: string

@@ -9,8 +9,9 @@ type ChildProcess {
 type Status {
   # Follows HTTP codes, ie 200 is success
   code: Int!
-  message: String!
+  message: String
   proc: ChildProcess
+  payload: String
 }
 
 type Task {
@@ -19,8 +20,6 @@ type Task {
   desc: String!
   every: Boolean
   once: Boolean
-  # ui: Bool
-  # run is not applicable
 }
 
 type Query {
@@ -28,5 +27,6 @@ type Query {
 }
 
 type Mutation {
-  run(ref: String!): Status!
+  # Run a task named `name` with a JSON stringified `argv`.
+  run(name: String!, argv: String): Status!
 }

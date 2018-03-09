@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import * as contrib from '../contrib'
-import * as is from './is'
+import * as iss from './iss'
 import {AppContext} from './AppContext'
 import {ChildProcess} from 'child_process'
 import {execOrder} from './depsGraph'
@@ -38,7 +38,7 @@ const runTask = async (
   }
   track(task)
 
-  if (is.parallelTask(task)) {
+  if (iss.parallelTask(task)) {
     logDryRun(args.argv, `begin ${task.name}: {${task.deps.join(', ')}}`)
     const promises = task.deps.map((ref: string) => {
       return runTask(tasks, tasks[ref], args, false)
@@ -86,7 +86,7 @@ const runTask = async (
     log.debug(`END ${task.name}`)
   } else {
     v = task.run(args)
-    if (is.promise(v)) {
+    if (iss.promise(v)) {
       v = v.then((res: any) => {
         log.debug(`END ${task.name}`)
         return res
@@ -96,7 +96,7 @@ const runTask = async (
     }
   }
 
-  if (is.childProcess(v)) {
+  if (iss.childProcess(v)) {
     log.debug('Tracking old process')
     _childProcesses[task.name] = v
     return new Promise((resolve, reject) => {
@@ -128,7 +128,7 @@ const logDryRun = (argv: Options, msg: string) => {
 
 const getTask = (tasks: Tasks, name: string): Task | null => {
   const task = tasks[name]
-  return is.runnable(task) ? task : null
+  return iss.runnable(task) ? task : null
 }
 
 const clearTracking = (tasks: Tasks) => {
@@ -144,11 +144,7 @@ const track = (task: Task) => (task._ran = true)
 const untrack = (task: Task) => (task._ran = false)
 const didRun = (task: Task) => task._ran
 
-export const run = async (
-  ctx: AppContext,
-  refs: string | string[],
-  args?: TaskParam
-) => {
+export const run = async (ctx: AppContext, name: string, args?: TaskParam) => {
   const {log, tasks} = ctx
 
   if (!args) {
@@ -158,28 +154,26 @@ export const run = async (
   if (!tasks) {
     throw new Error('`tasks` property is required')
   }
-  if (!refs) {
-    throw new Error('`refs` is empty')
+  if (!name || !_.isString(name)) {
+    throw new Error('`name` is blank or not a string')
   }
 
-  if (typeof refs === 'string') {
-    refs = [refs]
-  }
-
-  for (const name of refs) {
-    const deps = execOrder(tasks, name)
-    log.debug('Tasks', tasks)
-    logDryRun(args.argv, `Exec order [${deps.join(', ')}]`)
-    for (const dep of deps) {
-      const task = getTask(tasks, dep)
-      // tasks can just be deps
-      if (task) {
-        await runTask(tasks, task, args)
-      } else {
-        throw new Error('Object is not a task')
-      }
+  const deps = execOrder(tasks, name)
+  log.debug('Tasks', tasks)
+  logDryRun(args.argv, `Exec order [${deps.join(', ')}]`)
+  const results: TaskResult[] = []
+  for (const dep of deps) {
+    const task = getTask(tasks, dep)
+    // tasks can just be deps
+    if (task) {
+      const result = await runTask(tasks, task, args)
+      results.push({name: task.name, result})
+    } else {
+      throw new Error('Object is not a task')
     }
   }
+
+  return results
 }
 
 export const runThenWatch = async (ctx: AppContext, name: string) => {
@@ -203,7 +197,10 @@ export const runThenWatch = async (ctx: AppContext, name: string) => {
   })
 }
 
-const taskParam = (argv: Options): TaskParam => {
+export const taskParam = (
+  argv: Options,
+  additionalProps: any = {}
+): TaskParam => {
   const sh = require('shelljs')
   const globby = require('globby')
   const prompt = require('inquirer').createPromptModule()
@@ -221,7 +218,7 @@ const taskParam = (argv: Options): TaskParam => {
 
   return {
     _,
-    argv: {...argv, _: argv._.slice(1)}, // drop the command
+    argv: {...argv, _: argv._.slice(1), ...additionalProps}, // drop the command
     contrib,
     exec: execAsync,
     globby,

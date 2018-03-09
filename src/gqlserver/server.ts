@@ -18,15 +18,26 @@ export interface StartOptions {
   resolvers: {[k: string]: ResolverFunc}
 }
 
+const isResolver = (r: any): r is ResolverFunc => typeof r === 'function'
+
 export const start = async (ctx: AppContext, opts: StartOptions) => {
   const schema = await loadSchema()
   const app = express()
+
+  const resolvers: {[k: string]: ResolverFunc} = {}
+
+  for (const k in opts.resolvers) {
+    const resolver = opts.resolvers[k]
+    if (isResolver(resolver)) {
+      resolvers[k] = resolver
+    }
+  }
 
   const graphQLHandler = async (req: any, res: any, graphQLParams: any) => {
     return {
       context: {context: ctx, tasks: Object.values(ctx.tasks)},
       graphiql: true,
-      rootValue: opts.resolvers,
+      rootValue: resolvers,
       schema,
     }
   }

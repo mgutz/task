@@ -138,6 +138,7 @@ const taskList = (tasks: Tasks) => {
     .filter((it: Task) => it.desc)
   return columnify(items, {
     columnSplitter: '  ',
+    columns: ['name', 'desc'],
     showHeaders: false,
   }).replace(/^/gm, indent)
 }
