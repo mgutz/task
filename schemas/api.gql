@@ -11,6 +11,8 @@ type Status {
   code: Int!
   message: String
   proc: ChildProcess
+  # worker id
+  wid: Int!
   payload: String
 }
 
@@ -27,6 +29,9 @@ type Query {
 }
 
 type Mutation {
-  # Run a task named `name` with a JSON stringified `argv`.
+  # Run a task named `name` with JSON stringified `argv`.
   run(name: String!, argv: String): Status!
+
+  # Stop a task having worker id `wid`
+  kill(wid: Int!): Status!
 }

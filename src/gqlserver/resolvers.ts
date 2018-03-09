@@ -1,24 +1,9 @@
 import {AppContext} from '../core/AppContext'
+import {ResolverContext} from './types'
+import {safeParseJSON} from '../core/util'
 import * as iss from '../core/iss'
 import * as runner from '../core/runner'
 import * as _ from 'lodash'
-
-const parseJSON = (s: string): any => {
-  try {
-    const obj = JSON.parse(s)
-    if (_.isPlainObject(obj)) {
-      return [obj, null]
-    }
-    return [null, 'Expected a JSON object']
-  } catch (err) {
-    return [null, err.message]
-  }
-}
-
-export interface ResolverContext {
-  context: AppContext
-  tasks: Task[]
-}
 
 export const tasks = (arg: any, ctx: ResolverContext) => {
   return ctx.tasks
@@ -38,7 +23,7 @@ export const run = async (a: any, ctx: ResolverContext) => {
     return {code: 422, message: 'Task is not runnable'}
   }
 
-  const [argv, err] = parseJSON(arg.argv)
+  const [argv, err] = safeParseJSON(arg.argv)
   if (err) {
     return {
       code: 422,

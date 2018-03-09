@@ -30,7 +30,7 @@ Try
 {
   tasks {
     name
-    description
+    desc
   }
 }
 ```

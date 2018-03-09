@@ -3,8 +3,8 @@ import * as exits from './exits'
 import * as fp from 'path'
 import * as fs from 'fs'
 import * as iss from './iss'
-import {appWorkDirectory, prettify, trace} from './util'
-import {getLogger} from './log'
+import {appWorkDirectory, prettify} from './util'
+import {getLogger, trace} from './log'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.

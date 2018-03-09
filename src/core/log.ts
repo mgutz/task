@@ -1,4 +1,5 @@
 import * as pino from 'pino'
+import {inspect} from 'util'
 
 const newKonsole = (): pino.Logger => {
   const pretty = pino.pretty({
@@ -40,4 +41,14 @@ const _log = newTerminalLogger()
 
 export const getLogger = (): pino.Logger => {
   return _log
+}
+
+export const trace = (msg: string, obj: any) => {
+  if (_level !== 'trace') {
+    return
+  }
+  if (arguments.length === 1) {
+    return _log.debug(msg)
+  }
+  _log.debug(msg, inspect(obj))
 }
