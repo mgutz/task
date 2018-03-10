@@ -8,9 +8,11 @@
   * EditorConfig by EditorConfig
   * ESLint by Dirk Baeumer
   * GraphQL for VSCode by Kumar Harsh
-  * Prettier by Esben Petersen
-  * Sort Typescript Imports
+  * Prettier by Esben Petersen (with user setting `"editor.formatOnSave": true`)
+  * Sort Typescript Imports by Michael Loughry
   * TSLint by egamma
+  * other nice-to-haves
+    * Subword Navigation by ow
 
 * node LTS
 
