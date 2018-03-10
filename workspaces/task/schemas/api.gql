@@ -1,0 +1,37 @@
+# Boolean, ID, Int, Float, String
+
+# Information about running tasks
+type ChildProcess {
+  pid: Int
+  command: String
+}
+
+type Status {
+  # Follows HTTP codes, ie 200 is success
+  code: Int!
+  message: String
+  proc: ChildProcess
+  # worker id
+  wid: Int!
+  payload: String
+}
+
+type Task {
+  name: String!
+  deps: [String]
+  desc: String!
+  every: Boolean
+  once: Boolean
+}
+
+type Query {
+  tasks: [Task]
+}
+
+type Mutation {
+  # Run a task named `name` with JSON stringified `argv`.
+  run(name: String!, argv: String): Status!
+
+  # Stop a task having worker id `wid`
+  kill(wid: Int!): Status!
+}

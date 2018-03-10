@@ -1,0 +1,1 @@
+{"version":3,"file":"AppContext.js","sourceRoot":"","sources":["../../src/core/AppContext.ts"],"names":[],"mappings":";;AACA,+BAAuC;AAEvC;IAGE,YACS,KAAY,EACZ,OAAgB,EAChB,OAAoB,CAAC,gCAAgC;;QAFrD,UAAK,GAAL,KAAK,CAAO;QACZ,YAAO,GAAP,OAAO,CAAS;QAChB,YAAO,GAAP,OAAO,CAAa,CAAC,gCAAgC;QAE5D,IAAI,CAAC,GAAG,GAAG,uBAAiB,EAAE,CAAA;IAChC,CAAC;CACF;AAVD,gCAUC"}
