@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
 import * as iss from '../core/iss'
 import * as runner from '../core/runner'
-import * as Worker from 'tiny-worker'
 import {AppContext} from '../core/AppContext'
 import {appWorkDirectory, safeParseJSON} from '../core/util'
 import {ResolverContext} from './types'

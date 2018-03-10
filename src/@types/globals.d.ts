@@ -1,6 +1,5 @@
 declare module 'columnify'
 declare module 'toposort'
-declare module 'tiny-worker'
 
 declare interface Options {
   _: string[]

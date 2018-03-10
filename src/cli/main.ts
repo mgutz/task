@@ -24,29 +24,7 @@ const loadTaskrc = (workDir: string): Options => {
   return {} as Options
 }
 
-const main = async () => {
-  let argv
-
-  // when task is spawned by server, it passes in options through environment
-  // variable
-  if (process.env.task_ipc_options) {
-    const [argv2, err] = safeParseJSON(process.env.task_ipc_options)
-    if (err) {
-      exits.error(err)
-      return
-    }
-    argv = argv2
-    process.env.task_ipc_options = undefined
-  } else {
-    // load taskrc early
-    const taskrc = loadTaskrc(process.cwd())
-    argv = parseArgv(taskrc)
-  }
-
-  if (argv.help) {
-    return exits.message(helpScreen())
-  }
-
+const setLogLevel = (argv: Options) => {
   if (argv.silent) {
     setLevel('silent')
   } else if (argv.trace) {
@@ -56,8 +34,30 @@ const main = async () => {
   } else {
     setLevel('info')
   }
+}
 
-  // if the first arg has a known extension, use it as the task file
+const loadOptions = (): Options => {
+  let argv
+
+  // when task is spawned by server, it passes in options through environment
+  // variable
+  if (process.env.task_ipc_options) {
+    const [argv2, err] = safeParseJSON(process.env.task_ipc_options)
+    if (err) {
+      // this exits the app but Typescript complains on empty return
+      exits.error(err)
+    }
+    argv = argv2
+    process.env.task_ipc_options = undefined
+    return argv
+  }
+  // load taskrc early
+  const taskrc = loadTaskrc(process.cwd())
+  return parseArgv(taskrc)
+}
+
+// if the first arg has a known extension, use it as the task file
+const setFileOnFirstArgExt = (argv: Options) => {
   if (argv._.length) {
     const firstArg = argv._[0]
     const dotExt = fp.extname(firstArg)
@@ -67,6 +67,16 @@ const main = async () => {
       argv._.shift()
     }
   }
+}
+
+const main = async () => {
+  const argv = loadOptions()
+  if (argv.help) {
+    return exits.message(helpScreen())
+  }
+
+  setLogLevel(argv)
+  setFileOnFirstArgExt(argv)
 
   const taskfilePath = findTaskfile(argv)
   if (!taskfilePath) {
@@ -76,7 +86,6 @@ const main = async () => {
     }
     return exits.message(helpScreen())
   }
-  // TODO load taskrc again and merge with minArgv
 
   const tasks = await loadTasks(argv, taskfilePath)
   if (!tasks) {

@@ -45,12 +45,6 @@ const minimistOpts = {
     file: '',
   },
   string: ['f', 'file', 'babelExtensions'],
-  unknown: (flag: string) => {
-    if (flag.indexOf('-') === 0 && flag.indexOf('--comp') !== 0) {
-      // omelette uses --comp*
-      exits.error(`Unknown option: ${flag}`)
-    }
-  },
 }
 
 export const parseArgv = (defaultOverrides = {}): Options => {
