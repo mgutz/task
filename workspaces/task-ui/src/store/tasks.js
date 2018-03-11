@@ -54,7 +54,8 @@ export const tasks = {
 
     // remote proc stderr data
     perr(payload) {
-      konsole.log('perr', payload)
+      const [taskName, pid, lines] = payload
+      this.appendLog({pid, taskName, lines, kind: logKind.stderr})
     },
 
     // remote proc error event
@@ -67,7 +68,6 @@ export const tasks = {
     pout(payload) {
       const [taskName, pid, lines] = payload
       this.appendLog({pid, taskName, lines, kind: logKind.stdout})
-      konsole.log('pout', payload)
     },
 
     /**

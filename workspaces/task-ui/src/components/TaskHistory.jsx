@@ -21,7 +21,7 @@ export default class TaskHistory extends React.PureComponent {
   renderItem = ({item}) => {
     return (
       <span>
-        {item.pid} - {item.status}
+        PID {item.pid}: {item.status}
       </span>
     )
   }
