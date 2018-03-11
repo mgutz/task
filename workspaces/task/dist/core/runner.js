@@ -10,13 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
 const contrib = require("../contrib");
-const cp = require("child_process");
-const fp = require("path");
 const iss = require("./iss");
 const depsGraph_1 = require("./depsGraph");
 const log_1 = require("./log");
 const watch_1 = require("./watch");
-const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
 process.on('SIGINT', () => {
     const log = log_1.getLogger();
     log.info('cleaning up...');
@@ -206,28 +203,5 @@ exports.taskParam = (argv, additionalProps = {}) => {
         sh,
         shawn: contrib.shawn,
     };
-};
-/**
- * Since node doesn't have goroutines and libraries like webworker-thread and
- * tiny-worker do not work well with `require`, the best we can do
- * is spawn a task as a child process. In effect, task is calling itself
- * with pre-built argv passed through env variable name `task_ipc_options`
- *
- * Task checks if `task_ipc_options` is set before doing anything else.
- *
- * The argv must have`_.[0]` be the task name and `gui: false`.
- */
-exports.runAsProcess = (name, argv) => {
-    argv._[0] = name;
-    argv.gui = false;
-    const opts = {
-        detached: true,
-        env: Object.assign({}, process.env, { task_ipc_options: JSON.stringify(argv) }),
-        stdio: 'inherit',
-    };
-    // execute the script
-    const params = [taskScript];
-    const proc = cp.spawn('node', params, opts);
-    return proc;
 };
 //# sourceMappingURL=runner.js.map

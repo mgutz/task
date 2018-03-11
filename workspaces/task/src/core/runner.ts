@@ -9,8 +9,6 @@ import {execOrder} from './depsGraph'
 import {getLogger} from './log'
 import {watch} from './watch'
 
-const taskScript = fp.resolve(__dirname, '..', '..', 'index.js')
-
 process.on('SIGINT', () => {
   const log = getLogger()
   log.info('cleaning up...')
@@ -230,33 +228,4 @@ export const taskParam = (
     sh,
     shawn: contrib.shawn,
   }
-}
-
-/**
- * Since node doesn't have goroutines and libraries like webworker-thread and
- * tiny-worker do not work well with `require`, the best we can do
- * is spawn a task as a child process. In effect, task is calling itself
- * with pre-built argv passed through env variable name `task_ipc_options`
- *
- * Task checks if `task_ipc_options` is set before doing anything else.
- *
- * The argv must have`_.[0]` be the task name and `gui: false`.
- */
-export const runAsProcess = (name: string, argv: Options): cp.ChildProcess => {
-  argv._[0] = name
-  argv.gui = false
-
-  const opts = {
-    detached: true,
-    env: {
-      ...process.env,
-      task_ipc_options: JSON.stringify(argv),
-    },
-    stdio: 'inherit',
-  }
-
-  // execute the script
-  const params = [taskScript]
-  const proc = cp.spawn('node', params, opts)
-  return proc
 }

@@ -78,3 +78,5 @@ declare interface TaskParam {
   sh: any
   shawn: any
 }
+
+declare type Dict<k, v> = {[k: string]: v}

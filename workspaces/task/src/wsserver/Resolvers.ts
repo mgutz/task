@@ -6,6 +6,7 @@ import {appWorkDirectory, safeParseJSON} from '../core/util'
 import {ResolverContext} from './types'
 import {shawn} from '../contrib'
 import {inspect} from 'util'
+import {runAsProcess} from './runAsProcess'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -17,36 +18,25 @@ export class Resolvers {
   constructor(public rcontext: ResolverContext) {}
 
   public tasks = (arg: any) => {
-    return this.rcontext.tasks
+    return {c: 200, p: this.rcontext.tasks}
   }
 
-  public run = async (a: any) => {
-    interface Param {
-      name: string
-      argv: string
-    }
-    const arg = a as Param
-
-    const {context} = this.rcontext
-    const task = context.tasks[arg.name]
-    if (!task) return {code: 422, message: 'Task not found'}
+  // {c: numeric_code, e: error_message, p: payload}
+  public run = (name: string, argv: Dict<string, any>) => {
+    const {context, client} = this.rcontext
+    const task = context.tasks[name]
+    if (!task) return {c: 422, e: 'Task not found'}
     if (!iss.runnable(task)) {
-      return {code: 422, message: 'Task is not runnable'}
-    }
-
-    const [argv, err] = safeParseJSON(arg.argv)
-    if (err) {
-      return {
-        code: 422,
-        message: err,
-      }
+      return {c: 422, e: 'Task is not runnable'}
     }
 
     // In the CLI, arbitrary flags become props on argv. For the GUI we need
     // to merge in user's args.
     const args = {...context.options, ...argv}
-    const v = await runner.runAsProcess(arg.name, args as any)
+    const cp = runAsProcess(name, args as any, client)
 
-    return {code: 200, payload: 'asda'}
+    // events are passed through client. return the pid here for the UI
+    // to know which pid it is
+    return {c: 200, p: {pid: cp.pid}}
   }
 }

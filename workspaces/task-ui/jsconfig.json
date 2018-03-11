@@ -1,0 +1,15 @@
+{
+  "module": "es6",
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es5",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "baseUrl": "./",
+    "paths": {
+      "#/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules"],
+  "compileOnSave": false
+}

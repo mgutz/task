@@ -8,14 +8,19 @@ import { ResolverContext } from './types';
 export declare class Resolvers {
     rcontext: ResolverContext;
     constructor(rcontext: ResolverContext);
-    tasks: (arg: any) => Task[];
-    run: (a: any) => Promise<{
-        code: number;
-        message: any;
-        payload?: undefined;
+    tasks: (arg: any) => {
+        c: number;
+        p: Task[];
+    };
+    run: (name: string, argv: Dict<string, any>) => {
+        c: number;
+        e: string;
+        p?: undefined;
     } | {
-        code: number;
-        payload: string;
-        message?: undefined;
-    }>;
+        c: number;
+        p: {
+            pid: number;
+        };
+        e?: undefined;
+    };
 }

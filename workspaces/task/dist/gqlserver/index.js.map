@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/gqlserver/index.ts"],"names":[],"mappings":";;AAAA,yCAAwC;AACxC,qCAA8B;AAG9B,MAAM,QAAQ,GAAG;IACf,IAAI,EAAE,IAAI;IACV,SAAS;CACV,CAAA;AAEY,QAAA,GAAG,GAAG,CAAC,GAAe,EAAE,EAAE;IACrC,cAAK,CAAC,GAAG,EAAE,QAAQ,CAAC,CAAA;AACtB,CAAC,CAAA"}

@@ -17,18 +17,14 @@ const Resolvers_1 = require("./Resolvers");
 const WebSocket = require("ws");
 const initResolvers = (rcontext) => {
     return (client, authData) => {
-        const resolverContext = Object.assign({}, rcontext, { authData });
+        const resolverContext = Object.assign({}, rcontext, { authData, client });
         // register any function that does not start with '_'
         const resolvers = new Resolvers_1.Resolvers(resolverContext);
         for (const k in resolvers) {
             // @ts-ignore
             const resolver = resolvers[k];
-            if (k.startsWith('_'))
+            if (k.startsWith('_') || typeof resolver !== 'function')
                 continue;
-            if (typeof resolver !== 'function') {
-                log_1.konsole.warn(`resolvers.${k} is not a function , skipping`);
-                continue;
-            }
             client.register(k, resolver);
         }
         return Promise.resolve();
