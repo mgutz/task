@@ -9,6 +9,8 @@ const Item = styled.li`
   padding: 10px;
 `
 
+const Button = styled.button.attrs({type: 'button'})``
+
 const mapDispatch = ({tasks: {run, stop}}) => ({run, stop})
 
 @connect(null, mapDispatch)
@@ -26,13 +28,10 @@ export default class TaskActionBar extends React.PureComponent {
         <UnorderedList>
           <Item>{task.name} Actions &amp; History</Item>
           <Item>
-            {' '}
-            <a title="run" onClick={this.doRun}>
-              run
-            </a>{' '}
-            <a title="stop" onClick={this.doStop}>
+            <Button onClick={this.doRun}>run</Button>{' '}
+            <Button title="stop" onClick={this.doStop}>
               stop
-            </a>
+            </Button>
           </Item>
         </UnorderedList>
         <TaskHistory task={task} />
