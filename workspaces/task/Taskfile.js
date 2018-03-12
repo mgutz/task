@@ -61,9 +61,7 @@ export const lint = {
   desc: 'Lints the project',
   deps: [build],
   run: ({sh}) => {
-    sh.exec(
-      `tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`
-    )
+    sh.exec(`tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`)
   },
 }
 
@@ -71,6 +69,9 @@ export const hello = {
   run: ({argv}) => {
     console.log(`Hello ${argv.name}`)
     return `Hello ${argv.name}`
+  },
+  form: {
+    name: String,
   },
 }
 

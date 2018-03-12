@@ -1,20 +1,22 @@
-import * as imm from 'dot-prop-immutable'
+import producer from './producer'
 
 export const logs = {
   // {[pid]: [[kind, lines] ...]}
   state: {},
 
   reducers: {
-    'tasks/appendLog': (state, payload) => {
+    'tasks/appendLog': producer((draft, payload) => {
       const {pid, lines, kind} = payload
       const spid = String(pid)
+      const chunks = draft[spid]
+      const chunk = [kind, lines]
 
-      const item = state[spid]
-      if (!item) {
-        return imm.set(state, spid, [[kind, lines]])
+      if (chunks) {
+        chunks.push(chunk)
+        return
       }
-      return imm.set(state, spid, [...item, [kind, lines]])
-    },
+      draft[spid] = [chunk]
+    }),
   },
 
   // async action creators

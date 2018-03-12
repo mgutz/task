@@ -4,15 +4,9 @@ import {FlatList} from '#/components/styled'
 import TaskItem from './TaskItem'
 import PropTypes from 'prop-types'
 
-const mapState = (state) => {
-  return {tasks: state.tasks}
-}
+const mapState = (state) => ({tasks: state.tasks})
 
-const mapDispatch = ({tasks: {all}}) => {
-  return {
-    all: () => all(),
-  }
-}
+const mapDispatch = ({tasks: {all}}) => ({all})
 
 @connect(mapState, mapDispatch)
 export default class TasksNav extends React.Component {

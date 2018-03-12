@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import * as imm from 'dot-prop-immutable'
+import producer from './producer'
 
 export const history = {
   state: {},
@@ -14,34 +14,32 @@ export const history = {
      *  method - the remote method invoked
      *  args - the args for remote method
      */
-    'tasks/addHistory': (state, payload) => {
-      const {pid} = payload
-
-      const item = state[payload.taskName]
-      if (!item) {
-        return imm.merge(state, payload.taskName, [payload])
-      }
-
-      const idx = _.findIndex(item, {pid})
-      // never modify, only add
-      if (idx < 0) {
-        return imm.merge(state, payload.taskName, [payload])
-      }
-
-      return state
-    },
-
-    'tasks/updateHistory': (state, payload) => {
+    'tasks/addHistory': producer((draft, payload) => {
       const {pid, taskName} = payload
-      if (!pid || !taskName) return state
-
-      const item = state[payload.taskName]
-      const idx = _.findIndex(item, {pid: payload.pid})
-      if (idx > -1) {
-        return imm.merge(state, `${taskName}.${idx}`, payload)
+      const item = draft[taskName]
+      if (!item) {
+        draft[taskName] = [payload]
+        return
       }
-      return state
-    },
+
+      // never modify, only add
+      const found = _.find(item, {pid})
+      if (!found) {
+        draft[taskName].push(payload)
+      }
+    }),
+
+    'tasks/updateHistory': producer((draft, payload) => {
+      const {pid, taskName} = payload
+      if (!pid || !taskName) return
+
+      const items = draft[taskName]
+      const idx = _.findIndex(items, {pid})
+      if (idx > -1) {
+        const item = items[idx]
+        items[idx] = {...item, ...payload}
+      }
+    }),
   },
 
   // async action creators

@@ -34,10 +34,10 @@ const initResolvers = (rcontext: ResolverContext) => {
 }
 
 export const start = async (ctx: AppContext, opts: StartOptions) => {
+  // whitelist marshalled properties
   const tasks: Task[] = _.map(ctx.tasks, (task: Task) =>
-    _.pick(task, ['deps', 'desc', 'every', 'name', 'once'])
+    _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once'])
   )
-
   const rcontext = {
     context: ctx,
     tasks,

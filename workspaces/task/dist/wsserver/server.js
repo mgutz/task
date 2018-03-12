@@ -31,7 +31,8 @@ const initResolvers = (rcontext) => {
     };
 };
 exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
-    const tasks = _.map(ctx.tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'name', 'once']));
+    // whitelist marshalled properties
+    const tasks = _.map(ctx.tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once']));
     const rcontext = {
         context: ctx,
         tasks,

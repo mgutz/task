@@ -34,6 +34,7 @@ declare interface RawTask {
   deps?: any[]
   desc?: string
   every?: boolean
+  form?: any
   name?: string
   once?: boolean
   run?: TaskFunc

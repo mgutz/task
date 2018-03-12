@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 import {invoke} from '../services/websocket'
 import {konsole} from '#/util'
-import * as imm from 'dot-prop-immutable'
+import producer from './producer'
 
 const logKind = {
   stdout: 0,
@@ -20,22 +20,26 @@ export const tasks = {
     appendLog: handledElsewhere,
     updateHistory: handledElsewhere,
 
-    mergeTasks: (state, payload) => {
-      // TODO properly merge this
-      state = payload
-      return state
-    },
+    mergeTasks: producer((draft, payload) => {
+      for (const task of payload) {
+        const idx = _.findIndex(draft, {name: task.name})
+        if (idx > -1) {
+          draft[idx] = {...draft[idx], ...task}
+          continue
+        }
+        draft.push(task)
+      }
+    }),
 
-    // status in {'', running, errored, closed}
-    updateTask: (state, payload) => {
+    updateTask: producer((draft, payload) => {
       const {taskName, ...rest} = payload
-      const idx = _.findIndex(state, {name: taskName})
+      const idx = _.findIndex(draft, {name: taskName})
       if (idx < 0) {
         konsole.error('Could not find task', taskName)
-        return state
+        return
       }
-      return imm.set(state, String(idx), {...state[idx], ...rest})
-    },
+      draft[idx] = {...draft[idx], ...rest}
+    }),
   },
 
   // async action creators
@@ -111,22 +115,3 @@ export const tasks = {
     },
   },
 }
-
-/*
-  proc.stdout.on('data', (data) => {
-    client.send('pout', [taskName, proc.pid, data])
-  })
-
-  proc.stderr.setEncoding('utf-8')
-  proc.stderr.on('data', (data) => {
-    client.send('perr', [taskName, proc.pid, data])
-  })
-
-  proc.on('close', () => {
-    client.send('pclose', [taskName, proc.pid, code])
-  })
-
-  proc.on('error', (err) => {
-    client.send('perror', [taskName, proc.pid, err])
-  })
-  */
