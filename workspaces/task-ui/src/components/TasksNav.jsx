@@ -1,7 +1,12 @@
 import * as React from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {List, ListSubHeader, ListItem} from '#/components/material'
+import {
+  List,
+  ListSubHeader,
+  ListItem,
+  ListItemText,
+} from '#/components/material'
 import {withRoute} from 'react-router5'
 import classNames from 'classnames'
 
@@ -23,7 +28,7 @@ export default class TasksNav extends React.Component {
   }
 
   renderItems(tasks) {
-    const {router, activeTaskName} = this.props
+    const {router} = this.props
     const route = router.getState()
 
     console.log('router.params', route.params)
@@ -34,11 +39,10 @@ export default class TasksNav extends React.Component {
         <ListItem
           className={classes}
           key={task.name}
-          caption={task.name}
-          legend={task.desc}
           onClick={this.doSetActive(task)}
-          ripple={false}
-        />
+        >
+          <ListItemText primary={task.name} secondary={task.desc} />
+        </ListItem>
       )
     })
   }
@@ -47,8 +51,8 @@ export default class TasksNav extends React.Component {
     const {tasks} = this.props
     if (!tasks) return null
     return (
-      <List selectable>
-        <ListSubHeader caption="Tasks" />
+      <List>
+        <ListSubHeader>Tasks</ListSubHeader>
         {this.renderItems(tasks)}
       </List>
     )

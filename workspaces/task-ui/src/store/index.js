@@ -30,7 +30,7 @@ const hookWebSocket = (store) => {
   })
 
   proc.on('close', () => {
-    client.send('pclose', [taskName, proc.pid])
+    client.send('pclose', [taskName, proc.pid, code])
   })
 
   proc.on('error', (err) => {

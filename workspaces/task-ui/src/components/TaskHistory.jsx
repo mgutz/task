@@ -2,12 +2,19 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {FontIcon, List, ListItem, ListSubHeader} from '#/components/material'
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  ListSubHeader,
+} from '#/components/material'
+import {FiberManualRecord} from 'material-ui-icons'
 import * as strftime from 'strftime'
 
 import styled from 'styled-components'
 
-const Status = styled(FontIcon)`
+const Status = styled(FiberManualRecord)`
   color: ${(props) => (props.status === 'running' ? 'green' : '')};
 `
 
@@ -41,22 +48,20 @@ export default class TaskHistory extends React.Component {
       const dayFormat = '%F %I:%M:%S %p'
       const hourFormat = '%I:%M:%S %p'
       const format = olderThanOneDay ? dayFormat : hourFormat
-
       const caption = strftime(format, new Date(history.createdAt))
 
       return (
-        <ListItem
-          key={history.pid}
-          caption={caption}
-          legend={status}
-          rightIcon={
+        <ListItem key={history.pid}>
+          <ListItemText primary={caption} secondary={status} />
+          <ListItemSecondaryAction>
+            {' '}
             <Status
               value="fiber_manual_record"
               status={history.status}
               onClick={this.doSetActive(history)}
             />
-          }
-        />
+          </ListItemSecondaryAction>
+        </ListItem>
       )
     })
   }
@@ -67,7 +72,7 @@ export default class TaskHistory extends React.Component {
 
     return (
       <List>
-        <ListSubHeader caption={caption} />
+        <ListSubHeader>{caption}</ListSubHeader>
         {histories && this.renderItems(histories)}
       </List>
     )

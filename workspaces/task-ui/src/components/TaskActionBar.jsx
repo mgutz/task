@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import TaskHistory from './TaskHistory'
 import {IconButton} from '#/components/material'
+import StopIcon from 'material-ui-icons/Stop'
+import PlayArrowIcon from 'material-ui-icons/PlayArrow'
 
 const mapDispatch = ({tasks: {run, stop}}) => ({run, stop})
 
@@ -14,20 +16,16 @@ export default class TaskActionBar extends React.PureComponent {
     task: PropTypes.object.isRequired,
   }
 
-  constructor() {
-    super()
-    this.actions = [
-      {icon: 'play_arrow', onClick: this.doRun},
-      {icon: 'stop', onClick: this.doStop},
-    ]
-  }
-
   render() {
     const {task} = this.props
     return (
       <div>
-        <IconButton icon="stop" onClikc={this.doStop} />
-        <IconButton icon="play_arrow" onClick={this.doRun} accent />
+        <IconButton onClick={this.doStop}>
+          <StopIcon />
+        </IconButton>
+        <IconButton onClick={this.doRun}>
+          <PlayArrowIcon />
+        </IconButton>
         <TaskHistory task={task} />
       </div>
     )
