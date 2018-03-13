@@ -110,10 +110,11 @@ const effects = {
 
 const selectors = {
   taskByIdThenName(state, taskfileId, taskName) {
-    const task = state[taskfileId]
-    if (!task) return null
+    const taskfile = state[taskfileId]
+    if (!taskfile) return null
 
-    return _.find(task, {name: taskName})
+    const found = _.find(taskfile, {name: taskName})
+    return found
   },
 }
 

@@ -15,25 +15,28 @@ export const history = {
      *  args - the args for remote method
      */
     'taskfiles/addHistory': producer((draft, payload) => {
-      const {pid, taskName} = payload
-      const item = draft[taskName]
+      const {pid, taskfileId, taskName} = payload
+      const id = calcId(taskfileId, taskName)
+      const item = draft[id]
       if (!item) {
-        draft[taskName] = [payload]
+        draft[id] = [payload]
         return
       }
 
       // never modify, only add
       const found = _.find(item, {pid})
       if (!found) {
-        draft[taskName].push(payload)
+        draft[id].push(payload)
       }
     }),
 
     'taskfiles/updateHistory': producer((draft, payload) => {
-      const {pid, taskName} = payload
+      const {pid, taskName, taskfileId} = payload
       if (!pid || !taskName) return
 
-      const items = draft[taskName]
+      const id = calcId(taskfileId, taskName)
+
+      const items = draft[id]
       const idx = _.findIndex(items, {pid})
       if (idx > -1) {
         const item = items[idx]
@@ -44,4 +47,17 @@ export const history = {
 
   // async action creators
   effects: {},
+
+  selectors: {
+    byTaskfileIdAndTaskName(state, payload) {
+      const {taskfileId, taskName} = payload
+      const id = calcId(taskfileId, taskName)
+      const histories = state[id]
+      return histories
+    },
+  },
+}
+
+const calcId = (taskfileId, taskName) => {
+  return `${taskfileId}-${taskName}`
 }

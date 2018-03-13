@@ -9,7 +9,6 @@ import PropTypes from 'prop-types'
 //import {konsole} from '#/util'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List from 'material-ui/List'
-
 import {select} from '@rematch/select'
 
 const {Fragment} = React
@@ -46,25 +45,6 @@ export default class ProjectView extends React.Component {
   componentDidMount() {
     if (!this.props.project.taskfiles) this.props.loadProject()
   }
-
-  /*
-  <Fragment>
-  <nav>
-    <Taskfiles project={project} />
-    <TasksNav tasks={tasks} />
-  </nav>
-  {task && (
-    <Fragment>
-      <aside>
-        <TaskActionBar task={task} />
-      </aside>
-      <main>
-        <TaskLog task={task} />
-      </main>
-    </Fragment>
-  )}
-</Fragment>
-*/
 
   renderTaskfiles(taskfiles) {
     return taskfiles.map((taskfile) => {

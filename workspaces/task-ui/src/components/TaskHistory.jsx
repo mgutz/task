@@ -1,4 +1,3 @@
-import * as _ from 'lodash'
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
@@ -11,6 +10,7 @@ import {
 } from '#/components/material'
 import {FiberManualRecord} from 'material-ui-icons'
 import * as strftime from 'strftime'
+import {select} from '@rematch/select'
 
 import styled from 'styled-components'
 
@@ -19,9 +19,14 @@ const Status = styled(FiberManualRecord)`
 `
 
 const mapState = (state, props) => {
-  const taskName = _.get(props, 'task.name')
+  if (!props.task) return {}
+
+  const {name, taskfileId} = props.task
   return {
-    histories: state.history[taskName],
+    histories: select.history.byTaskfileIdAndTaskName(state, {
+      taskfileId,
+      taskName: name,
+    }),
   }
 }
 

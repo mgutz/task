@@ -1,5 +1,14 @@
 # Hacking
 
+## Awesome foundation
+
+* [immer](https://github.com/mweststrate/immer) - painless immutability
+* [material-ui](https://github.com/mui-org/material-ui) - huge but robust
+* [rematch](https://github.com/rematch/rematch) - redux for humans
+* [router5 ](https://github.com/router5/router5) - unpolluted renders
+
+## Running
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 To run
@@ -39,7 +48,7 @@ function code {
 }
 ```
 
-## TODO
+## 1.0 TODO
 
 * [x] Multiple Taskfiles in a Taskproject
 * [ ] Interactive JSON in Log History
@@ -50,4 +59,47 @@ function code {
 * [ ] Dynamically add Taskfile to project
 * [ ] Add `--harden` to prevent things like dynamically adding a `Taskfile`;
       passing in custom `argv`. Maybe this is the default when
-      `NODE_ENV === 'production'`
+      `NODE_ENV === 'production'` and task runs in `--gui` mode. In that case,
+      it might be better to create `--dangerously-weak-mode` flag.
+* [x] Tasks with same name are sharing history. Use `taskfileId` as additional
+      discriminator
+* [ ] Websocket disconnects a lot. Move to another library or maybe use
+      `engine.io` or `primus` which is more battle tested? Stability is far
+      more important than size.
+* [ ] Add example database query plugin to exec simple queries.
+      ```js
+      import queryerPlugin from 'task-plugin-queryer'
+
+      // returns {run, form, desc}
+      export const queryer = queryerPlugin({
+        conn: 'hostname=localhost username=postgres password=blah',
+      })
+      ```
+* [ ] Should `Task.form` result in prompts on the CLI?
+* [ ] Simplify the websocket resolvers on server. Should not have to build
+      JSON packets manually.
+
+      ```js
+        return {c: 200, p: data}
+        // SHOULD simply be
+        return data
+
+
+        return {c: 422, e: 'Some error'}
+        // SHOULD be
+        throw new ApiError(422, 'some error')
+
+        // Any uncaught error results in
+        {c:500, e: err}
+      ```
+* [ ] Watch mode should account for dependency watch globs.
+* [ ] Task needs to be long-lived. Persist history in files named
+      `taskfileId-taskName-pid-date.json`
+* [ ] CLI and contrib polugins will under MIT license so anybody can run tasks
+      without worry. The --api mode allows anyone to build their own UI
+      on top of it.
+* [ ] Lots of tests for the CLI
+* [ ] GPLv3 Front-End
+* [ ] bling: background image by project (Taskproject.json)
+* [ ] bling: background iamge by taskfile (Taskproject.json)
+* [ ] bling: themes

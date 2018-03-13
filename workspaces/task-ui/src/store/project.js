@@ -11,7 +11,6 @@ export const project = {
 
   effects: {
     load() {
-      console.log('getsss')
       invoke('loadProject').then(this.setProject)
     },
   },

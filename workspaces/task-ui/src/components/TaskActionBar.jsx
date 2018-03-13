@@ -43,6 +43,6 @@ export default class TaskActionBar extends React.PureComponent {
 
   doStop = () => {
     const {stop, task} = this.props
-    stop([task.name])
+    stop([task.taskfileId, task.name])
   }
 }

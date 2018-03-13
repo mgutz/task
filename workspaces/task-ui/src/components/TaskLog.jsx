@@ -13,12 +13,12 @@ const mapState = (state, props) => {
 @connect(mapState)
 export default class TaskLog extends React.PureComponent {
   static propTypes = {
-    task: PropTypes.object.isRequired,
     pid: PropTypes.number,
     chunks: PropTypes.array,
   }
 
   renderItem = ({item}) => {
+    // eslint-disable-next-line
     const [_kind, lines] = item
     return (
       <pre>
