@@ -53,7 +53,7 @@ const loadOptions = (): Options => {
   }
   // load taskrc early
   const taskrc = loadTaskrc(process.cwd())
-  return parseArgv(taskrc)
+  return parseArgv(process.argv.slice(2), taskrc)
 }
 
 // if the first arg has a known extension, use it as the task file

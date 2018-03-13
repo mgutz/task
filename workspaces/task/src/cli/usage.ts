@@ -13,6 +13,7 @@ const minimistOpts = {
     file: ['f'],
     help: ['?'],
     initExample: ['init-example'],
+    projectFile: ['project-file', 'p'],
     typescript: ['ts'],
     watch: ['w'],
   },
@@ -29,6 +30,9 @@ const minimistOpts = {
     'init-example',
     'initExample',
     'list',
+    'p',
+    'project-file',
+    'projectFile',
     'silent',
     'trace',
     'ts',
@@ -43,11 +47,11 @@ const minimistOpts = {
     dotenv: true,
     file: '',
   },
-  string: ['f', 'file', 'babelExtensions'],
+  string: ['f', 'file', 'babelExtensions', 'projectFile'],
 }
 
-export const parseArgv = (defaultOverrides = {}): Options => {
-  return minimist(process.argv.slice(2), {
+export const parseArgv = (argv: string[], defaultOverrides = {}): Options => {
+  return minimist(argv, {
     ...minimistOpts,
     default: {...minimistOpts.default, ...defaultOverrides},
   } as any) as Options
@@ -68,6 +72,7 @@ Options
   --list              List tasks
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
+  --project-file,-p   Project file used by server (./Taskproject.json)
   --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript

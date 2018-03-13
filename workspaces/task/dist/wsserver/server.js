@@ -8,13 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("lodash");
 const express = require("express");
 const http = require("http");
+const WebSocket = require("ws");
 const WSMessaging = require("ws-messaging");
 const log_1 = require("../core/log");
 const Resolvers_1 = require("./Resolvers");
-const WebSocket = require("ws");
+const util_1 = require("./util");
 const initResolvers = (rcontext) => {
     return (client, authData) => {
         const resolverContext = Object.assign({}, rcontext, { authData, client });
@@ -31,11 +31,10 @@ const initResolvers = (rcontext) => {
     };
 };
 exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
-    // whitelist marshalled properties
-    const tasks = _.map(ctx.tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once']));
+    const project = (yield util_1.loadProjectFile(ctx.options));
     const rcontext = {
         context: ctx,
-        tasks,
+        project,
     };
     const app = express();
     const server = http.createServer(app);
@@ -47,4 +46,5 @@ exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
         log_1.konsole.info(`Running websocket server on http://localhost:${opts.port}`);
     });
 });
+// server needs Taskproject.ts
 //# sourceMappingURL=server.js.map

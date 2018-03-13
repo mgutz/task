@@ -15,6 +15,7 @@ declare interface Options {
   init: boolean
   initExample: boolean
   list: boolean
+  projectFile: string
   silent: boolean
   trace: boolean
   typescript: boolean
@@ -80,4 +81,6 @@ declare interface TaskParam {
   shawn: any
 }
 
-declare interface Dict<k, v> {[k: string]: v}
+declare interface Dict<k, v> {
+  [k: string]: v
+}

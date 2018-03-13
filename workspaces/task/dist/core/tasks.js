@@ -232,8 +232,9 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     }
     exports.configureBabel(argv, taskfilePath);
     const log = log_1.getLogger();
-    log.debug(`Loading ${taskfilePath}`);
-    const taskfileExports = require(taskfilePath);
+    log.debug(`Loading "${fp.resolve(taskfilePath)}"`);
+    log.debug('cwd', process.cwd());
+    const taskfileExports = require(fp.resolve(taskfilePath));
     log_1.trace('Raw taskfile\n', taskfileExports);
     const taskfile = standardizeExports(argv, taskfileExports);
     log_1.trace('Standardized as ES6\n', taskfile);

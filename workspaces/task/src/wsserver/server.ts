@@ -1,12 +1,13 @@
 import * as _ from 'lodash'
 import * as express from 'express'
 import * as http from 'http'
+import * as WebSocket from 'ws'
 import * as WSMessaging from 'ws-messaging'
 import {AppContext} from '../core/AppContext'
 import {konsole} from '../core/log'
-import {ResolverContext} from './types'
+import {Project, ResolverContext} from './types'
 import {Resolvers} from './Resolvers'
-import * as WebSocket from 'ws'
+import {loadProjectFile} from './util'
 
 export interface StartOptions {
   port: number
@@ -30,13 +31,11 @@ const initResolvers = (rcontext: ResolverContext) => {
 }
 
 export const start = async (ctx: AppContext, opts: StartOptions) => {
-  // whitelist marshalled properties
-  const tasks: Task[] = _.map(ctx.tasks, (task: Task) =>
-    _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once'])
-  )
+  const project = (await loadProjectFile(ctx.options)) as Project
+
   const rcontext = {
     context: ctx,
-    tasks,
+    project,
   } as ResolverContext
 
   const app = express()
@@ -52,3 +51,5 @@ export const start = async (ctx: AppContext, opts: StartOptions) => {
     konsole.info(`Running websocket server on http://localhost:${opts.port}`)
   })
 }
+
+// server needs Taskproject.ts

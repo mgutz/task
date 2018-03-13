@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './App.css'
-import TaskView from '#/containers/TaskView'
+import ProjectView from '#/containers/ProjectView'
 import {routeNode} from 'react-router5'
 import Info from '#/components/Info'
 import PropTypes from 'prop-types'
@@ -13,7 +13,8 @@ export default class App extends React.Component {
 
   render() {
     const {route} = this.props
-    let body = route && route.name.startsWith('tasks') ? <TaskView /> : <Info />
+    let body =
+      route && route.name.startsWith('tasks') ? <ProjectView /> : <Info />
     return (
       <div className="App">
         <header className="App-header">

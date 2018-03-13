@@ -2,6 +2,7 @@ import * as React from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import {
+  Button,
   List,
   ListSubHeader,
   ListItem,
@@ -9,29 +10,28 @@ import {
 } from '#/components/material'
 import {withRoute} from 'react-router5'
 import classNames from 'classnames'
+import AddIcon from 'material-ui-icons/Add'
 
 const mapState = (state) => ({tasks: state.tasks})
 
-const mapDispatch = ({tasks: {all}}) => ({all})
+const mapDispatch = ({project: {load}}) => ({loadProject: load})
 
 @withRoute
 @connect(mapState, mapDispatch)
 export default class TasksNav extends React.Component {
   static propTypes = {
     activeTaskName: PropTypes.string,
-    all: PropTypes.func.isRequired,
+    loadProject: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
     tasks: PropTypes.array.isRequired,
   }
   componentWillMount() {
-    this.props.all()
+    this.props.loadProject()
   }
 
   renderItems(tasks) {
     const {router} = this.props
     const route = router.getState()
-
-    console.log('router.params', route.params)
 
     return tasks.map((task) => {
       const classes = classNames({selected: route.params.name === task.name})
@@ -52,7 +52,12 @@ export default class TasksNav extends React.Component {
     if (!tasks) return null
     return (
       <List>
-        <ListSubHeader>Tasks</ListSubHeader>
+        <ListSubHeader>
+          <Button variant="fab" mini color="secondary" aria-label="add">
+            <AddIcon />
+          </Button>{' '}
+          Tasks
+        </ListSubHeader>
         {this.renderItems(tasks)}
       </List>
     )

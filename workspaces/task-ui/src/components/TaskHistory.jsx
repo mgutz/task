@@ -51,7 +51,7 @@ export default class TaskHistory extends React.Component {
       const caption = strftime(format, new Date(history.createdAt))
 
       return (
-        <ListItem key={history.pid}>
+        <ListItem key={history.pid} divider>
           <ListItemText primary={caption} secondary={status} />
           <ListItemSecondaryAction>
             {' '}

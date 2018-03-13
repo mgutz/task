@@ -1,6 +1,8 @@
 import * as _ from 'lodash'
 import * as fp from 'path'
-import {inspect} from 'util'
+import {inspect, promisify} from 'util'
+import * as fs from 'fs'
+const readFileAsync = promisify(fs.readFile)
 
 export const appWorkDirectory: string = fp.resolve(__dirname, '..', '..')
 
@@ -21,4 +23,11 @@ export const safeParseJSON = (s: string): any => {
   } catch (err) {
     return [null, err.message]
   }
+}
+
+export const readJSONFile = async (filename: string): Promise<any> => {
+  const content = await readFileAsync(filename, 'utf8')
+  const [json, err] = safeParseJSON(content)
+  if (err) throw err
+  return json
 }

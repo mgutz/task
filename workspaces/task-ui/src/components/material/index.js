@@ -18,6 +18,7 @@ import './index.css'
 // export {default as ListCheckbox} from 'react-toolbox/lib/list/ListCheckbox'
 // export {default as Navigation} from 'react-toolbox/lib/navigation/Navigation'
 
+export {default as Button} from 'material-ui/Button'
 export {
   default as List,
   ListItem,

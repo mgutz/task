@@ -61,7 +61,7 @@ const loadOptions = () => {
     }
     // load taskrc early
     const taskrc = loadTaskrc(process.cwd());
-    return usage_1.parseArgv(taskrc);
+    return usage_1.parseArgv(process.argv.slice(2), taskrc);
 };
 // if the first arg has a known extension, use it as the task file
 const setFileOnFirstArgExt = (argv) => {

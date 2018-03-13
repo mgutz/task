@@ -1,11 +1,12 @@
 import _ from 'lodash'
 import {init} from '@rematch/core'
-import {tasks} from './tasks'
+import {taskfiles} from './taskfiles'
 import {logs} from './logs'
 import {history} from './history'
 import {client} from '#/services/websocket'
+import {project} from './project'
 
-const models = {history, logs, tasks}
+const models = {history, logs, project, taskfiles}
 
 export const createStore = () => {
   const store = init({

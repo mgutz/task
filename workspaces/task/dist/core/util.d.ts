@@ -6,3 +6,4 @@ export declare const prettify: (o: any) => string;
  * @param s JSON.stringified object.
  */
 export declare const safeParseJSON: (s: string) => any;
+export declare const readJSONFile: (filename: string) => Promise<any>;

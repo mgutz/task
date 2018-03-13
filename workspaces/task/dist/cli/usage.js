@@ -13,6 +13,7 @@ const minimistOpts = {
         file: ['f'],
         help: ['?'],
         initExample: ['init-example'],
+        projectFile: ['project-file', 'p'],
         typescript: ['ts'],
         watch: ['w'],
     },
@@ -29,6 +30,9 @@ const minimistOpts = {
         'init-example',
         'initExample',
         'list',
+        'p',
+        'project-file',
+        'projectFile',
         'silent',
         'trace',
         'ts',
@@ -43,10 +47,10 @@ const minimistOpts = {
         dotenv: true,
         file: '',
     },
-    string: ['f', 'file', 'babelExtensions'],
+    string: ['f', 'file', 'babelExtensions', 'projectFile'],
 };
-exports.parseArgv = (defaultOverrides = {}) => {
-    return minimist(process.argv.slice(2), Object.assign({}, minimistOpts, { default: Object.assign({}, minimistOpts.default, defaultOverrides) }));
+exports.parseArgv = (argv, defaultOverrides = {}) => {
+    return minimist(argv, Object.assign({}, minimistOpts, { default: Object.assign({}, minimistOpts.default, defaultOverrides) }));
 };
 exports.helpScreen = () => {
     return `${pkgJson.name} v${pkgJson.version} - no config task runner
@@ -63,6 +67,7 @@ Options
   --list              List tasks
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
+  --project-file,-p   Project file used by server (./Taskproject.json)
   --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript

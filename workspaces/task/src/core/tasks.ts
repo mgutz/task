@@ -279,9 +279,10 @@ export const loadTasks = async (
   configureBabel(argv, taskfilePath)
 
   const log = getLogger()
-  log.debug(`Loading ${taskfilePath}`)
+  log.debug(`Loading "${fp.resolve(taskfilePath)}"`)
+  log.debug('cwd', process.cwd())
 
-  const taskfileExports = require(taskfilePath)
+  const taskfileExports = require(fp.resolve(taskfilePath))
   trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)
   trace('Standardized as ES6\n', taskfile)
@@ -289,7 +290,6 @@ export const loadTasks = async (
   const tasks = standardizeFile(taskfile)
 
   trace('Tasks after standardizing functions and objects\n', tasks)
-
   // standardize dependencies
   // tslint:disable-next-line
   for (const name in tasks) {

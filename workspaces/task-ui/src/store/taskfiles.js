@@ -13,8 +13,8 @@ const logKind = {
 // to be defined. This is an identity function.
 const handledElsewhere = (state) => state
 
-export const tasks = {
-  state: [],
+export const taskfiles = {
+  state: {}, // {[taskfile.id]: [tasks]}
 
   reducers: {
     addHistory: handledElsewhere,
@@ -22,32 +22,41 @@ export const tasks = {
     updateHistory: handledElsewhere,
 
     mergeTasks: producer((draft, payload) => {
-      for (const task of payload) {
-        const idx = _.findIndex(draft, {name: task.name})
+      const {taskfileID, tasks} = payload
+
+      let tasksArr = draft[taskfileID]
+      if (!tasksArr) {
+        tasksArr = []
+        draft[taskfileID] = tasksArr
+      }
+
+      for (const task of tasks) {
+        const idx = _.findIndex(tasksArr, {name: task.name})
         if (idx > -1) {
-          draft[idx] = {...draft[idx], ...task}
+          tasksArr[idx] = {...tasksArr[idx], ...task}
           continue
         }
-        draft.push(task)
+        tasksArr.push(task)
       }
     }),
 
     updateTask: producer((draft, payload) => {
-      const {taskName, ...rest} = payload
-      const idx = _.findIndex(draft, {name: taskName})
+      const {taskfileID, taskName, ...rest} = payload
+      const tasks = draft[taskfileID]
+      const idx = _.findIndex(tasks, {name: taskName})
       if (idx < 0) {
         konsole.error('Could not find task', taskName)
         return
       }
-      draft[idx] = {...draft[idx], ...rest}
+      tasks[idx] = {...tasks[idx], ...rest}
     }),
   },
 
   // async action creators
   effects: {
-    all() {
-      invoke('tasks').then((tasks) => {
-        this.mergeTasks(tasks)
+    fetchTasks({taskfileID}) {
+      invoke('tasks', taskfileID).then((tasks) => {
+        this.mergeTasks({taskfileID, tasks})
       })
     },
 
