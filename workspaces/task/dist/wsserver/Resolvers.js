@@ -7,12 +7,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
-const iss = require("../core/iss");
+const fp = require("path");
 const util_1 = require("./util");
 const usage_1 = require("../cli/usage");
 const tasks_1 = require("../core/tasks");
+// general response shape
+// {c: numeric_code, e: error_message, p: payload}
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -38,12 +49,12 @@ class Resolvers {
                 return { c: 500, e: err };
             }
         });
-        this.tasks = (taskfileID) => __awaiter(this, void 0, void 0, function* () {
-            const found = _.find(this.rcontext.project.taskfiles, { id: taskfileID });
+        this.tasks = (taskfileId) => __awaiter(this, void 0, void 0, function* () {
+            const found = _.find(this.rcontext.project.taskfiles, { id: taskfileId });
             if (!found) {
                 return {
                     c: 422,
-                    e: `taskfileID '${taskfileID}' not found in project file`,
+                    e: `taskfileId '${taskfileId}' not found in project file`,
                 };
             }
             const argv = usage_1.parseArgv(found.argv);
@@ -55,19 +66,23 @@ class Resolvers {
             const cleanTasks = _.map(tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once']));
             return { c: 200, p: cleanTasks };
         });
-        // {c: numeric_code, e: error_message, p: payload}
-        this.run = (name, argv) => {
-            const { context, client } = this.rcontext;
-            const task = context.tasks[name];
-            if (!task)
-                return { c: 422, e: 'Task not found' };
-            if (!iss.runnable(task)) {
-                return { c: 422, e: 'Task is not runnable' };
+        /**
+         * Runs a task by name found in taskfile entry from  `Taskproject.json`
+         * retrieved by ID. The taskfile entry defines the `Taskfile` path and default
+         * args which may be overriden when inbound `argv` is merged.
+         *
+         * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
+         */
+        this.run = (taskfileId, taskName, argv) => {
+            const { context, client, project } = this.rcontext;
+            const taskfile = _.find(project.taskfiles, { id: taskfileId });
+            if (!taskfile) {
+                return { c: 422, e: `Taskfile id=${taskfileId} not found` };
             }
-            // In the CLI, arbitrary flags become props on argv. For the GUI we need
-            // to merge in user's args.
-            const args = Object.assign({}, context.options, argv);
-            const cp = util_1.runAsProcess(name, args, client);
+            const { path, argv: taskfileArgv } = taskfile;
+            // merge inbound client argv with those found in the project file
+            const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), sanitizeInboundArgv(argv), { file: fp.resolve(path) });
+            const cp = util_1.runAsProcess(taskfileId, taskName, newArgv, client);
             // events are passed through client. return the pid here for the UI
             // to know which pid it is
             return { c: 200, p: { pid: cp.pid } };
@@ -75,4 +90,12 @@ class Resolvers {
     }
 }
 exports.Resolvers = Resolvers;
+/**
+ * The client MUST NOT be allowed to override taskfile and projectfile.
+ * @param argv Users
+ */
+const sanitizeInboundArgv = (argv) => {
+    const { projectFile, file, gui } = argv, rest = __rest(argv, ["projectFile", "file", "gui"]);
+    return Object.assign({}, rest);
+};
 //# sourceMappingURL=Resolvers.js.map

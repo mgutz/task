@@ -1,8 +1,7 @@
 import React, {Fragment, Component} from 'react'
 import PropTypes from 'prop-types'
 import Collapse from 'material-ui/transitions/Collapse'
-import ListSubheader from 'material-ui/List/ListSubheader'
-import List, {ListItem, ListItemIcon, ListItemText} from 'material-ui/List'
+import List, {ListItem, ListItemText} from 'material-ui/List'
 import {withState} from 'recompose'
 import ExpandLess from 'material-ui-icons/ExpandLess'
 import ExpandMore from 'material-ui-icons/ExpandMore'
@@ -23,15 +22,12 @@ const mapDispatch = ({taskfiles: {fetchTasks}}) => ({fetchTasks})
 @connect(mapState, mapDispatch)
 class Taskfile extends Component {
   componentDidMount() {
-    console.log('cDM:00', this.props.taskfile)
-    this.props.fetchTasks({taskfileID: this.props.taskfile.id})
+    this.props.fetchTasks({taskfileId: this.props.taskfile.id})
   }
 
   renderTasks(tasks) {
     const {router} = this.props
     const route = router.getState()
-
-    console.log('router.params', route.params)
     return tasks.map((task) => {
       const classes = classNames({selected: route.params.name === task.name})
       return (
@@ -63,8 +59,11 @@ class Taskfile extends Component {
   }
 
   doSetActive = (task) => () => {
-    const {router} = this.props
-    router.navigate('tasks.name', {name: task.name})
+    const {router, taskfile} = this.props
+    router.navigate('tasks.name', {
+      taskName: task.name,
+      taskfileId: taskfile.id,
+    })
   }
 }
 

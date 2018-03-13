@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import * as cp from 'child_process'
 import * as fp from 'path'
 import * as fs from 'fs'
@@ -20,6 +21,7 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js')
  * The argv must have`_.[0]` be the task name and `gui: false`.
  */
 export const runAsProcess = (
+  taskfileId: string,
   taskName: string,
   argv: Options,
   client: any
@@ -27,34 +29,58 @@ export const runAsProcess = (
   argv._[0] = taskName
   argv.gui = false
 
+  const newArgv = _.pick(argv, [
+    '_',
+    'babel',
+    'debug',
+    'dotenv',
+    'file',
+    'dryRun',
+    'silent',
+    'trace',
+    'typescript',
+    'watch',
+    'babelExtensions',
+    'name',
+  ])
+
+  const argvstr = JSON.stringify(newArgv)
+
   const opts = {
+    cwd: fp.dirname(argv.file),
     detached: true,
     env: {
       ...process.env,
-      task_ipc_options: JSON.stringify(argv),
+      task_ipc_options: argvstr,
     },
   }
 
   // execute the script
   const params = [taskScript]
+  console.log('???????DBG:PARAMS', params)
+  console.log('???????DBG:ARGV', argvstr)
   const proc = cp.spawn('node', params, opts)
 
   proc.stdout.setEncoding('utf-8')
   proc.stdout.on('data', (data) => {
-    client.send('pout', [taskName, proc.pid, data])
+    console.log('pout', data)
+    client.send('pout', [taskfileId, taskName, proc.pid, data])
   })
 
   proc.stderr.setEncoding('utf-8')
   proc.stderr.on('data', (data) => {
-    client.send('perr', [taskName, proc.pid, data])
+    console.log('perr', data)
+    client.send('perr', [taskfileId, taskName, proc.pid, data])
   })
 
   proc.on('close', (code) => {
-    client.send('pclose', [taskName, proc.pid, code])
+    console.log('pclose', code)
+    client.send('pclose', [taskfileId, taskName, proc.pid, code])
   })
 
   proc.on('error', (err) => {
-    client.send('perror', [taskName, proc.pid, err])
+    console.log('pclose', err)
+    client.send('perror', [taskfileId, taskName, proc.pid, err])
   })
 
   return proc

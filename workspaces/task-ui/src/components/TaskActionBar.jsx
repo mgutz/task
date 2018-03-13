@@ -6,7 +6,7 @@ import {IconButton} from '#/components/material'
 import StopIcon from 'material-ui-icons/Stop'
 import PlayArrowIcon from 'material-ui-icons/PlayArrow'
 
-const mapDispatch = ({tasks: {run, stop}}) => ({run, stop})
+const mapDispatch = ({taskfiles: {run, stop}}) => ({run, stop})
 
 @connect(null, mapDispatch)
 export default class TaskActionBar extends React.PureComponent {
@@ -36,7 +36,7 @@ export default class TaskActionBar extends React.PureComponent {
 
     // TODO need form
     if (task.name === 'hello') {
-      return run([task.name, {name: 'world'}])
+      return run([task.taskfileId, task.name, {name: 'world'}])
     }
     run([task.name])
   }

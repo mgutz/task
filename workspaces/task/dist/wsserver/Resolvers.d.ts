@@ -23,7 +23,7 @@ export declare class Resolvers {
         e: any;
         p?: undefined;
     }>;
-    tasks: (taskfileID: string) => Promise<{
+    tasks: (taskfileId: string) => Promise<{
         c: number;
         e: string;
         p?: undefined;
@@ -32,7 +32,14 @@ export declare class Resolvers {
         p: Task[];
         e?: undefined;
     }>;
-    run: (name: string, argv: Dict<string, any>) => {
+    /**
+     * Runs a task by name found in taskfile entry from  `Taskproject.json`
+     * retrieved by ID. The taskfile entry defines the `Taskfile` path and default
+     * args which may be overriden when inbound `argv` is merged.
+     *
+     * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
+     */
+    run: (taskfileId: string, taskName: string, argv: Options) => {
         c: number;
         e: string;
         p?: undefined;

@@ -5,7 +5,7 @@ export const logs = {
   state: {},
 
   reducers: {
-    'tasks/appendLog': producer((draft, payload) => {
+    'taskfiles/appendLog': producer((draft, payload) => {
       const {pid, lines, kind} = payload
       const spid = String(pid)
       const chunks = draft[spid]

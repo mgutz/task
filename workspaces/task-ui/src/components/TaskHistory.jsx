@@ -25,7 +25,7 @@ const mapState = (state, props) => {
   }
 }
 
-const mapDispatch = ({tasks: {setActivePID}}) => ({setActivePID})
+const mapDispatch = ({taskfiles: {setActivePID}}) => ({setActivePID})
 
 @connect(mapState, mapDispatch)
 export default class TaskHistory extends React.Component {

@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import * as fp from 'path'
 import * as iss from '../core/iss'
 import {AppContext} from '../core/AppContext'
 import {ResolverContext} from './types'
@@ -6,6 +7,10 @@ import {loadProjectFile, runAsProcess} from './util'
 import {Project} from './types'
 import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
+import {parse} from 'querystring'
+
+// general response shape
+// {c: numeric_code, e: error_message, p: payload}
 
 /**
  * Resolvers (handlers) for websocket API
@@ -32,12 +37,12 @@ export class Resolvers {
     }
   }
 
-  public tasks = async (taskfileID: string) => {
-    const found = _.find(this.rcontext.project.taskfiles, {id: taskfileID})
+  public tasks = async (taskfileId: string) => {
+    const found = _.find(this.rcontext.project.taskfiles, {id: taskfileId})
     if (!found) {
       return {
         c: 422,
-        e: `taskfileID '${taskfileID}' not found in project file`,
+        e: `taskfileId '${taskfileId}' not found in project file`,
       }
     }
     const argv = parseArgv(found.argv)
@@ -53,22 +58,42 @@ export class Resolvers {
     return {c: 200, p: cleanTasks}
   }
 
-  // {c: numeric_code, e: error_message, p: payload}
-  public run = (name: string, argv: Dict<string, any>) => {
-    const {context, client} = this.rcontext
-    const task = context.tasks[name]
-    if (!task) return {c: 422, e: 'Task not found'}
-    if (!iss.runnable(task)) {
-      return {c: 422, e: 'Task is not runnable'}
+  /**
+   * Runs a task by name found in taskfile entry from  `Taskproject.json`
+   * retrieved by ID. The taskfile entry defines the `Taskfile` path and default
+   * args which may be overriden when inbound `argv` is merged.
+   *
+   * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
+   */
+  public run = (taskfileId: string, taskName: string, argv: Options) => {
+    const {context, client, project} = this.rcontext
+
+    const taskfile = _.find(project.taskfiles, {id: taskfileId})
+    if (!taskfile) {
+      return {c: 422, e: `Taskfile id=${taskfileId} not found`}
+    }
+    const {path, argv: taskfileArgv} = taskfile
+
+    // merge inbound client argv with those found in the project file
+    const newArgv = {
+      ...parseArgv(taskfileArgv),
+      ...sanitizeInboundArgv(argv),
+      file: fp.resolve(path),
     }
 
-    // In the CLI, arbitrary flags become props on argv. For the GUI we need
-    // to merge in user's args.
-    const args = {...context.options, ...argv}
-    const cp = runAsProcess(name, args as any, client)
+    const cp = runAsProcess(taskfileId, taskName, newArgv, client)
 
     // events are passed through client. return the pid here for the UI
     // to know which pid it is
     return {c: 200, p: {pid: cp.pid}}
   }
+}
+
+/**
+ * The client MUST NOT be allowed to override taskfile and projectfile.
+ * @param argv Users
+ */
+const sanitizeInboundArgv = (argv: Options): Options => {
+  const {projectFile, file, gui, ...rest} = argv
+  return {...rest} as Options
 }

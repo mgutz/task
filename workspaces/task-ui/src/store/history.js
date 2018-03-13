@@ -14,7 +14,7 @@ export const history = {
      *  method - the remote method invoked
      *  args - the args for remote method
      */
-    'tasks/addHistory': producer((draft, payload) => {
+    'taskfiles/addHistory': producer((draft, payload) => {
       const {pid, taskName} = payload
       const item = draft[taskName]
       if (!item) {
@@ -29,7 +29,7 @@ export const history = {
       }
     }),
 
-    'tasks/updateHistory': producer((draft, payload) => {
+    'taskfiles/updateHistory': producer((draft, payload) => {
       const {pid, taskName} = payload
       if (!pid || !taskName) return
 

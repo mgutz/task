@@ -182,7 +182,7 @@ export const findTaskfile = (argv: Options): string | null => {
   const log = getLogger()
   const filename = argv.file
   const testFilename = (path: string) => {
-    const absolute = fp.join(process.cwd(), path)
+    const absolute = fp.resolve(path)
     log.debug(`Trying task file: ${absolute}`)
     return fs.existsSync(absolute) ? absolute : null
   }

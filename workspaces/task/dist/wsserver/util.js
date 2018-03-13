@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const _ = require("lodash");
 const cp = require("child_process");
 const fp = require("path");
 const fs = require("fs");
@@ -26,29 +27,51 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
  *
  * The argv must have`_.[0]` be the task name and `gui: false`.
  */
-exports.runAsProcess = (taskName, argv, client) => {
+exports.runAsProcess = (taskfileId, taskName, argv, client) => {
     argv._[0] = taskName;
     argv.gui = false;
+    const newArgv = _.pick(argv, [
+        '_',
+        'babel',
+        'debug',
+        'dotenv',
+        'file',
+        'dryRun',
+        'silent',
+        'trace',
+        'typescript',
+        'watch',
+        'babelExtensions',
+        'name',
+    ]);
+    const argvstr = JSON.stringify(newArgv);
     const opts = {
+        cwd: fp.dirname(argv.file),
         detached: true,
-        env: Object.assign({}, process.env, { task_ipc_options: JSON.stringify(argv) }),
+        env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
     };
     // execute the script
     const params = [taskScript];
+    console.log('???????DBG:PARAMS', params);
+    console.log('???????DBG:ARGV', argvstr);
     const proc = cp.spawn('node', params, opts);
     proc.stdout.setEncoding('utf-8');
     proc.stdout.on('data', (data) => {
-        client.send('pout', [taskName, proc.pid, data]);
+        console.log('pout', data);
+        client.send('pout', [taskfileId, taskName, proc.pid, data]);
     });
     proc.stderr.setEncoding('utf-8');
     proc.stderr.on('data', (data) => {
-        client.send('perr', [taskName, proc.pid, data]);
+        console.log('perr', data);
+        client.send('perr', [taskfileId, taskName, proc.pid, data]);
     });
     proc.on('close', (code) => {
-        client.send('pclose', [taskName, proc.pid, code]);
+        console.log('pclose', code);
+        client.send('pclose', [taskfileId, taskName, proc.pid, code]);
     });
     proc.on('error', (err) => {
-        client.send('perror', [taskName, proc.pid, err]);
+        console.log('pclose', err);
+        client.send('perror', [taskfileId, taskName, proc.pid, err]);
     });
     return proc;
 };

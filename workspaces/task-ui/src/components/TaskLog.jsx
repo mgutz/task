@@ -20,7 +20,6 @@ export default class TaskLog extends React.PureComponent {
 
   renderItem = ({item}) => {
     const [_kind, lines] = item
-
     return (
       <pre>
         <code>{lines}</code>

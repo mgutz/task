@@ -41,4 +41,13 @@ function code {
 
 ## TODO
 
-* [ ] Multiple Taskfiles
+* [x] Multiple Taskfiles in a Taskproject
+* [ ] Interactive JSON in Log History
+* [ ] Dynamic forms via `Task.form` prop
+* [ ] Not getting errors when taskfile is invalid
+* [ ] Refactor large models like `taskfiles` into separate `effects`, `reducers`,
+      `selectors` files.
+* [ ] Dynamically add Taskfile to project
+* [ ] Add `--harden` to prevent things like dynamically adding a `Taskfile`;
+      passing in custom `argv`. Maybe this is the default when
+      `NODE_ENV === 'production'`
