@@ -1,7 +1,6 @@
 import * as columnify from 'columnify'
 import * as _ from 'lodash'
 import * as minimist from 'minimist'
-import * as exits from '../core/exits'
 
 // tslint:disable-next-line
 const pkgJson = require('../../package.json')

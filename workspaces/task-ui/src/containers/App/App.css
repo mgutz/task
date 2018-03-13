@@ -14,39 +14,26 @@
 
 header {
   grid-column: span 3;
-  padding: 10px;
   text-align: center;
-  font-size: 1.4em;
   background-color: #222;
   color: white;
 }
 
 main {
   flex: 1;
-  padding: 20px;
 }
 
 nav {
   background-color: #ddd;
-  padding: 10px;
 }
 
 aside {
-  padding: 10px;
   background-color: #eee;
 }
 
 footer {
   grid-column: span 3;
-  padding: 10px;
   text-align: center;
-  font-size: 1.4em;
   background-color: #ccc;
   color: white;
-}
-
-h1 {
-  margin-bottom: 1em;
-  font-size: 1.3em;
-  font-weight: bold;
 }

@@ -6,7 +6,7 @@ import {FlatList} from '#/components/styled'
 const mapState = (state, props) => {
   const {task} = props
   return {
-    chunks: state.logs[task.currentPID],
+    chunks: state.logs[task.activePID],
   }
 }
 

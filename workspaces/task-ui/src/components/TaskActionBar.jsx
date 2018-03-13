@@ -1,15 +1,8 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {UnorderedList} from '#/components/styled'
-import styled from 'styled-components'
 import TaskHistory from './TaskHistory'
-
-const Item = styled.li`
-  padding: 10px;
-`
-
-const Button = styled.button.attrs({type: 'button'})``
+import {IconButton} from '#/components/material'
 
 const mapDispatch = ({tasks: {run, stop}}) => ({run, stop})
 
@@ -21,19 +14,20 @@ export default class TaskActionBar extends React.PureComponent {
     task: PropTypes.object.isRequired,
   }
 
+  constructor() {
+    super()
+    this.actions = [
+      {icon: 'play_arrow', onClick: this.doRun},
+      {icon: 'stop', onClick: this.doStop},
+    ]
+  }
+
   render() {
     const {task} = this.props
     return (
       <div>
-        <UnorderedList>
-          <Item>{task.name} Actions &amp; History</Item>
-          <Item>
-            <Button onClick={this.doRun}>run</Button>{' '}
-            <Button title="stop" onClick={this.doStop}>
-              stop
-            </Button>
-          </Item>
-        </UnorderedList>
+        <IconButton icon="stop" onClikc={this.doStop} />
+        <IconButton icon="play_arrow" onClick={this.doRun} accent />
         <TaskHistory task={task} />
       </div>
     )

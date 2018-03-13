@@ -1,5 +1,4 @@
 import * as cp from 'child_process'
-import * as fp from 'path'
 
 const defaults = {
   shell: '/bin/bash',

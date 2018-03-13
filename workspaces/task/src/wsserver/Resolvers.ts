@@ -1,11 +1,7 @@
 import * as _ from 'lodash'
 import * as iss from '../core/iss'
-import * as runner from '../core/runner'
 import {AppContext} from '../core/AppContext'
-import {appWorkDirectory, safeParseJSON} from '../core/util'
 import {ResolverContext} from './types'
-import {shawn} from '../contrib'
-import {inspect} from 'util'
 import {runAsProcess} from './runAsProcess'
 
 /**

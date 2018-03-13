@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import * as t from 'tcomb'
 import {invoke} from '../services/websocket'
 import {konsole} from '#/util'
 import producer from './producer'
@@ -8,7 +9,7 @@ const logKind = {
   stderr: 1,
 }
 
-// Some reducers are listened in other models but (for now) they still need
+// Some reducers are listened for in other models but (for now) they still need
 // to be defined. This is an identity function.
 const handledElsewhere = (state) => state
 
@@ -50,10 +51,18 @@ export const tasks = {
       })
     },
 
+    //// websocket dispatch these p* events in ./index.js
+
     // remote proc close event
     pclose(payload) {
       const [taskName, pid, code] = payload
-      this.updateHistory({taskName, pid, status: 'closed', code})
+      this.updateHistory({
+        taskName,
+        pid,
+        status: 'closed',
+        statusedAt: Date.now(),
+        code,
+      })
     },
 
     // remote proc stderr data
@@ -85,14 +94,26 @@ export const tasks = {
         const taskName = args[0]
         this.addHistory({
           args,
+          createdAt: Date.now(),
           method: 'run',
           pid,
           status: 'running',
           taskName,
         })
 
-        this.updateTask({currentPID: pid, taskName})
+        this.updateTask({activePID: pid, taskName})
       })
+    },
+
+    setActivePID(payload) {
+      const validate = t.struct({
+        taskName: t.String,
+        pid: t.Number,
+      })
+      validate(payload)
+
+      // example payload = {taskName, activePID}
+      this.updateTask({taskName: payload.taskName, activePID: payload.pid})
     },
 
     /**
@@ -107,10 +128,9 @@ export const tasks = {
       })
     },
 
-    updateCurrentPID(payload) {
-      // payload = {taskName, currentPID}
-      // hold the current pid on the task itself, when any history is clicked
-      // the currentPid is changed
+    update(payload) {
+      if (!payload.taskName) throw new Error('taskName is required')
+      // example payload = {taskName, activePID}
       this.updateTask(payload)
     },
   },

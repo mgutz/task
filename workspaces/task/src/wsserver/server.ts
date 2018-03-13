@@ -1,16 +1,12 @@
 import * as _ from 'lodash'
 import * as express from 'express'
-import * as fp from 'path'
-import * as fs from 'fs'
 import * as http from 'http'
 import * as WSMessaging from 'ws-messaging'
 import {AppContext} from '../core/AppContext'
-import {appWorkDirectory} from '../core/util'
 import {konsole} from '../core/log'
 import {ResolverContext} from './types'
 import {Resolvers} from './Resolvers'
 import * as WebSocket from 'ws'
-import * as url from 'url'
 
 export interface StartOptions {
   port: number

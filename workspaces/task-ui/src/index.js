@@ -1,6 +1,10 @@
+import './sanitize.css'
+import 'material-design-icons/iconfont/material-icons.css'
+import './assets/css/react-toolbox/theme.css'
+//import './index.css'
+
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
 import App from './containers/App'
 import registerServiceWorker from './registerServiceWorker'
 import {Provider} from 'react-redux'
@@ -8,6 +12,8 @@ import {RouterProvider} from 'react-router5'
 import {createStore} from './store'
 import {client} from './services/websocket'
 import {createRouter} from './services/router'
+import theme from './assets/css/react-toolbox/theme'
+import ThemeProvider from 'react-toolbox/lib/ThemeProvider'
 
 const store = createStore()
 const router = createRouter()
@@ -19,7 +25,9 @@ client.on('connect', () => {
     ReactDOM.render(
       <Provider store={store}>
         <RouterProvider router={router}>
-          <App />
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
         </RouterProvider>
       </Provider>,
       document.getElementById('root')

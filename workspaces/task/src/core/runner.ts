@@ -1,7 +1,5 @@
 import * as _ from 'lodash'
 import * as contrib from '../contrib'
-import * as cp from 'child_process'
-import * as fp from 'path'
 import * as iss from './iss'
 import {AppContext} from './AppContext'
 import {ChildProcess} from 'child_process'
