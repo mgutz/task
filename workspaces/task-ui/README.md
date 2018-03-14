@@ -52,6 +52,7 @@ function code {
 
 * [x] Multiple Taskfiles in a Taskproject
 * [ ] Interactive JSON in Log History
+* [ ] Make log entries more `Copy to clipboard` friendly
 * [ ] Dynamic forms via `Task.form` prop
 * [ ] Not getting errors when taskfile is invalid
 * [ ] Refactor large models like `taskfiles` into separate `effects`, `reducers`,
@@ -75,6 +76,7 @@ function code {
         conn: 'hostname=localhost username=postgres password=blah',
       })
       ```
+
 * [ ] Should `Task.form` result in prompts on the CLI?
 * [ ] Simplify the websocket resolvers on server. Should not have to build
       JSON packets manually.
@@ -92,6 +94,7 @@ function code {
         // Any uncaught error results in
         {c:500, e: err}
       ```
+
 * [ ] Watch mode should account for dependency watch globs.
 * [ ] Task needs to be long-lived. Persist history in files named
       `taskfileId-taskName-pid-date.json`
@@ -102,7 +105,6 @@ function code {
 * [ ] bling: background image by project (Taskproject.json)
 * [ ] bling: background iamge by taskfile (Taskproject.json)
 * [ ] bling: themes
-
 
 ## License
 

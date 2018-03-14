@@ -1,7 +1,7 @@
 import './sanitize.css'
 //import 'material-design-icons/iconfont/material-icons.css'
 //import './assets/css/react-toolbox/theme.css'
-import './index.css'
+//import './index.css'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
