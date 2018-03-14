@@ -95,6 +95,8 @@ exports.Resolvers = Resolvers;
  * @param argv Users
  */
 const sanitizeInboundArgv = (argv) => {
+    if (_.isEmpty(argv))
+        return {};
     const { projectFile, file, server } = argv, rest = __rest(argv, ["projectFile", "file", "server"]);
     return Object.assign({}, rest);
 };

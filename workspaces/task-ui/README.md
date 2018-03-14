@@ -105,6 +105,7 @@ function code {
 * [ ] bling: background image by project (Taskproject.json)
 * [ ] bling: background iamge by taskfile (Taskproject.json)
 * [ ] bling: themes
+* [ ] changing Taskproject.json didn't update task.form when I edit form schema
 
 ## License
 

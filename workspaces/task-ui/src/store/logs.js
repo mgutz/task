@@ -36,19 +36,15 @@ export const logs = {
       // 2 indexes used in returned lfIndices for each line
       // 4 indexes used to store info about each chunk
       addIndices.length = lfIndices.length / 2 * 4
-      let offset = 0
-      for (let lfOffset = 0; lfOffset < lfIndices.length; lfOffset += 2) {
-        // const offset = info.indices.length
-        // info.indices.length = offset + 4
-        // pos=chunk index
-        // ind[0]=start
-        // ind[1]=length
-        // kind=0 is stdout 1 is stderr
+      for (
+        let lfOffset = 0, offset = 0;
+        lfOffset < lfIndices.length;
+        lfOffset += 2, offset += 4
+      ) {
         addIndices[offset] = chunkPos
         addIndices[offset + 1] = lfIndices[lfOffset]
         addIndices[offset + 2] = lfIndices[lfOffset + 1]
         addIndices[offset + 3] = kind
-        offset += 4
       }
 
       if (!found) {
