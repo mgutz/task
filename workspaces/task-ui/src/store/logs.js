@@ -1,4 +1,4 @@
-import producer from './producer'
+// DO NOT USER producer here, logs can get very large
 
 /**
  * We don't want to break up the data that comes in with split or do any
@@ -20,38 +20,49 @@ import producer from './producer'
  *      1, 5, 5, 0      // chunks[1], start=5, length=5, out
  *  ]
  */
-
 export const logs = {
-  // {[pid]: [{indices: [], chunks[]}, }
+  // {[pid: string]: [{indices: [], chunks[]}, ... }
   state: {},
 
   reducers: {
-    'taskfiles/appendLog': producer((draft, payload) => {
+    'taskfiles/appendLog': (state, payload) => {
       const {pid, lines, kind} = payload
-      const spid = String(pid)
-      let info = draft[spid]
-      if (!info) {
-        info = {indices: [], chunks: []}
-        draft[spid] = info
-      }
+      const key = String(pid)
+      const found = state[key]
 
-      const indices = parseLFIndices(lines)
-      const pos = info.chunks.length
-      for (const ind of indices) {
-        const offset = info.indices.length
-        info.indices.length = offset + 4
+      const chunkPos = found ? found.chunks.length : 0
+      const lfIndices = parseLFIndices(lines)
+      const addIndices = []
+      // 2 indexes used in returned lfIndices for each line
+      // 4 indexes used to store info about each chunk
+      addIndices.length = lfIndices.length / 2 * 4
+      let offset = 0
+      for (let lfOffset = 0; lfOffset < lfIndices.length; lfOffset += 2) {
+        // const offset = info.indices.length
+        // info.indices.length = offset + 4
         // pos=chunk index
         // ind[0]=start
         // ind[1]=length
         // kind=0 is stdout 1 is stderr
-        info.indices[offset] = pos
-        info.indices[offset + 1] = ind[0]
-        info.indices[offset + 2] = ind[1]
-        info.indices[offset + 3] = kind
+        addIndices[offset] = chunkPos
+        addIndices[offset + 1] = lfIndices[lfOffset]
+        addIndices[offset + 2] = lfIndices[lfOffset + 1]
+        addIndices[offset + 3] = kind
+        offset += 4
       }
-      info.chunks.push(lines)
-      return
-    }),
+
+      if (!found) {
+        //info = {indices: [], chunks: []}
+        return {...state, [key]: {indices: addIndices, chunks: [lines]}}
+      }
+      return {
+        ...state,
+        [key]: {
+          indices: [].concat(found.indices, addIndices),
+          chunks: [].concat(found.chunks, lines),
+        },
+      }
+    },
   },
 
   // async action creators
@@ -60,25 +71,24 @@ export const logs = {
 
 /**
  * Parses a string for line feeds recording the start of each line and its length.
+ *
+ * Returns an array [start, length, start1, length1, ..., startN, lengthN]
  */
 const parseLFIndices = (s) => {
-  const result = []
-
   if (!s) return []
-
+  const result = []
   let curr = 0
-
   let idx = s.indexOf('\n', curr)
   while (idx > -1) {
     // push start and length of line
-    result.push([curr, idx - curr])
+    result.push(curr, idx - curr)
     curr = idx + 1
     idx = s.indexOf('\n', curr)
   }
 
-  // this removes blank lines
+  // this removes blank lines. TODO should there be a retain option?
   if (s.length - curr > 0) {
-    result.push([curr, s.length - curr])
+    result.push(curr, s.length - curr)
   }
   return result
 }
@@ -87,10 +97,15 @@ const tryParse = (s) => {
   try {
     return JSON.parse(s)
   } catch (err) {
-    return {msg: s}
+    return {_msg_: s}
   }
 }
 
+/**
+ *
+ * Gets log entry at index. _msg_ and _kind_ props are added and named
+ * to avoid conflict.
+ */
 export const logEntryAt = ({indices, chunks}, index) => {
   const offset = index * 4
   const chunksPos = indices[offset]
@@ -104,7 +119,7 @@ export const logEntryAt = ({indices, chunks}, index) => {
     o._kind_ = kind
     return o
   }
-  return {m: s, _kind_: kind}
+  return {_msg_: s, _kind_: kind}
 }
 
 export const logLength = (logIndex) => {

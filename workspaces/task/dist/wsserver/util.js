@@ -25,11 +25,11 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
  *
  * Task checks if `task_ipc_options` is set before doing anything else.
  *
- * The argv must have`_.[0]` be the task name and `gui: false`.
+ * The argv must have`_.[0]` be the task name and `server: false`.
  */
 exports.runAsProcess = (taskfileId, taskName, argv, client) => {
     argv._[0] = taskName;
-    argv.gui = false;
+    argv.server = false;
     const newArgv = _.pick(argv, [
         '_',
         'babel',

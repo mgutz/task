@@ -8,6 +8,6 @@ import * as cp from 'child_process';
  *
  * Task checks if `task_ipc_options` is set before doing anything else.
  *
- * The argv must have`_.[0]` be the task name and `gui: false`.
+ * The argv must have`_.[0]` be the task name and `server: false`.
  */
 export declare const runAsProcess: (taskName: string, argv: Options, client: any) => cp.ChildProcess;

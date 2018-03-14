@@ -18,7 +18,7 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js')
  *
  * Task checks if `task_ipc_options` is set before doing anything else.
  *
- * The argv must have`_.[0]` be the task name and `gui: false`.
+ * The argv must have`_.[0]` be the task name and `server: false`.
  */
 export const runAsProcess = (
   taskfileId: string,
@@ -27,7 +27,7 @@ export const runAsProcess = (
   client: any
 ): cp.ChildProcess => {
   argv._[0] = taskName
-  argv.gui = false
+  argv.server = false
 
   const newArgv = _.pick(argv, [
     '_',

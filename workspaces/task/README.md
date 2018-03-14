@@ -98,9 +98,9 @@ module.exports = {
 
 ## GUI
 
-`task --gui` starts the GUI in browser (wip)
+`task --server` starts the GUI in browser (wip)
 
-[GUI Manual](docs/gui.md)
+[GUI Manual](docs/server.md)
 
 ## Hacking
 

@@ -104,7 +104,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
     if (argv.init || argv.initExample) {
         return yield init_1.run(ctx);
     }
-    if (argv.gui) {
+    if (argv.server) {
         return server.run(ctx);
     }
     ctx.log = log_1.newTerminalLogger();

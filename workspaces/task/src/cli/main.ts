@@ -103,7 +103,7 @@ const main = async () => {
   if (argv.init || argv.initExample) {
     return await commandInit(ctx)
   }
-  if (argv.gui) {
+  if (argv.server) {
     return server.run(ctx)
   }
   ctx.log = newTerminalLogger()

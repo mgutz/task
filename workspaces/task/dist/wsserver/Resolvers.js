@@ -95,7 +95,7 @@ exports.Resolvers = Resolvers;
  * @param argv Users
  */
 const sanitizeInboundArgv = (argv) => {
-    const { projectFile, file, gui } = argv, rest = __rest(argv, ["projectFile", "file", "gui"]);
+    const { projectFile, file, server } = argv, rest = __rest(argv, ["projectFile", "file", "server"]);
     return Object.assign({}, rest);
 };
 //# sourceMappingURL=Resolvers.js.map

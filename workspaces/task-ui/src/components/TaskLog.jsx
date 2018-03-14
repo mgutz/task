@@ -46,7 +46,7 @@ export default class TaskLog extends React.PureComponent {
     // eslint-disable-next-line
     const o = logEntryAt(logIndex, index)
     // TODO these keys should be user configurable
-    let str = o.m || o.msg
+    let str = o._msg_ || o.msg
     if (str === undefined || str === '') {
       return null
     }

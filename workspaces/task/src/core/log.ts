@@ -42,7 +42,8 @@ export const newTerminalLogger = (): pino.Logger => {
 }
 
 /**
- * Log logs to terminal if task runs in cli mode or through websockets if gui.
+ * Log logs to terminal if task runs in cli mode or through websockets if in
+ * server mode.
  */
 const _log = newTerminalLogger()
 

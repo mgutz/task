@@ -155,4 +155,4 @@ with the following `tsconfig.json`, or `tsc -w` to watch for changes:
 
 ## TODO
 
-[ ] Shell Autocompletion (omeletee was was terribly slow, suggest another in issues)
+[ ] Shell Autocompletion (omellete was was terribly slow, suggest another in issues)

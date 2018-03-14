@@ -10,7 +10,7 @@ declare interface Options {
   dotenv: boolean
   dryRun: boolean
   file: string
-  gui: boolean
+  server: boolean
   help: boolean
   init: boolean
   initExample: boolean

@@ -60,7 +60,7 @@ function code {
 * [ ] Dynamically add Taskfile to project
 * [ ] Add `--harden` to prevent things like dynamically adding a `Taskfile`;
       passing in custom `argv`. Maybe this is the default when
-      `NODE_ENV === 'production'` and task runs in `--gui` mode. In that case,
+      `NODE_ENV === 'production'` and task runs in `--server` mode. In that case,
       it might be better to create `--dangerously-weak-mode` flag.
 * [x] Tasks with same name are sharing history. Use `taskfileId` as additional
       discriminator

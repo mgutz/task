@@ -24,7 +24,7 @@ const minimistOpts = {
         'dotenv',
         'dry-run',
         'dryRun',
-        'gui',
+        'server',
         'help',
         'init',
         'init-example',
@@ -61,13 +61,13 @@ Options
   --debug,--verbose   Debug logging
   --dry-run           Displays tasks that will run
   --file,-f           File
-  --gui               Run GUI server. Browse http://localhost:4200
   --init              Create empty Taskfile.js if not exists
   --init-example      Create example Taskfile.js if not exists
   --list              List tasks
   --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --project-file,-p   Project file used by server (./Taskproject.json)
+  --server               Run GUI server. Browse http://localhost:4200
   --silent            No output
   --trace             More verbose logging
   --typescript,--ts   Force typescript

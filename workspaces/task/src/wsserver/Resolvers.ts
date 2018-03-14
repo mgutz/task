@@ -94,6 +94,6 @@ export class Resolvers {
  * @param argv Users
  */
 const sanitizeInboundArgv = (argv: Options): Options => {
-  const {projectFile, file, gui, ...rest} = argv
+  const {projectFile, file, server, ...rest} = argv
   return {...rest} as Options
 }

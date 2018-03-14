@@ -20,7 +20,7 @@ export const server = {
   deps: [build],
   desc: 'Runs GraphQL Server',
   run: ({shawn}) => {
-    return shawn(`node index.js --gui`)
+    return shawn(`node index.js --server`)
   },
   watch: ['schemas/*.gql', 'src/**/*.ts'],
 }
@@ -61,7 +61,9 @@ export const lint = {
   desc: 'Lints the project',
   deps: [build],
   run: ({sh}) => {
-    sh.exec(`tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`)
+    sh.exec(
+      `tslint --project tsconfig.json --fix -c ./tslint.json 'src/**/*.ts'`
+    )
   },
 }
 
@@ -75,11 +77,11 @@ export const hello = {
   },
 }
 
-// TODO set `_` with task name, clear gui flag
+// TODO set `_` with task name, clear server flag
 export const ipc = {
   run: ({shawn}) => {
     return shawn(`
-    export task_ipc_options='{"_":["hello"],"?":false,"help":false,"babel":true,"debug":false,"verbose":false,"dotenv":true,"dry-run":false,"dryRun":false,"gui":false,"init":false,"init-example":false,"initExample":false,"list":false,"silent":false,"trace":false,"ts":false,"typescript":false,"w":false,"watch":false,"babelExtensions":[".js",".jsx",".es6",".es",".mjs",".ts",".tsx"],"babel-extensions":[".js",".jsx",".es6",".es",".mjs",".ts",".tsx"],"file":"","f":"","name":"foo"}'
+    export task_ipc_options='{"_":["hello"]}'
     task
     `)
   },
