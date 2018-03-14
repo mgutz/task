@@ -9,11 +9,17 @@ import {connect} from 'react-redux'
 import {withRoute} from 'react-router5'
 import classNames from 'classnames'
 import TocIcon from 'material-ui-icons/Toc'
+import styled from 'styled-components'
+
 const mapState = (state, props) => {
   return {
     tasks: state.taskfiles[props.taskfile.id],
   }
 }
+
+const InsetList = styled(List)`
+  margin-left: 10px;
+`
 
 const mapDispatch = ({taskfiles: {fetchTasks}}) => ({fetchTasks})
 
@@ -29,7 +35,11 @@ class Taskfile extends Component {
     const {router} = this.props
     const route = router.getState()
     return tasks.map((task) => {
-      const classes = classNames({selected: route.params.name === task.name})
+      const classes = classNames({
+        selected:
+          route.params.taskName === task.name &&
+          route.params.taskfileId === task.taskfileId,
+      })
       return (
         <ListItem
           className={classes}
@@ -52,7 +62,9 @@ class Taskfile extends Component {
           {collapsed ? <ExpandMore /> : <ExpandLess />}
         </ListItem>
         <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-          <List>{tasks ? this.renderTasks(tasks) : 'Loading...'}</List>
+          <InsetList>
+            {tasks ? this.renderTasks(tasks) : 'Loading...'}
+          </InsetList>
         </Collapse>
       </Fragment>
     )

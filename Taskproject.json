@@ -2,6 +2,6 @@
 {
   "taskfiles": [
     {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": ["--debug"]},
-    {"id": "Local",  "desc": "Task Project",  "path": "./workspaces/task/Taskfile.js", "argv": ["--trace"]}
+    {"id": "Local",  "desc": "Task Project",  "path": "./workspaces/task/Taskfile.js", "argv": []}
   ]
 }

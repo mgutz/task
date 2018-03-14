@@ -1,0 +1,16 @@
+.task-kind {
+  color: #666;
+  background-color: #eee;
+  margin: 0 10px;
+  width: 40px;
+  padding: 0 5px;
+}
+
+.task-kind-err {
+  color: #c00;
+  background-color: #ecc;
+}
+
+.task-entry-err {
+  color: #c00;
+}

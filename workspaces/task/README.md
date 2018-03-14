@@ -109,3 +109,7 @@ module.exports = {
 ## LICENSE
 
 MIT Licensed
+
+The CLI and server shall forever remain under the MIT License.
+
+Be aware the Task GUI falls under the Affero GPLv3 License.

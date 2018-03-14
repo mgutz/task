@@ -99,7 +99,11 @@ function code {
       without worry. The --api mode allows anyone to build their own UI
       on top of it.
 * [ ] Lots of tests for the CLI
-* [ ] GPLv3 Front-End
 * [ ] bling: background image by project (Taskproject.json)
 * [ ] bling: background iamge by taskfile (Taskproject.json)
 * [ ] bling: themes
+
+
+## License
+
+[GNU AGPL v3.0](http://www.gnu.org/licenses/agpl-3.0.html)
