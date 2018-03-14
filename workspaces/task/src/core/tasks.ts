@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import * as iss from './iss'
 import {appWorkDirectory, prettify} from './util'
 import {getLogger, trace} from './log'
+import * as requireUncached from 'require-uncached'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -282,7 +283,7 @@ export const loadTasks = async (
   log.debug(`Loading "${fp.resolve(taskfilePath)}"`)
   log.debug('cwd', process.cwd())
 
-  const taskfileExports = require(fp.resolve(taskfilePath))
+  const taskfileExports = requireUncached(fp.resolve(taskfilePath))
   trace('Raw taskfile\n', taskfileExports)
   const taskfile = standardizeExports(argv, taskfileExports)
   trace('Standardized as ES6\n', taskfile)

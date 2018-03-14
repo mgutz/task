@@ -1,4 +1,5 @@
 declare module 'columnify'
+declare module 'require-uncached'
 declare module 'toposort'
 declare module 'ws-messaging'
 

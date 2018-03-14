@@ -57,7 +57,7 @@ export default class SchemaFormDialog extends React.PureComponent {
   }
 
   doSubmit = () => {
-    if (this.props.onSubmit) this.props.onSubmit()
     if (this.props.onClose) this.props.onClose()
+    if (this.props.onSubmit) this.props.onSubmit()
   }
 }

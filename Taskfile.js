@@ -12,7 +12,7 @@ export const hello = {
       type: 'object',
       properties: {
         name: {
-          title: 'name',
+          title: 'Name',
           type: 'string',
         },
       },

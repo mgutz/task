@@ -15,6 +15,7 @@ const fs = require("fs");
 const iss = require("./iss");
 const util_1 = require("./util");
 const log_1 = require("./log");
+const requireUncached = require("require-uncached");
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
 const standardizeExports = (argv, taskFile) => {
@@ -234,7 +235,7 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     const log = log_1.getLogger();
     log.debug(`Loading "${fp.resolve(taskfilePath)}"`);
     log.debug('cwd', process.cwd());
-    const taskfileExports = require(fp.resolve(taskfilePath));
+    const taskfileExports = requireUncached(fp.resolve(taskfilePath));
     log_1.trace('Raw taskfile\n', taskfileExports);
     const taskfile = standardizeExports(argv, taskfileExports);
     log_1.trace('Standardized as ES6\n', taskfile);

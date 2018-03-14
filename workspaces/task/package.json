@@ -25,6 +25,7 @@
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
     "pino": "^4.13.0",
+    "require-uncached": "^1.0.3",
     "shelljs": "^0.8.1",
     "tiny-worker": "^2.1.2",
     "toposort": "^1.0.6",
