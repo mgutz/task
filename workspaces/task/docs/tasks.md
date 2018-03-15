@@ -125,6 +125,38 @@ export function server(ctx) {
 }
 ```
 
+### Lazily Evaluated Tasks
+
+A task definition can be lazily loaded. Any export function whose name ends with
+an underscore '\_' will first be evaluated and the result will be its task
+definition.
+
+```js
+export const runTest_ = async (ctx) => {
+  const files = await ctx.globby(['tests/*test.js'])
+  return {
+    run: ({sh, argv}) => {
+      sh.exec(`mocha ${argv.testFile}`)
+    },
+    ui: {
+      schema: {
+        properties: {
+          testFile: {
+            title: 'File',
+            type: 'string',
+            enum: files, // list of files in select dropdown
+          },
+        },
+        required: ['testFile'],
+      },
+      form: ['testFile'],
+    },
+  }
+}
+```
+
+### GUI Form for UI
+
 ## CLI Features
 
 ### Babel support
