@@ -11,12 +11,12 @@ declare interface Options {
   dotenv: boolean
   dryRun: boolean
   file: string
-  server: boolean
   help: boolean
   init: boolean
   initExample: boolean
   list: boolean
   projectFile: string
+  server: boolean
   silent: boolean
   trace: boolean
   typescript: boolean
@@ -44,6 +44,10 @@ declare interface RawTask {
   watch?: string[]
   _original?: Task
   _ran?: boolean
+}
+
+declare interface LazyTask extends RawTask {
+  lazy: boolean
 }
 
 declare interface SerialTask extends RawTask {

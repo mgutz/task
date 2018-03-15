@@ -46,7 +46,7 @@ export const test = {
           console.log(`PASS ${testfile}`)
         },
         ({code}) => {
-          if (code === 0 || testfile.indexOf('pass') > -1) {
+          if (code === 0 && testfile.indexOf('pass') > -1) {
             return console.error(`FAIL ${testfile}`)
           }
           console.error(`PASS ${testfile}`)

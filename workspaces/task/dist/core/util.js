@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
+const contrib = require("../contrib");
 const fp = require("path");
-const util_1 = require("util");
 const fs = require("fs");
+const util_1 = require("util");
 const readFileAsync = util_1.promisify(fs.readFile);
 exports.appWorkDirectory = fp.resolve(__dirname, '..', '..');
 exports.prettify = (o) => util_1.inspect(o);
@@ -39,4 +40,29 @@ exports.readJSONFile = (filename) => __awaiter(this, void 0, void 0, function* (
         throw err;
     return json;
 });
+exports.taskParam = (argv, additionalProps = {}) => {
+    const sh = require('shelljs');
+    const globby = require('globby');
+    const prompt = require('inquirer').createPromptModule();
+    const execAsync = (...args) => {
+        return new Promise((resolve, reject) => {
+            sh.exec(...args, (code, stdout, stderr) => {
+                if (code !== 0) {
+                    return reject({ code, stdout, stderr });
+                }
+                return resolve({ code, stdout, stderr });
+            });
+        });
+    };
+    return {
+        _,
+        argv: Object.assign({}, argv, { _: argv._.slice(1) }, additionalProps),
+        contrib,
+        exec: execAsync,
+        globby,
+        prompt,
+        sh,
+        shawn: contrib.shawn,
+    };
+};
 //# sourceMappingURL=util.js.map

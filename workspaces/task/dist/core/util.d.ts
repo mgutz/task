@@ -7,3 +7,4 @@ export declare const prettify: (o: any) => string;
  */
 export declare const safeParseJSON: (s: string) => any;
 export declare const readJSONFile: (filename: string) => Promise<any>;
+export declare const taskParam: (argv: Options, additionalProps?: any) => TaskParam;

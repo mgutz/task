@@ -6,6 +6,7 @@ import {ChildProcess} from 'child_process'
 import {execOrder} from './depsGraph'
 import {getLogger} from './log'
 import {watch} from './watch'
+import {taskParam} from './util'
 
 process.on('SIGINT', () => {
   const log = getLogger()
@@ -195,35 +196,4 @@ export const runThenWatch = async (ctx: AppContext, name: string) => {
     first = false
     await run(ctx, name, argsWithEvent)
   })
-}
-
-export const taskParam = (
-  argv: Options,
-  additionalProps: any = {}
-): TaskParam => {
-  const sh = require('shelljs')
-  const globby = require('globby')
-  const prompt = require('inquirer').createPromptModule()
-
-  const execAsync = (...args: any[]) => {
-    return new Promise((resolve, reject) => {
-      sh.exec(...args, (code: number, stdout: string, stderr: string) => {
-        if (code !== 0) {
-          return reject({code, stdout, stderr})
-        }
-        return resolve({code, stdout, stderr})
-      })
-    })
-  }
-
-  return {
-    _,
-    argv: {...argv, _: argv._.slice(1), ...additionalProps}, // drop the command
-    contrib,
-    exec: execAsync,
-    globby,
-    prompt,
-    sh,
-    shawn: contrib.shawn,
-  }
 }

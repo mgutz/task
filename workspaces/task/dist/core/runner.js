@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
-const contrib = require("../contrib");
 const iss = require("./iss");
 const depsGraph_1 = require("./depsGraph");
 const log_1 = require("./log");
 const watch_1 = require("./watch");
+const util_1 = require("./util");
 process.on('SIGINT', () => {
     const log = log_1.getLogger();
     log.info('cleaning up...');
@@ -136,7 +136,7 @@ const didRun = (task) => task._ran;
 exports.run = (ctx, name, args) => __awaiter(this, void 0, void 0, function* () {
     const { log, tasks } = ctx;
     if (!args) {
-        args = exports.taskParam(ctx.options);
+        args = util_1.taskParam(ctx.options);
     }
     if (!tasks) {
         throw new Error('`tasks` property is required');
@@ -163,7 +163,7 @@ exports.run = (ctx, name, args) => __awaiter(this, void 0, void 0, function* () 
 });
 exports.runThenWatch = (ctx, name) => __awaiter(this, void 0, void 0, function* () {
     const { log, tasks } = ctx;
-    const args = exports.taskParam(ctx.options);
+    const args = util_1.taskParam(ctx.options);
     const task = getTask(tasks, name);
     if (!(task && Array.isArray(task.watch))) {
         throw new Error(`${name} is not a watchable task.`);
@@ -179,29 +179,4 @@ exports.runThenWatch = (ctx, name) => __awaiter(this, void 0, void 0, function* 
         yield exports.run(ctx, name, argsWithEvent);
     }));
 });
-exports.taskParam = (argv, additionalProps = {}) => {
-    const sh = require('shelljs');
-    const globby = require('globby');
-    const prompt = require('inquirer').createPromptModule();
-    const execAsync = (...args) => {
-        return new Promise((resolve, reject) => {
-            sh.exec(...args, (code, stdout, stderr) => {
-                if (code !== 0) {
-                    return reject({ code, stdout, stderr });
-                }
-                return resolve({ code, stdout, stderr });
-            });
-        });
-    };
-    return {
-        _,
-        argv: Object.assign({}, argv, { _: argv._.slice(1) }, additionalProps),
-        contrib,
-        exec: execAsync,
-        globby,
-        prompt,
-        sh,
-        shawn: contrib.shawn,
-    };
-};
 //# sourceMappingURL=runner.js.map

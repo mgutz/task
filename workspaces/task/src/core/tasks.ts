@@ -3,7 +3,7 @@ import * as exits from './exits'
 import * as fp from 'path'
 import * as fs from 'fs'
 import * as iss from './iss'
-import {appWorkDirectory, prettify} from './util'
+import {appWorkDirectory, prettify, taskParam} from './util'
 import {getLogger, trace} from './log'
 import * as requireUncached from 'require-uncached'
 
@@ -136,6 +136,7 @@ const makeFunctionTask = (
       run: fn,
     } as ReifiedTask
   }
+
   // anonymous functions need to be in tasks too
   return {
     name: uniqueName('a'),
@@ -288,7 +289,7 @@ export const loadTasks = async (
   const taskfile = standardizeExports(argv, taskfileExports)
   trace('Standardized as ES6\n', taskfile)
 
-  const tasks = standardizeFile(taskfile)
+  const tasks = await standardizeFile(taskfile, argv)
 
   trace('Tasks after standardizing functions and objects\n', tasks)
   // standardize dependencies
@@ -325,9 +326,18 @@ export const loadTasks = async (
 }
 
 // standardizes a task file's task.
-export const standardizeFile = (v: any): Tasks => {
+export const standardizeFile = async (
+  v: any,
+  argv: Options
+): Promise<Tasks> => {
   const tasks: Tasks = {}
-  const assignTask = (key: string, taskdef: any) => {
+  const assignTask = async (key: string, taskdef: any) => {
+    if (typeof taskdef === 'function' && key.endsWith('_')) {
+      const newTaskDef = await taskdef(taskParam(argv))
+      newTaskDef._original = taskdef
+      taskdef = newTaskDef
+    }
+
     const task = standardizeTask(tasks, key, taskdef)
     if (!task) {
       throw new Error(`Does not resolve to task: ${prettify(taskdef)}`)
@@ -339,11 +349,11 @@ export const standardizeFile = (v: any): Tasks => {
     // convert exported default object
     // tslint:disable-next-line
     for (const name in v) {
-      assignTask(name, v[name])
+      await assignTask(name, v[name])
     }
     return tasks
   }
-  assignTask('', v)
+  await assignTask('', v)
   return tasks
 }
 

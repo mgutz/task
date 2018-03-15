@@ -239,7 +239,7 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     log_1.trace('Raw taskfile\n', taskfileExports);
     const taskfile = standardizeExports(argv, taskfileExports);
     log_1.trace('Standardized as ES6\n', taskfile);
-    const tasks = exports.standardizeFile(taskfile);
+    const tasks = yield exports.standardizeFile(taskfile, util_1.taskParam(argv));
     log_1.trace('Tasks after standardizing functions and objects\n', tasks);
     // standardize dependencies
     // tslint:disable-next-line
@@ -269,26 +269,31 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     return tasks;
 });
 // standardizes a task file's task.
-exports.standardizeFile = (v) => {
+exports.standardizeFile = (v, ctx) => __awaiter(this, void 0, void 0, function* () {
     const tasks = {};
-    const assignTask = (key, taskdef) => {
+    const assignTask = (key, taskdef) => __awaiter(this, void 0, void 0, function* () {
+        if (typeof taskdef === 'function' && key.endsWith('_')) {
+            const newTaskDef = yield taskdef(ctx);
+            newTaskDef._original = taskdef;
+            taskdef = newTaskDef;
+        }
         const task = exports.standardizeTask(tasks, key, taskdef);
         if (!task) {
             throw new Error(`Does not resolve to task: ${util_1.prettify(taskdef)}`);
         }
         tasks[key] = task;
-    };
+    });
     if (_.isObject(v)) {
         // convert exported default object
         // tslint:disable-next-line
         for (const name in v) {
-            assignTask(name, v[name]);
+            yield assignTask(name, v[name]);
         }
         return tasks;
     }
-    assignTask('', v);
+    yield assignTask('', v);
     return tasks;
-};
+});
 exports.standardizeTask = (tasks, k, v) => {
     if (typeof v === 'function') {
         return makeFunctionTask(tasks, k, v);
