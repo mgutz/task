@@ -1,16 +1,35 @@
+.task-log {
+  font-family: mononoki, monospace;
+  font-size: 14px;
+  border-bottom: solid 1px #ddd;
+}
+
 .task-kind {
-  color: #666;
-  background-color: #eee;
-  margin: 0 10px;
-  width: 40px;
-  padding: 0 5px;
+  color: #999;
+  margin: 0 5px;
 }
 
 .task-kind-err {
-  color: #c00;
-  background-color: #ecc;
+  color: #c99;
 }
 
-.task-entry-err {
+.task-message {
+  padding: 0 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  overflow: hidden;
+}
+
+.task-entry:hover {
+  background-color: #f8f8e0;
+}
+
+.task-entry.is-selected {
+  background-color: #f8f8c0;
+  border: solid 1px #f8f8b0;
+}
+
+.task-message-err {
   color: #c00;
 }

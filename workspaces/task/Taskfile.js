@@ -36,7 +36,7 @@ export const test = {
     const tests = await globby([pattern])
 
     const promises = tests.map((testfile) => {
-      const command = `task -f ${testfile} --silent test`
+      const command = `task -f ${testfile} --trace test`
       return exec(command).then(
         (res) => {
           const {code, stderr} = res
@@ -46,10 +46,11 @@ export const test = {
           console.log(`PASS ${testfile}`)
         },
         ({code}) => {
-          if (code === 0 && testfile.indexOf('pass') > -1) {
-            return console.error(`FAIL ${testfile}`)
+          const isPositiveTest = testfile.indexOf('pass') > -1
+          if (isPositiveTest) {
+            return console.error(`FAIL2 ${testfile} w/ code ${code}`)
           }
-          console.error(`PASS ${testfile}`)
+          console.error(`PASS2 ${testfile}`)
         }
       )
     })

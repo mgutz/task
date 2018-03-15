@@ -56,7 +56,7 @@ const loadOptions = () => {
             return exits.error(err);
         }
         argv = argv2;
-        process.env.task_ipc_options = undefined;
+        delete process.env.task_ipc_options;
         return argv;
     }
     // load taskrc early

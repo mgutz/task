@@ -110,7 +110,7 @@ export const logEntryAt = ({indices, chunks}, index) => {
   const kind = indices[offset + 3]
 
   const s = chunks[chunksPos].substr(start, length)
-  if (s.startsWith('{') && s.endsWith('}')) {
+  if (s[0] === '{') {
     const o = tryParse(s)
     o._kind_ = kind
     return o
