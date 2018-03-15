@@ -239,7 +239,7 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     log_1.trace('Raw taskfile\n', taskfileExports);
     const taskfile = standardizeExports(argv, taskfileExports);
     log_1.trace('Standardized as ES6\n', taskfile);
-    const tasks = yield exports.standardizeFile(taskfile, util_1.taskParam(argv));
+    const tasks = yield exports.standardizeFile(taskfile, argv);
     log_1.trace('Tasks after standardizing functions and objects\n', tasks);
     // standardize dependencies
     // tslint:disable-next-line
@@ -269,11 +269,11 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     return tasks;
 });
 // standardizes a task file's task.
-exports.standardizeFile = (v, ctx) => __awaiter(this, void 0, void 0, function* () {
+exports.standardizeFile = (v, argv) => __awaiter(this, void 0, void 0, function* () {
     const tasks = {};
     const assignTask = (key, taskdef) => __awaiter(this, void 0, void 0, function* () {
         if (typeof taskdef === 'function' && key.endsWith('_')) {
-            const newTaskDef = yield taskdef(ctx);
+            const newTaskDef = yield taskdef(util_1.taskParam(argv));
             newTaskDef._original = taskdef;
             taskdef = newTaskDef;
         }

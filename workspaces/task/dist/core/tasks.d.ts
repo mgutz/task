@@ -22,5 +22,5 @@ export declare const configureBabel: (argv: Options, taskfilePath: string) => vo
  * }
  */
 export declare const loadTasks: (argv: Options, taskfilePath: string) => Promise<Tasks | null>;
-export declare const standardizeFile: (v: any, ctx: TaskParam) => Promise<Tasks>;
+export declare const standardizeFile: (v: any, argv: Options) => Promise<Tasks>;
 export declare const standardizeTask: (tasks: Tasks, k: string, v: any) => Task;

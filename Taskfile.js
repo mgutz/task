@@ -2,7 +2,7 @@ import * as fp from 'path'
 import * as fs from 'fs'
 
 export const hello = {
-  run: ({argv}) => {
+  run: ({ argv }) => {
     console.log(`Hello, ${argv.name}!`);
     console.error('Random error 1');
     console.error('Another error 2');
@@ -28,10 +28,9 @@ export const hello = {
   }
 };
 
-
 export const diagram = {
   desc: 'Generates PlantUML diagram',
-  run: ({argv, sh}) => {
+  run: ({ argv, sh }) => {
     const file = argv.filename;
     const path = fp.resolve(file + '.puml');
     if (!fs.existsSync(path)) return console.error(`File does not exist: ${path}`);
@@ -52,7 +51,7 @@ export const diagram = {
       },
       required: ['filename']
     },
-    form:  [
+    form: [
       'filename'
     ],
     model: {
@@ -60,3 +59,32 @@ export const diagram = {
     }
   },
 };
+
+export const lazy_ = async (ctx) => {
+  const files = await ctx.globby(['./*.json'])
+  return {
+    run: (ctx) => {
+      console.log(ctx.argv.filename)
+    },
+    ui: {
+      schema: {
+        properties: {
+          filename: {
+            title: 'File',
+            type: 'string',
+            enum: files
+          }
+        },
+        required: ['filename']
+      },
+      form: [
+        'filename'
+      ],
+      model: {
+        filename: 'diagram'
+      }
+    },
+  }
+}
+
+
