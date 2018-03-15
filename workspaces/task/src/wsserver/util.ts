@@ -82,11 +82,14 @@ export const runAsProcess = (
   return proc
 }
 
-const exampleTaskproject = `
-{
-  "Taskfiles": []
-}
-`
+const exampleTaskproject = `{
+  "server": {
+	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
+  },
+  "taskfiles": [
+    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []},
+  ]
+}`
 
 export const loadProjectFile = async (
   argv: Options,
