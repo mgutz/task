@@ -8,7 +8,7 @@ import './TaskLog.css'
 
 const ListView = styled.div`
   font-family: monospace;
-  height: 500px;
+  height: 610px;
 `
 
 const ItemView = styled.div`
@@ -33,10 +33,11 @@ export default class TaskLog extends React.PureComponent {
     return (
       <VirtualList
         width="100%"
-        height={400}
+        height={600}
         itemCount={logLength(logIndex)}
-        itemSize={24}
+        itemSize={20}
         renderItem={this.renderItem}
+        scrollToIndex={logLength(logIndex)}
       />
     )
   }
@@ -70,7 +71,7 @@ export default class TaskLog extends React.PureComponent {
     return (
       <div>
         <ListView>{this.renderList(logIndex)}</ListView>
-        <ItemView />
+        <ItemView>DETAIL HERE</ItemView>
       </div>
     )
   }

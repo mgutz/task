@@ -53,7 +53,7 @@ export class Resolvers {
 
     // whitelist marshalled properties
     const cleanTasks: Task[] = _.map(tasks, (task: Task) =>
-      _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once'])
+      _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui'])
     )
     return {c: 200, p: cleanTasks}
   }
@@ -96,6 +96,26 @@ export class Resolvers {
 const sanitizeInboundArgv = (argv: Options): Options => {
   if (_.isEmpty(argv)) return {} as Options
 
-  const {projectFile, file, server, ...rest} = argv
-  return {...rest} as Options
+  // TODO task options need to be separate from CLI options
+  //
+  // In this example: task foo --help -- --help
+  //   foo is the task to run
+  //   --help is argument to CLI
+  //   -- help is argument to the task to run
+  return _.omit(argv, [
+    '_',
+    'file',
+    'help',
+    'server',
+    'init',
+    'initExample',
+    'list',
+    'projectFile',
+  ]) as Options
+
+  // const {projectFile, file, server, ...rest} = argv
+
+  // const newArgv = {...rest} as Options
+  // console.log('newArgv', newArgv)
+  // return newArgv
 }

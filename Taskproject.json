@@ -4,7 +4,7 @@
 	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
   },
   "taskfiles": [
-    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": ["--debug"]},
+    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []},
     {"id": "Local",  "desc": "Task Project",  "path": "./workspaces/task/Taskfile.js", "argv": []}
   ]
 }

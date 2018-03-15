@@ -13,14 +13,22 @@ export default class SchemaFormDialog extends React.PureComponent {
     form: PropTypes.array.isRequired,
     model: PropTypes.object,
     onClose: PropTypes.func,
-    onModelChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func,
     open: PropTypes.bool,
     schema: PropTypes.object.isRequired,
   }
 
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      model: {...props.model},
+    }
+  }
+
   render() {
-    const {form, model, onModelChange, open, schema} = this.props
+    const {form, open, schema} = this.props
+    const {model} = this.state
 
     return (
       <div>
@@ -36,7 +44,7 @@ export default class SchemaFormDialog extends React.PureComponent {
               schema={schema}
               form={form}
               model={model}
-              onModelChange={onModelChange}
+              onModelChange={this.doModelChange}
             />
           </DialogContent>
           <DialogActions>
@@ -56,8 +64,16 @@ export default class SchemaFormDialog extends React.PureComponent {
     if (this.props.onClose) this.props.onClose()
   }
 
+  doModelChange = (keyPath, v) => {
+    // TODO The form returns multiple paths but for now we only accept shallow
+    // objects
+    this.setState((prev) => {
+      return {...prev, model: {...prev.model, [keyPath[0]]: v}}
+    })
+  }
+
   doSubmit = () => {
     if (this.props.onClose) this.props.onClose()
-    if (this.props.onSubmit) this.props.onSubmit()
+    if (this.props.onSubmit) this.props.onSubmit(this.state.model)
   }
 }

@@ -36,10 +36,11 @@ declare interface RawTask {
   deps?: any[]
   desc?: string
   every?: boolean
-  form?: any
   name?: string
   once?: boolean
   run?: TaskFunc
+  // ui is currenly only used by the UI
+  ui?: any
   watch?: string[]
   _original?: Task
   _ran?: boolean

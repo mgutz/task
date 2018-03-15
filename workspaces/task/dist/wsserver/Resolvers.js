@@ -7,15 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-            t[p[i]] = s[p[i]];
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
 const fp = require("path");
@@ -63,7 +54,7 @@ class Resolvers {
                 return { c: 200, p: [] };
             }
             // whitelist marshalled properties
-            const cleanTasks = _.map(tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'form', 'name', 'once']));
+            const cleanTasks = _.map(tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui']));
             return { c: 200, p: cleanTasks };
         });
         /**
@@ -97,7 +88,25 @@ exports.Resolvers = Resolvers;
 const sanitizeInboundArgv = (argv) => {
     if (_.isEmpty(argv))
         return {};
-    const { projectFile, file, server } = argv, rest = __rest(argv, ["projectFile", "file", "server"]);
-    return Object.assign({}, rest);
+    // TODO task options need to be separate from CLI options
+    //
+    // In this example: task foo --help -- --help
+    //   foo is the task to run
+    //   --help is argument to CLI
+    //   -- help is argument to the task to run
+    return _.omit(argv, [
+        '_',
+        'file',
+        'help',
+        'server',
+        'init',
+        'initExample',
+        'list',
+        'projectFile',
+    ]);
+    // const {projectFile, file, server, ...rest} = argv
+    // const newArgv = {...rest} as Options
+    // console.log('newArgv', newArgv)
+    // return newArgv
 };
 //# sourceMappingURL=Resolvers.js.map

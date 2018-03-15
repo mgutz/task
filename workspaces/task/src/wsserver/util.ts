@@ -29,20 +29,22 @@ export const runAsProcess = (
   argv._[0] = taskName
   argv.server = false
 
-  const newArgv = _.pick(argv, [
-    '_',
-    'babel',
-    'debug',
-    'dotenv',
-    'file',
-    'dryRun',
-    'silent',
-    'trace',
-    'typescript',
-    'watch',
-    'babelExtensions',
-    'name',
-  ])
+  // const newArgv = _.pick(argv, [
+  //   '_',
+  //   'babel',
+  //   'debug',
+  //   'dotenv',
+  //   'file',
+  //   'dryRun',
+  //   'silent',
+  //   'trace',
+  //   'typescript',
+  //   'watch',
+  //   'babelExtensions',
+  //   'name',
+  // ])
+
+  const newArgv = argv
 
   const argvstr = JSON.stringify(newArgv)
 

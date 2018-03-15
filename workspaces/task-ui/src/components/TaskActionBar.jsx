@@ -31,9 +31,10 @@ export default class TaskActionBar extends React.PureComponent {
   render() {
     const {task} = this.props
     const {showForm} = this.state
-    const {form} = task
-    const isForm = this.hasForm()
+    const {ui} = task
+    const isForm = this.hasUI()
     const runFunc = isForm ? this.doShowForm : this.doRun
+    const schema = isForm ? this.standardizeSchema(ui.schema) : null
 
     return (
       <div>
@@ -48,13 +49,14 @@ export default class TaskActionBar extends React.PureComponent {
 
         {isForm && (
           <SchemaFormDialog
-            schema={form.schema}
-            form={form.form}
-            model={{}}
+            schema={schema}
+            form={ui.form}
+            model={ui.model}
             open={showForm}
             onClose={this.doCloseForm}
             onModelChange={this.doModelChange}
             onSubmit={this.doRun}
+            maxWidth="md"
           />
         )}
       </div>
@@ -73,11 +75,10 @@ export default class TaskActionBar extends React.PureComponent {
     })
   }
 
-  doRun = () => {
+  doRun = (model) => {
     const {run, task} = this.props
-    const {model} = this.state
     const runArgs = [task.taskfileId, task.name]
-    if (this.hasForm() && Object.keys(model).length > 0) {
+    if (this.hasUI() && Object.keys(model).length > 0) {
       runArgs.push(model)
     }
     return run(runArgs)
@@ -94,7 +95,11 @@ export default class TaskActionBar extends React.PureComponent {
     stop([task.taskfileId, task.name])
   }
 
-  hasForm() {
-    return !_.isEmpty(this.props.task.form)
+  standardizeSchema(schema) {
+    return {...schema, type: 'object'}
+  }
+
+  hasUI() {
+    return !_.isEmpty(this.props.task.ui)
   }
 }

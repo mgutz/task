@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("lodash");
 const cp = require("child_process");
 const fp = require("path");
 const fs = require("fs");
@@ -30,20 +29,21 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
 exports.runAsProcess = (taskfileId, taskName, argv, client) => {
     argv._[0] = taskName;
     argv.server = false;
-    const newArgv = _.pick(argv, [
-        '_',
-        'babel',
-        'debug',
-        'dotenv',
-        'file',
-        'dryRun',
-        'silent',
-        'trace',
-        'typescript',
-        'watch',
-        'babelExtensions',
-        'name',
-    ]);
+    // const newArgv = _.pick(argv, [
+    //   '_',
+    //   'babel',
+    //   'debug',
+    //   'dotenv',
+    //   'file',
+    //   'dryRun',
+    //   'silent',
+    //   'trace',
+    //   'typescript',
+    //   'watch',
+    //   'babelExtensions',
+    //   'name',
+    // ])
+    const newArgv = argv;
     const argvstr = JSON.stringify(newArgv);
     const opts = {
         cwd: fp.dirname(argv.file),
