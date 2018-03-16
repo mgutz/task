@@ -26,8 +26,8 @@ export const logs = {
 
   reducers: {
     'taskfiles/appendLog': (state, payload) => {
-      const {pid, lines, kind} = payload
-      const key = String(pid)
+      const {id, lines, kind} = payload
+      const key = String(id)
       const found = state[key]
 
       const chunkPos = found ? found.chunks.length : 0

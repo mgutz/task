@@ -65,7 +65,12 @@ export class Resolvers {
    *
    * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
    */
-  public run = (taskfileId: string, taskName: string, argv: Options) => {
+  public run = (
+    tag: string, // echoed back as-is to client, is currently historyId
+    taskfileId: string,
+    taskName: string,
+    argv: Options
+  ) => {
     const {context, client, project} = this.rcontext
 
     const taskfile = _.find(project.taskfiles, {id: taskfileId})
@@ -81,7 +86,7 @@ export class Resolvers {
       file: fp.resolve(path),
     }
 
-    const cp = runAsProcess(taskfileId, taskName, newArgv, client)
+    const cp = runAsProcess(tag, taskfileId, taskName, newArgv, client)
 
     // events are passed through client. return the pid here for the UI
     // to know which pid it is

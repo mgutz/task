@@ -3,11 +3,11 @@ import {init} from '@rematch/core'
 import selectorsPlugin from '@rematch/select'
 import {taskfiles} from './taskfiles'
 import {logs} from './logs'
-import {history} from './history'
+import {histories} from './histories'
 import {client} from '#/services/websocket'
 import {project} from './project'
 
-const models = {history, logs, project, taskfiles}
+const models = {histories, logs, project, taskfiles}
 
 export const createStore = () => {
   const store = init({
@@ -23,20 +23,20 @@ export const createStore = () => {
 const hookWebSocket = (store) => {
   /*
   proc.stdout.on('data', (data) => {
-    client.send('pout', [taskfileId, taskName, proc.pid, data])
+    client.send('pout', [taskfileId, taskName, tag, proc.pid, data])
   })
 
   proc.stderr.setEncoding('utf-8')
   proc.stderr.on('data', (data) => {
-    client.send('perr', [taskfileId, taskName, proc.pid, data])
+    client.send('perr', [taskfileId, taskName, tag, proc.pid, data])
   })
 
   proc.on('close', () => {
-    client.send('pclose', [taskfileId, taskName, proc.pid, code])
+    client.send('pclose', [taskfileId, taskName, tag, proc.pid, code])
   })
 
   proc.on('error', (err) => {
-    client.send('perror', [taskfileId, taskName, proc.pid, err])
+    client.send('perror', [taskfileId, taskName, tag, proc.pid, err])
   })
   */
 

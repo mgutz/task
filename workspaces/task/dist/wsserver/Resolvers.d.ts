@@ -39,7 +39,7 @@ export declare class Resolvers {
      *
      * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
      */
-    run: (taskfileId: string, taskName: string, argv: Options) => {
+    run: (tag: string, taskfileId: string, taskName: string, argv: Options) => {
         c: number;
         e: string;
         p?: undefined;

@@ -64,7 +64,8 @@ class Resolvers {
          *
          * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
          */
-        this.run = (taskfileId, taskName, argv) => {
+        this.run = (tag, // echoed back as-is to client, is currently historyId
+        taskfileId, taskName, argv) => {
             const { context, client, project } = this.rcontext;
             const taskfile = _.find(project.taskfiles, { id: taskfileId });
             if (!taskfile) {
@@ -73,7 +74,7 @@ class Resolvers {
             const { path, argv: taskfileArgv } = taskfile;
             // merge inbound client argv with those found in the project file
             const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), sanitizeInboundArgv(argv), { file: fp.resolve(path) });
-            const cp = util_1.runAsProcess(taskfileId, taskName, newArgv, client);
+            const cp = util_1.runAsProcess(tag, taskfileId, taskName, newArgv, client);
             // events are passed through client. return the pid here for the UI
             // to know which pid it is
             return { c: 200, p: { pid: cp.pid } };

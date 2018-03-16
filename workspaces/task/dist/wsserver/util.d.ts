@@ -11,5 +11,5 @@ import { Project } from './types';
  *
  * The argv must have`_.[0]` be the task name and `server: false`.
  */
-export declare const runAsProcess: (taskfileId: string, taskName: string, argv: Options, client: any) => cp.ChildProcess;
+export declare const runAsProcess: (tag: string, taskfileId: string, taskName: string, argv: Options, client: any) => cp.ChildProcess;
 export declare const loadProjectFile: (argv: Options, isRunning?: boolean) => Promise<Project>;

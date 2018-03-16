@@ -1,7 +1,7 @@
 import React, {Fragment, Component} from 'react'
 import PropTypes from 'prop-types'
 import Collapse from 'material-ui/transitions/Collapse'
-import List, {ListItem, ListItemText} from 'material-ui/List'
+import List, {ListItem, ListItemIcon, ListItemText} from 'material-ui/List'
 import {withState} from 'recompose'
 import ExpandLess from 'material-ui-icons/ExpandLess'
 import ExpandMore from 'material-ui-icons/ExpandMore'
@@ -10,6 +10,7 @@ import {withRoute} from 'react-router5'
 import classNames from 'classnames'
 import TocIcon from 'material-ui-icons/Toc'
 import styled from 'styled-components'
+import RunTask from './RunTask'
 
 const mapState = (state, props) => {
   return {
@@ -36,10 +37,11 @@ class Taskfile extends Component {
     const route = router.getState()
     return tasks.map((task) => {
       const classes = classNames({
-        selected:
+        'is-selected':
           route.params.taskName === task.name &&
           route.params.taskfileId === task.taskfileId,
       })
+
       return (
         <ListItem
           className={classes}
@@ -47,6 +49,9 @@ class Taskfile extends Component {
           onClick={this.doSetActive(task)}
         >
           <ListItemText primary={task.name} secondary={task.desc} />
+          <ListItemIcon>
+            <RunTask task={task} />
+          </ListItemIcon>
         </ListItem>
       )
     })

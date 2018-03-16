@@ -26,7 +26,7 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
  *
  * The argv must have`_.[0]` be the task name and `server: false`.
  */
-exports.runAsProcess = (taskfileId, taskName, argv, client) => {
+exports.runAsProcess = (tag, taskfileId, taskName, argv, client) => {
     argv._[0] = taskName;
     argv.server = false;
     // const newArgv = _.pick(argv, [
@@ -55,25 +55,28 @@ exports.runAsProcess = (taskfileId, taskName, argv, client) => {
     const proc = cp.spawn('node', params, opts);
     proc.stdout.setEncoding('utf-8');
     proc.stdout.on('data', (data) => {
-        client.send('pout', [taskfileId, taskName, proc.pid, data]);
+        client.send('pout', [tag, proc.pid, data]);
     });
     proc.stderr.setEncoding('utf-8');
     proc.stderr.on('data', (data) => {
-        client.send('perr', [taskfileId, taskName, proc.pid, data]);
+        client.send('perr', [tag, proc.pid, data]);
     });
     proc.on('close', (code) => {
-        client.send('pclose', [taskfileId, taskName, proc.pid, code]);
+        client.send('pclose', [tag, proc.pid, code]);
     });
     proc.on('error', (err) => {
-        client.send('perror', [taskfileId, taskName, proc.pid, err]);
+        client.send('perror', [tag, proc.pid, err]);
     });
     return proc;
 };
-const exampleTaskproject = `
-{
-  "Taskfiles": []
-}
-`;
+const exampleTaskproject = `{
+  "server": {
+	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
+  },
+  "taskfiles": [
+    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []},
+  ]
+}`;
 exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, void 0, function* () {
     let projectFile = argv.projectFile;
     if (projectFile) {

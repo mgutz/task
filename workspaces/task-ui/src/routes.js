@@ -2,5 +2,5 @@ export const routes = [
   {name: 'tasks', path: '/tasks'},
   // path appends to /tasks
   {name: 'tasks.name', path: '/:taskfileId/:taskName'},
-  {name: 'tasks.name.pid', path: '/:pid'},
+  {name: 'tasks.name.history', path: '/:historyId'},
 ]

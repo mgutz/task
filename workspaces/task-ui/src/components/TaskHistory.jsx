@@ -8,10 +8,12 @@ import {
   ListItemSecondaryAction,
   ListSubHeader,
 } from '#/components/material'
-import {FiberManualRecord} from 'material-ui-icons'
+import {FiberManualRecord, Replay as ReplayIcon} from 'material-ui-icons'
 import * as strftime from 'strftime'
 import {select} from '@rematch/select'
-
+import IconButton from 'material-ui/IconButton'
+import classNames from 'classnames'
+import {withRoute} from 'react-router5'
 import styled from 'styled-components'
 
 const Status = styled(FiberManualRecord)`
@@ -23,24 +25,28 @@ const mapState = (state, props) => {
 
   const {name, taskfileId} = props.task
   return {
-    histories: select.history.byTaskfileIdAndTaskName(state, {
+    histories: select.histories.byQuery(state, {
       taskfileId,
       taskName: name,
     }),
   }
 }
 
-const mapDispatch = ({taskfiles: {setActivePID}}) => ({setActivePID})
+const mapDispatch = ({taskfiles: {replay}}) => ({
+  replay,
+})
 
+@withRoute
 @connect(mapState, mapDispatch)
 export default class TaskHistory extends React.Component {
   static propTypes = {
     histories: PropTypes.array,
-    setActivePID: PropTypes.func,
+    replay: PropTypes.func.isRequired,
+    router: PropTypes.object.isRequired,
     task: PropTypes.object,
   }
 
-  renderItems = (histories) => {
+  renderItems = (histories, task, activeHistoryId) => {
     return histories.map((history) => {
       const status =
         `pid: ${history.pid} ` +
@@ -54,17 +60,26 @@ export default class TaskHistory extends React.Component {
       const hourFormat = '%I:%M:%S %p'
       const format = olderThanOneDay ? dayFormat : hourFormat
       const caption = strftime(format, new Date(history.createdAt))
+      const classes = classNames({
+        'is-selected': activeHistoryId === history.id,
+      })
 
       return (
-        <ListItem key={history.pid} divider>
+        <ListItem
+          className={classes}
+          key={history.id}
+          onClick={this.doSetActive(history)}
+          divider
+        >
           <ListItemText primary={caption} secondary={status} />
           <ListItemSecondaryAction>
-            {' '}
-            <Status
-              value="fiber_manual_record"
-              status={history.status}
-              onClick={this.doSetActive(history)}
-            />
+            {history.status === 'closed' ? (
+              <IconButton onClick={this.doReplay(history)}>
+                <ReplayIcon />
+              </IconButton>
+            ) : (
+              <Status value="fiber_manual_record" status={history.status} />
+            )}
           </ListItemSecondaryAction>
         </ListItem>
       )
@@ -72,18 +87,30 @@ export default class TaskHistory extends React.Component {
   }
 
   render() {
-    const {histories} = this.props
+    const {histories, router, task} = this.props
     const caption = histories && histories.length > 0 ? 'History' : 'No History'
 
     return (
       <List>
         <ListSubHeader>{caption}</ListSubHeader>
-        {histories && this.renderItems(histories)}
+        {histories &&
+          this.renderItems(histories, task, router.getState().params.historyId)}
       </List>
     )
   }
 
-  doSetActive = ({pid, taskName}) => () => {
-    this.props.setActivePID({pid, taskName})
+  doReplay = (history) => () => {
+    this.props.replay(history)
+  }
+
+  doSetActive = (history) => () => {
+    const {router} = this.props
+    const {taskfileId, taskName, id} = history
+
+    router.navigate('tasks.name.history', {
+      taskName,
+      taskfileId,
+      historyId: id,
+    })
   }
 }

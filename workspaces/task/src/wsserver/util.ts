@@ -21,6 +21,7 @@ const taskScript = fp.resolve(__dirname, '..', '..', 'index.js')
  * The argv must have`_.[0]` be the task name and `server: false`.
  */
 export const runAsProcess = (
+  tag: string,
   taskfileId: string,
   taskName: string,
   argv: Options,
@@ -63,20 +64,20 @@ export const runAsProcess = (
 
   proc.stdout.setEncoding('utf-8')
   proc.stdout.on('data', (data) => {
-    client.send('pout', [taskfileId, taskName, proc.pid, data])
+    client.send('pout', [tag, proc.pid, data])
   })
 
   proc.stderr.setEncoding('utf-8')
   proc.stderr.on('data', (data) => {
-    client.send('perr', [taskfileId, taskName, proc.pid, data])
+    client.send('perr', [tag, proc.pid, data])
   })
 
   proc.on('close', (code) => {
-    client.send('pclose', [taskfileId, taskName, proc.pid, code])
+    client.send('pclose', [tag, proc.pid, code])
   })
 
   proc.on('error', (err) => {
-    client.send('perror', [taskfileId, taskName, proc.pid, err])
+    client.send('perror', [tag, proc.pid, err])
   })
 
   return proc
