@@ -28,7 +28,8 @@ nav {
 }
 
 aside {
-  background-color: #eee;
+  background-color: #fafafa;
+  border-right: solid 1px #ddd;
 }
 
 footer {

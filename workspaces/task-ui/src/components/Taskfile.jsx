@@ -12,16 +12,14 @@ import TocIcon from 'material-ui-icons/Toc'
 import styled from 'styled-components'
 import RunTask from './RunTask'
 
+const InsetList = styled(List)`
+  margin-left: 10px;
+`
 const mapState = (state, props) => {
   return {
     tasks: state.taskfiles[props.taskfile.id],
   }
 }
-
-const InsetList = styled(List)`
-  margin-left: 10px;
-`
-
 const mapDispatch = ({taskfiles: {fetchTasks}}) => ({fetchTasks})
 
 @withRoute

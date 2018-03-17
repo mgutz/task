@@ -2,6 +2,7 @@ declare module 'columnify'
 declare module 'require-uncached'
 declare module 'toposort'
 declare module 'ws-messaging'
+declare module 'task-ws'
 
 declare interface Options {
   _: string[]

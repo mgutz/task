@@ -5,6 +5,9 @@
     },
     {
       "path": "workspaces/task-ui"
+    },
+    {
+      "path": "workspaces/task-ws"
     }
   ],
   "settings": {}

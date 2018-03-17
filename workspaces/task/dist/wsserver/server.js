@@ -11,14 +11,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
-const WSMessaging = require("ws-messaging");
 const log_1 = require("../core/log");
 const Resolvers_1 = require("./Resolvers");
 const util_1 = require("./util");
 const lowdb = require("lowdb");
 const FileAsync = require("lowdb/adapters/FileAsync");
+const task_ws_1 = require("task-ws");
+// const initResolvers = (rcontext: ResolverContext) => {
+//   return (client: any, authData: any) => {
+//     const resolverContext = {...rcontext, authData, client}
+//     // register any function that does not start with '_'
+//     const resolvers = new Resolvers(resolverContext)
+//     for (const k in resolvers) {
+//       // @ts-ignore
+//       const resolver = resolvers[k]
+//       if (k.startsWith('_') || typeof resolver !== 'function') continue
+//       client.register(k, resolver)
+//     }
+//     return Promise.resolve()
+//   }
+// }
 const initResolvers = (rcontext) => {
-    return (client, authData) => {
+    return (ws, authData) => {
+        const client = new task_ws_1.Server(ws);
+        log_1.konsole.log('Connected');
         const resolverContext = Object.assign({}, rcontext, { authData, client });
         // register any function that does not start with '_'
         const resolvers = new Resolvers_1.Resolvers(resolverContext);
@@ -36,7 +52,6 @@ exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
     const project = (yield util_1.loadProjectFile(ctx.options));
     const adapter = new FileAsync(project.path);
     const db = yield lowdb(adapter);
-    console.log('>db.get', project.path, db.get);
     const rcontext = {
         context: ctx,
         project,
@@ -44,8 +59,12 @@ exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
     };
     const app = express();
     const server = http.createServer(app);
-    const connectionHook = initResolvers(rcontext);
-    const wss = new WSMessaging({ server }, { connectionHook, WebSocketServer: WebSocket.Server });
+    const ws = new WebSocket.Server({ server });
+    ws.on('connection', initResolvers(rcontext));
+    // const wss = new WSMessaging(
+    //   {server},
+    //   {connectionHook, WebSocketServer: WebSocket.Server}
+    // )
     server.listen(opts.port, (err) => {
         if (err)
             return log_1.konsole.error(err);

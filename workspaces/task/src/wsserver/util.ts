@@ -64,20 +64,20 @@ export const runAsProcess = (
 
   proc.stdout.setEncoding('utf-8')
   proc.stdout.on('data', (data) => {
-    client.send('pout', [tag, proc.pid, data])
+    client.emit('pout', [tag, proc.pid, data])
   })
 
   proc.stderr.setEncoding('utf-8')
   proc.stderr.on('data', (data) => {
-    client.send('perr', [tag, proc.pid, data])
+    client.emit('perr', [tag, proc.pid, data])
   })
 
   proc.on('close', (code) => {
-    client.send('pclose', [tag, proc.pid, code])
+    client.emit('pclose', [tag, proc.pid, code])
   })
 
   proc.on('error', (err) => {
-    client.send('perror', [tag, proc.pid, err])
+    client.emit('perror', [tag, proc.pid, err])
   })
 
   return proc
@@ -88,7 +88,7 @@ const exampleTaskproject = `{
 	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
   },
   "taskfiles": [
-    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []},
+    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
   ]
 }`
 
@@ -127,7 +127,6 @@ export const loadProjectFile = async (
   }
 
   const proj = (await readJSONFile(projectFile)) as Project
-  console.log('DBG:0asdf', projectFile)
   proj.path = projectFile
   return proj
 }

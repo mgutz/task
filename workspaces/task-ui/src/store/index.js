@@ -4,23 +4,25 @@ import selectorsPlugin from '@rematch/select'
 import {taskfiles} from './taskfiles'
 import {logs} from './logs'
 import {histories} from './histories'
-import {client} from '#/services/websocket'
+import {init as initWebSocketClient} from '#/services/websocket'
 import {project} from './project'
 
 const models = {histories, logs, project, taskfiles}
 
-export const createStore = () => {
+export const createStore = async () => {
   const store = init({
     models,
     plugins: [selectorsPlugin()],
   })
 
-  hookWebSocket(store)
+  const wsClient = await initWebSocketClient()
+
+  hookWebSocket(store, wsClient)
   _.set(window, 'DBG.store', store)
   return store
 }
 
-const hookWebSocket = (store) => {
+const hookWebSocket = (store, client) => {
   /*
   proc.stdout.on('data', (data) => {
     client.send('pout', [taskfileId, taskName, tag, proc.pid, data])

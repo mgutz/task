@@ -1,27 +1,29 @@
 const events = require('events');
 const util = require('util');
 
-/**
- * Applies Server event functionality to the given socket connection
- *
- * A listener is added to the connection's "data" event that passes the received
- * message to Server.process().
- *
- * @constructor
- */
+/*
+  {
+    n: string     // event name
+    p: any        // payload
+    k: string     // stack
+    c: number     // status code HTTPS statuses, 0 also means no error
+    i: callbackid // callback id
+    a: args       // arguments to method
+*/
+
 const Server = function(connection) {
   events.EventEmitter.call(this);
   this.conn = connection;
 
   var that = this;
-  this.conn.on('data', function(data) {
+  connection.on('message', function(data) {
     that.process.call(that, data);
   });
 };
 
 // inherit from EventEmitter; allow access to original emit()
 util.inherits(Server, events.EventEmitter);
-Server.prototype.$emit = events.EventEmitter.prototype.emit;
+Server.prototype.$emitLocal = events.EventEmitter.prototype.emit;
 
 /**
  * Emits an event that proxies through to the client connection
@@ -35,12 +37,12 @@ Server.prototype.$emit = events.EventEmitter.prototype.emit;
  * @param event
  * @return {*}
  */
-Server.prototype.send = function(event, ...args) {
-  if (event === 'newListener') {
-    return this.$emit(event, ...args);
-  }
-  var message = this.serialize({e: event, a: args});
-  return this.conn.write(message);
+Server.prototype.emit = function(event, payload) {
+  // if (event === 'newListener') {
+  //   return this.$emitLocal(event, ...args);
+  // }
+  const message = this.serialize({n: event, p: payload});
+  return this.conn.send(message);
 };
 
 /**
@@ -73,51 +75,53 @@ Server.prototype.process = function(message) {
   const o = JSON.parse(message);
   if (typeof o.n === 'undefined') return;
 
-  const {n: name, a: args, callbackId: i} = o;
+  const {n: event, a: params, i: callbackId} = o;
 
-  var args = [name];
-
-  if (Array.isArray(args)) {
-    for (const arg in args) {
-      args.push(arg);
-    }
-  }
-
+  let cb;
   if (typeof callbackId !== 'undefined') {
     const conn = this.conn;
     const serialize = this.serialize;
-    args.push(function(err, data) {
+    cb = (err, data) => {
       if (err) {
-        return conn.write(serialize({e: err, i: callbackId}))
+        const packet = {e: err.message, i: callbackId};
+        packet.c = typeof err.code !== 'undefined' ? err.code : 500;
+
+        if (typeof err.stack !== 'undefined') {
+          packet.k = err.stack;
+        }
+        return conn.send(serialize(packet));
       }
-      return conn.write(seralize({i: callbackId, p: data}))
+      return conn.send(serialize({c: 0, i: callbackId, p: data}));
+    };
   }
 
-  this.$emit(name, ...args)
+  this.$emitLocal(event, params, cb);
 };
 
 const isPromise = o => typeof o.then === 'function';
 
-const _registered = [];
-Server.prototype.register = async function(event, fn) {
-  if (registered.indexOf(event) > -1) throw new Error('Event has already been registered: ' + event);
-  _registered.push(event);
-  this.on(event, (event, args, cb = noop) => {
-    const result = fn(event, ...args);
-    if (isPromise(result)) {
-      result.then(
-        res => {
-          cb(null, res);
-        },
-        err => cb(err)
-      );
-    } else {
-      cb(null, result);
+Server.prototype.register = function(event, fn) {
+  this.on(event, (args, cb = noop) => {
+    try {
+      const result = args && args.length ? fn(...args) : fn();
+      if (isPromise(result)) {
+        result.then(
+          res => {
+            cb(null, res);
+          },
+          err => {
+            cb(err);
+          }
+        );
+      } else {
+        cb(null, result);
+      }
+    } catch (err) {
+      cb(err);
     }
   });
 };
 
 function noop() {}
 
-
-module.exports = Server
+module.exports = Server;

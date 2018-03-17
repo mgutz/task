@@ -13,6 +13,7 @@ const fp = require("path");
 const util_1 = require("./util");
 const usage_1 = require("../cli/usage");
 const tasks_1 = require("../core/tasks");
+const task_ws_1 = require("task-ws");
 // general response shape
 // {c: numeric_code, e: error_message, p: payload}
 /**
@@ -28,21 +29,12 @@ class Resolvers {
             const db = this.rcontext.projectDB;
             const { scope } = history;
             if (scope === 'project') {
-                console.log('>>>>>>>>>>>>>>', db.get);
                 return db
                     .get('histories')
                     .push(history)
-                    .write()
-                    .then(() => {
-                    return { c: 200 };
-                });
+                    .write();
             }
-            else {
-                return {
-                    c: 422,
-                    e: `Only histories having project scope are saved currently: ${scope}`,
-                };
-            }
+            throw new task_ws_1.CodeError(422, `Only histories having project scope are saved currently: ${scope}`);
         });
         /**
          * Loads and sets the project. The project may be reloaded by a
@@ -51,31 +43,23 @@ class Resolvers {
          */
         this.loadProject = () => __awaiter(this, void 0, void 0, function* () {
             const argv = this.rcontext.context.options;
-            try {
-                const project = yield util_1.loadProjectFile(argv, true);
-                this.rcontext.project = project;
-                return { c: 200, p: project };
-            }
-            catch (err) {
-                return { c: 500, e: err };
-            }
+            const project = yield util_1.loadProjectFile(argv, true);
+            this.rcontext.project = project;
+            return project;
         });
         this.tasks = (taskfileId) => __awaiter(this, void 0, void 0, function* () {
             const found = _.find(this.rcontext.project.taskfiles, { id: taskfileId });
             if (!found) {
-                return {
-                    c: 422,
-                    e: `taskfileId '${taskfileId}' not found in project file`,
-                };
+                throw new task_ws_1.CodeError(422, `taskfileId '${taskfileId}' not found in project file`);
             }
             const argv = usage_1.parseArgv(found.argv);
             const tasks = yield tasks_1.loadTasks(argv, found.path);
             if (!tasks) {
-                return { c: 200, p: [] };
+                return [];
             }
             // whitelist marshalled properties
             const cleanTasks = _.map(tasks, (task) => _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui']));
-            return { c: 200, p: cleanTasks };
+            return cleanTasks;
         });
         /**
          * Runs a task by name found in taskfile entry from  `Taskproject.json`
@@ -89,7 +73,7 @@ class Resolvers {
             const { context, client, project } = this.rcontext;
             const taskfile = _.find(project.taskfiles, { id: taskfileId });
             if (!taskfile) {
-                return { c: 422, e: `Taskfile id=${taskfileId} not found` };
+                throw new task_ws_1.CodeError(422, `Taskfile id=${taskfileId} not found`);
             }
             const { path, argv: taskfileArgv } = taskfile;
             // merge inbound client argv with those found in the project file
@@ -97,7 +81,7 @@ class Resolvers {
             const cp = util_1.runAsProcess(tag, taskfileId, taskName, newArgv, client);
             // events are passed through client. return the pid here for the UI
             // to know which pid it is
-            return { c: 200, p: { pid: cp.pid } };
+            return { pid: cp.pid };
         };
     }
 }

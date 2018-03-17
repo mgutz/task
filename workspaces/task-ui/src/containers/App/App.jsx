@@ -25,6 +25,7 @@ const theme = {
     },
   },
   typography: {
+    htmlFontSize: 14,
     // Use the system font over Roboto.
     fontFamily:
       'Oxygen,-apple-system,system-ui,BlinkMacSystemFont,' +

@@ -26,10 +26,6 @@ export default class SchemaFormDialog extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.log('CWRP', nextProps)
-  }
-
   render() {
     const {form, open, schema} = this.props
     const {model} = this.state

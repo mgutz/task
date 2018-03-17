@@ -51,9 +51,9 @@ function code {
 ## 1.0 TODO
 
 * [x] Multiple Taskfiles in a Taskproject
-* [ ] Interactive JSON in Log History
+* [x] Interactive JSON in Log History
 * [ ] Make log entries more `Copy to clipboard` friendly
-* [ ] Dynamic forms via `Task.form` prop
+* [x] Dynamic forms via `Task.ui` prop
 * [ ] Not getting errors when taskfile is invalid
 * [ ] Refactor large models like `taskfiles` into separate `effects`, `reducers`,
       `selectors` files.

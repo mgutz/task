@@ -15,24 +15,8 @@ export declare class Resolvers {
      * browser refresh. The project may only be loaded from a known location for
      * security purposes hence no arguments.
      */
-    loadProject: () => Promise<{
-        c: number;
-        p: Project;
-        e?: undefined;
-    } | {
-        c: number;
-        e: any;
-        p?: undefined;
-    }>;
-    tasks: (taskfileId: string) => Promise<{
-        c: number;
-        e: string;
-        p?: undefined;
-    } | {
-        c: number;
-        p: Task[];
-        e?: undefined;
-    }>;
+    loadProject: () => Promise<Project>;
+    tasks: (taskfileId: string) => Promise<Task[]>;
     /**
      * Runs a task by name found in taskfile entry from  `Taskproject.json`
      * retrieved by ID. The taskfile entry defines the `Taskfile` path and default
@@ -41,14 +25,6 @@ export declare class Resolvers {
      * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
      */
     run: (tag: string, taskfileId: string, taskName: string, argv: Options) => {
-        c: number;
-        e: string;
-        p?: undefined;
-    } | {
-        c: number;
-        p: {
-            pid: number;
-        };
-        e?: undefined;
+        pid: number;
     };
 }

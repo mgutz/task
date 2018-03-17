@@ -1,5 +1,5 @@
 import './sanitize.css'
-//import './index.css'
+import './index.css'
 //import 'material-design-icons/iconfont/material-icons.css'
 //import './assets/css/react-toolbox/theme.css'
 
@@ -10,17 +10,16 @@ import registerServiceWorker from './registerServiceWorker'
 import {Provider} from 'react-redux'
 import {RouterProvider} from 'react-router5'
 import {createStore} from './store'
-import {client} from './services/websocket'
 import {createRouter} from './services/router'
 // import theme from './assets/css/react-toolbox/theme'
 // import ThemeProvider from 'react-toolbox/lib/ThemeProvider'
 
-const store = createStore()
-const router = createRouter()
+const main = async () => {
+  const store = await createStore()
+  const router = createRouter()
 
-// TODO: yeah this is a hack, i just want to get it  working, this needs to
-// be set somewhere else
-client.on('connect', () => {
+  // TODO: yeah this is a hack, i just want to get it  working, this needs to
+  // be set somewhere else
   router.start(() => {
     ReactDOM.render(
       <Provider store={store}>
@@ -31,6 +30,7 @@ client.on('connect', () => {
       document.getElementById('root')
     )
   })
-})
+  registerServiceWorker()
+}
 
-registerServiceWorker()
+main()

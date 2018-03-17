@@ -8,6 +8,7 @@ import {Project} from './types'
 import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
 import {parse} from 'querystring'
+import {CodeError} from 'task-ws'
 
 // general response shape
 // {c: numeric_code, e: error_message, p: payload}
@@ -25,20 +26,16 @@ export class Resolvers {
     const db = this.rcontext.projectDB
     const {scope} = history
     if (scope === 'project') {
-      console.log('>>>>>>>>>>>>>>', db.get)
       return db
         .get('histories')
         .push(history)
         .write()
-        .then(() => {
-          return {c: 200}
-        })
-    } else {
-      return {
-        c: 422,
-        e: `Only histories having project scope are saved currently: ${scope}`,
-      }
     }
+
+    throw new CodeError(
+      422,
+      `Only histories having project scope are saved currently: ${scope}`
+    )
   }
 
   /**
@@ -48,34 +45,30 @@ export class Resolvers {
    */
   public loadProject = async () => {
     const argv = this.rcontext.context.options
-    try {
-      const project = await loadProjectFile(argv, true)
-      this.rcontext.project = project
-      return {c: 200, p: project}
-    } catch (err) {
-      return {c: 500, e: err}
-    }
+    const project = await loadProjectFile(argv, true)
+    this.rcontext.project = project
+    return project
   }
 
   public tasks = async (taskfileId: string) => {
     const found = _.find(this.rcontext.project.taskfiles, {id: taskfileId})
     if (!found) {
-      return {
-        c: 422,
-        e: `taskfileId '${taskfileId}' not found in project file`,
-      }
+      throw new CodeError(
+        422,
+        `taskfileId '${taskfileId}' not found in project file`
+      )
     }
     const argv = parseArgv(found.argv)
     const tasks = await loadTasks(argv, found.path)
     if (!tasks) {
-      return {c: 200, p: []}
+      return []
     }
 
     // whitelist marshalled properties
     const cleanTasks: Task[] = _.map(tasks, (task: Task) =>
       _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui'])
     )
-    return {c: 200, p: cleanTasks}
+    return cleanTasks
   }
 
   /**
@@ -95,7 +88,7 @@ export class Resolvers {
 
     const taskfile = _.find(project.taskfiles, {id: taskfileId})
     if (!taskfile) {
-      return {c: 422, e: `Taskfile id=${taskfileId} not found`}
+      throw new CodeError(422, `Taskfile id=${taskfileId} not found`)
     }
     const {path, argv: taskfileArgv} = taskfile
 
@@ -110,7 +103,7 @@ export class Resolvers {
 
     // events are passed through client. return the pid here for the UI
     // to know which pid it is
-    return {c: 200, p: {pid: cp.pid}}
+    return {pid: cp.pid}
   }
 }
 
