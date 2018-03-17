@@ -6,7 +6,6 @@ import {withState} from 'recompose'
 import ExpandLess from 'material-ui-icons/ExpandLess'
 import ExpandMore from 'material-ui-icons/ExpandMore'
 import {connect} from 'react-redux'
-import {withRoute} from 'react-router5'
 import classNames from 'classnames'
 import TocIcon from 'material-ui-icons/Toc'
 import styled from 'styled-components'
@@ -18,11 +17,14 @@ const InsetList = styled(List)`
 const mapState = (state, props) => {
   return {
     tasks: state.taskfiles[props.taskfile.id],
+    route: state.router.route,
   }
 }
-const mapDispatch = ({taskfiles: {fetchTasks}}) => ({fetchTasks})
+const mapDispatch = ({taskfiles: {fetchTasks}, router: {navigate}}) => ({
+  fetchTasks,
+  navigate,
+})
 
-@withRoute
 @withState('collapsed', 'setCollapsed', true)
 @connect(mapState, mapDispatch)
 class Taskfile extends Component {
@@ -31,8 +33,7 @@ class Taskfile extends Component {
   }
 
   renderTasks(tasks) {
-    const {router} = this.props
-    const route = router.getState()
+    const {route} = this.props
     return tasks.map((task) => {
       const classes = classNames({
         'is-selected':
@@ -76,10 +77,13 @@ class Taskfile extends Component {
   }
 
   doSetActive = (task) => () => {
-    const {router, taskfile} = this.props
-    router.navigate('tasks.name', {
-      taskName: task.name,
-      taskfileId: taskfile.id,
+    const {navigate, taskfile} = this.props
+    navigate({
+      name: 'tasks.name',
+      params: {
+        taskName: task.name,
+        taskfileId: taskfile.id,
+      },
     })
   }
 }
@@ -87,7 +91,8 @@ class Taskfile extends Component {
 Taskfile.propTypes = {
   collapsed: PropTypes.bool,
   fetchTasks: PropTypes.func,
-  router: PropTypes.object,
+  navigate: PropTypes.func,
+  route: PropTypes.object,
   setCollapsed: PropTypes.func,
   tasks: PropTypes.array,
   taskfile: PropTypes.object.isRequired,

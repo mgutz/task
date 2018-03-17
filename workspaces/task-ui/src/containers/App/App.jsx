@@ -1,13 +1,13 @@
 import * as React from 'react'
 import './App.css'
 import ProjectView from '#/containers/ProjectView'
-import {routeNode} from 'react-router5'
 import Info from '#/components/Info'
 import PropTypes from 'prop-types'
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
 import AppBar from 'material-ui/AppBar'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
+import {connect} from 'react-redux'
 
 const theme = {
   palette: {
@@ -35,7 +35,9 @@ const theme = {
 
 const muiTheme = createMuiTheme(theme)
 
-@routeNode('')
+const mapState = (state) => ({route: state.router.route})
+
+@connect(mapState)
 export default class App extends React.Component {
   static propTypes = {
     route: PropTypes.object,

@@ -1,5 +1,6 @@
 const events = require('events');
 const util = require('util');
+const {serializeRaw} = require('./util');
 
 /*
   {
@@ -43,6 +44,14 @@ Server.prototype.emit = function(event, payload) {
   // }
   const message = this.serialize({n: event, p: payload});
   return this.conn.send(message);
+};
+
+Server.prototype.emitRaw = function(event, payload) {
+  // if (event === 'newListener') {
+  //   return this.$emitLocal(event, ...args);
+  // }
+
+  return this.conn.send(serializeRaw(event, payload));
 };
 
 /**

@@ -6,10 +6,14 @@ import {logs} from './logs'
 import {histories} from './histories'
 import {init as initWebSocketClient} from '#/services/websocket'
 import {project} from './project'
+import {initRouter5, router} from './router'
 
-const models = {histories, logs, project, taskfiles}
+const models = {histories, logs, project, taskfiles, router}
 
 export const createStore = async () => {
+  const router5State = await initRouter5()
+  router.state = {route: router5State}
+
   const store = init({
     models,
     plugins: [selectorsPlugin()],

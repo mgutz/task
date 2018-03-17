@@ -3,7 +3,6 @@
  * @see https://github.com/epixa/chuckt/blob/master/LICENSE.md
  * @version 0.2.0
  */
-
 export default class Client {
   constructor() {
     this.callbacks = new Callbacks();
@@ -59,7 +58,11 @@ export default class Client {
 
   process(message) {
     if (message[0] !== '{') return;
+
     var parsed = this.deserialize(message);
+
+    // only handle messages intended for us
+    if (!parsed.n && !parsed.i) return;
     const {n: event, i: callbackId, e: err, p: payload} = parsed;
 
     // name or callback id required

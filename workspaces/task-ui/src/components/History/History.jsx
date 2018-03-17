@@ -5,7 +5,6 @@ import ListSubheader from 'material-ui/List/ListSubheader'
 import List from 'material-ui/List'
 import {select} from '@rematch/select'
 import classNames from 'classnames'
-import {withRoute} from 'react-router5'
 import AdHocRunHistory from './AdHocRunHistory'
 
 const mapState = (state, props) => {
@@ -17,15 +16,18 @@ const mapState = (state, props) => {
       taskfileId,
       taskName: name,
     }),
+    route: state.router.route,
   }
 }
 
-@withRoute
-@connect(mapState)
+const mapDispatch = ({router: {navigate}}) => ({navigate})
+
+@connect(mapState, mapDispatch)
 export default class History extends React.Component {
   static propTypes = {
     histories: PropTypes.array,
-    router: PropTypes.object.isRequired,
+    navigate: PropTypes.func.isRequired,
+    route: PropTypes.object.isRequired,
     task: PropTypes.object,
   }
 
@@ -53,26 +55,28 @@ export default class History extends React.Component {
   }
 
   render() {
-    const {histories, router, task} = this.props
+    const {histories, route, task} = this.props
     const caption = histories && histories.length > 0 ? 'History' : 'No History'
 
     return (
       <List>
         <ListSubheader>{caption}</ListSubheader>
-        {histories &&
-          this.renderItems(histories, task, router.getState().params.historyId)}
+        {histories && this.renderItems(histories, task, route.params.historyId)}
       </List>
     )
   }
 
   doSetActive = (history) => () => {
-    const {router} = this.props
+    const {navigate} = this.props
     const {taskfileId, taskName, id} = history
 
-    router.navigate('tasks.name.history', {
-      taskName,
-      taskfileId,
-      historyId: id,
+    navigate({
+      name: 'tasks.name.history',
+      params: {
+        taskName,
+        taskfileId,
+        historyId: id,
+      },
     })
   }
 }

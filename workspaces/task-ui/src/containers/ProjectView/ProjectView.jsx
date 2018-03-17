@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {connect} from 'react-redux'
-import {routeNode} from 'react-router5'
 import TaskActionBar from '#/components/TaskActionBar'
 import TaskLog from '#/components/TaskLog'
 // import TasksNav from '#/components/TasksNav'
@@ -12,26 +11,24 @@ import Taskfiles from './Taskfiles'
 
 const {Fragment} = React
 
-const mapState = (state, props) => {
-  const {route} = props
+const mapState = (state) => {
   let task
-  if (route) {
-    const {params} = route
-    task = select.taskfiles.taskByIdThenName(
-      state,
-      params.taskfileId,
-      params.taskName
-    )
-  }
+  const route = state.router.route
+  const {params} = route
+  task = select.taskfiles.taskByIdThenName(
+    state,
+    params.taskfileId,
+    params.taskName
+  )
   return {
     project: state.project,
+    route,
     task,
   }
 }
 
 const mapDispatch = ({project: {load}}) => ({loadProject: load})
 
-@routeNode('tasks')
 @connect(mapState, mapDispatch)
 export default class ProjectView extends React.Component {
   static propTypes = {
