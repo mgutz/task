@@ -7,6 +7,7 @@ export interface TaskfileInfo {
 }
 
 export interface Project {
+  path: string
   taskfiles: TaskfileInfo[]
 }
 
@@ -15,4 +16,5 @@ export interface ResolverContext {
   context: AppContext
   authData: any
   project: Project
+  projectDB: any
 }

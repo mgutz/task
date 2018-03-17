@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {connect} from 'react-redux'
 import {routeNode} from 'react-router5'
-import TaskfileItem from '#/components/Taskfile'
 import TaskActionBar from '#/components/TaskActionBar'
 import TaskLog from '#/components/TaskLog'
 // import TasksNav from '#/components/TasksNav'
 import PropTypes from 'prop-types'
 //import {konsole} from '#/util'
-import ListSubheader from 'material-ui/List/ListSubheader'
-import List from 'material-ui/List'
 import {select} from '@rematch/select'
+import Saved from './Saved'
+import Taskfiles from './Taskfiles'
+import MostUsed from './MostUsed'
 
 const {Fragment} = React
 
@@ -46,12 +46,6 @@ export default class ProjectView extends React.Component {
     if (!this.props.project.taskfiles) this.props.loadProject()
   }
 
-  renderTaskfiles(taskfiles) {
-    return taskfiles.map((taskfile) => {
-      return <TaskfileItem key={taskfile.id} taskfile={taskfile} />
-    })
-  }
-
   renderTaskDetail(task) {
     if (!task) return null
     return (
@@ -73,10 +67,9 @@ export default class ProjectView extends React.Component {
     return (
       <Fragment>
         <nav>
-          <List>
-            <ListSubheader>Project</ListSubheader>
-            {this.renderTaskfiles(project.taskfiles)}
-          </List>
+          <MostUsed histories={project.histories} />
+          <Taskfiles taskfiles={project.taskfiles} />
+          <Saved histories={project.histories} />
         </nav>
         {this.renderTaskDetail(task)}
       </Fragment>

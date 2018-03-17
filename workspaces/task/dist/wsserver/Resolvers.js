@@ -24,6 +24,25 @@ const tasks_1 = require("../core/tasks");
 class Resolvers {
     constructor(rcontext) {
         this.rcontext = rcontext;
+        this.addHistory = (history) => __awaiter(this, void 0, void 0, function* () {
+            const db = this.rcontext.projectDB;
+            const { scope } = history;
+            if (scope === HistoryScope.Project) {
+                return db
+                    .get('histories')
+                    .push(history)
+                    .write()
+                    .then(() => {
+                    return { c: 200 };
+                });
+            }
+            else {
+                return {
+                    c: 422,
+                    e: `Only histories having project scope are saved currently: ${scope}`,
+                };
+            }
+        });
         /**
          * Loads and sets the project. The project may be reloaded by a
          * browser refresh. The project may only be loaded from a known location for

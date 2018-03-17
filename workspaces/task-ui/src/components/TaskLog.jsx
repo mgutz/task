@@ -92,7 +92,6 @@ export default class TaskLog extends React.PureComponent {
   }
 
   render() {
-    console.log('TaskLog:00', this.props)
     const {history, logIndex} = this.props
     const {selected} = this.state
 

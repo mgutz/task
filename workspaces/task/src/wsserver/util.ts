@@ -126,5 +126,7 @@ export const loadProjectFile = async (
     }
   }
 
-  return readJSONFile(projectFile)
+  const proj = (await readJSONFile(projectFile)) as Project
+  proj.path = projectFile
+  return proj
 }

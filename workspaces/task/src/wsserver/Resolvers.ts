@@ -21,6 +21,25 @@ import {parse} from 'querystring'
 export class Resolvers {
   constructor(public rcontext: ResolverContext) {}
 
+  public addHistory = async (history: History) => {
+    const db = this.rcontext.projectDB
+    const {scope} = history
+    if (scope === HistoryScope.Project) {
+      return db
+        .get('histories')
+        .push(history)
+        .write()
+        .then(() => {
+          return {c: 200}
+        })
+    } else {
+      return {
+        c: 422,
+        e: `Only histories having project scope are saved currently: ${scope}`,
+      }
+    }
+  }
+
   /**
    * Loads and sets the project. The project may be reloaded by a
    * browser refresh. The project may only be loaded from a known location for

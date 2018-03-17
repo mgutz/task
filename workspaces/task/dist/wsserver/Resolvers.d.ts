@@ -9,6 +9,7 @@ import { Project } from './types';
 export declare class Resolvers {
     rcontext: ResolverContext;
     constructor(rcontext: ResolverContext);
+    addHistory: (history: History) => Promise<any>;
     /**
      * Loads and sets the project. The project may be reloaded by a
      * browser refresh. The project may only be loaded from a known location for

@@ -5,6 +5,7 @@ export interface TaskfileInfo {
     argv: string[];
 }
 export interface Project {
+    path: string;
     taskfiles: TaskfileInfo[];
 }
 export interface ResolverContext {
@@ -12,4 +13,5 @@ export interface ResolverContext {
     context: AppContext;
     authData: any;
     project: Project;
+    projectDB: any;
 }

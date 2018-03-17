@@ -90,3 +90,19 @@ declare interface TaskParam {
 declare interface Dict<k, v> {
   [k: string]: v
 }
+
+declare enum HistoryKind {
+  Run = 'run',
+}
+
+declare enum HistoryScope {
+  Project = 'project',
+  User = 'user',
+}
+
+declare interface History {
+  id: string
+  kind: HistoryKind
+  scope: HistoryScope
+  [k: string]: any
+}

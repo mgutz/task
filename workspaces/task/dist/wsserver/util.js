@@ -109,6 +109,8 @@ exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, v
             }
         }
     }
-    return util_1.readJSONFile(projectFile);
+    const proj = (yield util_1.readJSONFile(projectFile));
+    proj.path = projectFile;
+    return proj;
 });
 //# sourceMappingURL=util.js.map

@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import IconButton from 'material-ui/IconButton'
 import {
   FiberManualRecord as Record,
-  PlayCircleFilled as PlayIcon,
+  PlayArrow as PlayIcon,
   //Replay as ReplayIcon,
   Stop as StopIcon,
 } from 'material-ui-icons'
@@ -34,6 +34,10 @@ const HistoryStatus = ({history: {status}}) => {
   )
 }
 
+HistoryStatus.propTypes = {
+  history: PropTypes.object,
+}
+
 class HistoryActions extends Component {
   render() {
     if (!this.props.history) return null
@@ -47,7 +51,7 @@ class HistoryActions extends Component {
       <ToolbarView>
         <HistoryStatus history={history} />
         <Typography variant="title">{title}</Typography>
-        <Flexography variant="subheading">{args}</Flexography>
+        <Flexography>{args}</Flexography>
         <IconButton>
           <StopIcon />
         </IconButton>
@@ -60,7 +64,7 @@ class HistoryActions extends Component {
 }
 
 HistoryActions.propTypes = {
-  history: PropTypes.object.isRequired,
+  history: PropTypes.object,
 }
 
 export default HistoryActions
