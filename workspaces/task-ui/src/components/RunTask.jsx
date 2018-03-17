@@ -23,7 +23,7 @@ class RunTask extends Component {
 
   render() {
     if (!this.props.task) return null
-    const {task} = this.props
+    const {icon, task} = this.props
     const {ui} = task
     const {model, schema, showForm} = this.state
     const hasForm = this.hasUI()
@@ -44,9 +44,7 @@ class RunTask extends Component {
               maxWidth="md"
             />
           )}
-        <IconButton onClick={runFunc}>
-          <PlayCircleFilledIcon />
-        </IconButton>
+        <IconButton onClick={runFunc}>{icon}</IconButton>
       </div>
     )
   }
@@ -84,8 +82,13 @@ class RunTask extends Component {
 
 RunTask.propTypes = {
   children: PropTypes.node,
+  icon: PropTypes.node,
   run: PropTypes.func,
   task: PropTypes.object,
+}
+
+RunTask.defaultProps = {
+  icon: <PlayCircleFilledIcon />,
 }
 
 const standardizeSchema = (schema) => {

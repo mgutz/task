@@ -1,10 +1,10 @@
-let _id = 0
+import * as shortid from 'shortid'
 
 /**
  * uid is short for unique id
  */
 export const uid = () => {
-  return `u${_id++}`
+  return shortid.generate()
 }
 
 export const konsole = console

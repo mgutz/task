@@ -9,7 +9,6 @@ import PropTypes from 'prop-types'
 import {select} from '@rematch/select'
 import Saved from './Saved'
 import Taskfiles from './Taskfiles'
-import MostUsed from './MostUsed'
 
 const {Fragment} = React
 
@@ -67,7 +66,6 @@ export default class ProjectView extends React.Component {
     return (
       <Fragment>
         <nav>
-          <MostUsed histories={project.histories} />
           <Taskfiles taskfiles={project.taskfiles} />
           <Saved histories={project.histories} />
         </nav>

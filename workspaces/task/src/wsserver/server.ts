@@ -9,7 +9,7 @@ import {Project, ResolverContext} from './types'
 import {Resolvers} from './Resolvers'
 import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
-import * as FileSync from 'lowdb/adapters/FileSync'
+import * as FileAsync from 'lowdb/adapters/FileAsync'
 
 export interface StartOptions {
   port: number
@@ -35,8 +35,9 @@ const initResolvers = (rcontext: ResolverContext) => {
 export const start = async (ctx: AppContext, opts: StartOptions) => {
   const project = (await loadProjectFile(ctx.options)) as Project
 
-  const adapter = new FileSync(project.path)
-  const db = lowdb(adapter)
+  const adapter = new FileAsync(project.path)
+  const db = await lowdb(adapter)
+  console.log('>db.get', project.path, db.get)
 
   const rcontext: any = {
     context: ctx,

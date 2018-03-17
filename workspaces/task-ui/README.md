@@ -107,6 +107,10 @@ function code {
 * [ ] bling: themes
 * [x] changing Taskproject.json didn't update task.form when I edit form schema
 
+## Theme
+
+[colors](https://material.io/color/#!/?view.left=0&view.right=0&secondary.color=26C6DA&primary.color=8D6E63)
+
 ## License
 
 [GNU AGPL v3.0](http://www.gnu.org/licenses/agpl-3.0.html)

@@ -24,7 +24,7 @@ export default class TaskFiles extends PureComponent {
 
     return (
       <List>
-        <ListSubheader>Project</ListSubheader>
+        <ListSubheader>Task Files</ListSubheader>
         {this.renderTaskfiles(taskfiles)}
       </List>
     )

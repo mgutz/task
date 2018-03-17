@@ -1,10 +1,42 @@
-
 {
+  "histories": [
+    {
+      "id": "HJPu1NcFM",
+      "args": [
+        "Main",
+        "hello",
+        {
+          "name": "s"
+        }
+      ],
+      "createdAt": 1521266538179,
+      "kind": "run",
+      "method": "run",
+      "status": "closed",
+      "taskfileId": "Main",
+      "taskName": "hello",
+      "pid": 34852,
+      "statusedAt": 1521266538846,
+      "code": 0,
+      "title": "Build Task",
+      "scope": "project"
+    }
+  ],
   "server": {
-	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
+    "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
   },
   "taskfiles": [
-    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []},
-    {"id": "Local",  "desc": "Task Project",  "path": "./workspaces/task/Taskfile.js", "argv": []}
+    {
+      "id": "Main",
+      "desc": "Main",
+      "path": "./Taskfile.js",
+      "argv": []
+    },
+    {
+      "id": "Local",
+      "desc": "Task Project",
+      "path": "./workspaces/task/Taskfile.js",
+      "argv": []
+    }
   ]
 }

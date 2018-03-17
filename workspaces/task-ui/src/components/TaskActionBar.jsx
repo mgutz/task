@@ -1,7 +1,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import TaskHistory from './TaskHistory'
+import History from './History'
 
 const mapDispatch = ({taskfiles: {run, stop}}) => ({run, stop})
 
@@ -19,12 +19,8 @@ export default class TaskActionBar extends React.PureComponent {
     const {task} = this.props
     return (
       <div>
-        <TaskHistory task={task} />
+        <History task={task} />
       </div>
     )
-  }
-
-  standardizeSchema(schema) {
-    return {...schema, type: 'object'}
   }
 }

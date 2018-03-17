@@ -89,6 +89,7 @@ export const effects = {
     })
   },
 
+  // replays a run-time history entry
   replay(args, rootState) {
     const validate = t.struct({
       id: t.String,
@@ -101,6 +102,16 @@ export const effects = {
     }
 
     this.run(history.args)
+  },
+
+  // reruns a saved task
+  rerun(args) {
+    const validate = t.struct({
+      kind: t.String,
+      args: t.Array,
+    })
+    validate(args)
+    this.run(args.args)
   },
 
   setActiveHistoryId(payload) {

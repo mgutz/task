@@ -127,6 +127,7 @@ export const loadProjectFile = async (
   }
 
   const proj = (await readJSONFile(projectFile)) as Project
+  console.log('DBG:0asdf', projectFile)
   proj.path = projectFile
   return proj
 }

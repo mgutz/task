@@ -27,7 +27,8 @@ class Resolvers {
         this.addHistory = (history) => __awaiter(this, void 0, void 0, function* () {
             const db = this.rcontext.projectDB;
             const { scope } = history;
-            if (scope === HistoryScope.Project) {
+            if (scope === 'project') {
+                console.log('>>>>>>>>>>>>>>', db.get);
                 return db
                     .get('histories')
                     .push(history)

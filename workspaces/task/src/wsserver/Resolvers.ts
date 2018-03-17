@@ -24,7 +24,8 @@ export class Resolvers {
   public addHistory = async (history: History) => {
     const db = this.rcontext.projectDB
     const {scope} = history
-    if (scope === HistoryScope.Project) {
+    if (scope === 'project') {
+      console.log('>>>>>>>>>>>>>>', db.get)
       return db
         .get('histories')
         .push(history)

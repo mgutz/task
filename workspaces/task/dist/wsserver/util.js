@@ -110,6 +110,7 @@ exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, v
         }
     }
     const proj = (yield util_1.readJSONFile(projectFile));
+    console.log('DBG:0asdf', projectFile);
     proj.path = projectFile;
     return proj;
 });

@@ -10,7 +10,7 @@ import produce from 'immer'
  */
 const producer = (fn) => (state, payload) => {
   return produce(state, (draft) => {
-    fn(draft, payload, state)
+    return fn(draft, payload, state)
   })
 }
 

@@ -37,3 +37,12 @@ footer {
   background-color: #ccc;
   color: white;
 }
+
+.is-selected {
+  background-color: #fff;
+  border: solid 1px #ccc;
+}
+
+.color-primary-contrast {
+  color: #fff;
+}

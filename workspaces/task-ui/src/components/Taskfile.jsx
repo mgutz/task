@@ -62,7 +62,9 @@ class Taskfile extends Component {
     return (
       <Fragment>
         <ListItem onClick={() => setCollapsed(!collapsed)}>
-          <TocIcon />
+          <ListItemIcon>
+            <TocIcon />
+          </ListItemIcon>
           <ListItemText primary={taskfile.id} />
           {collapsed ? <ExpandMore /> : <ExpandLess />}
         </ListItem>

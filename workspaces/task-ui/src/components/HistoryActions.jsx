@@ -4,17 +4,8 @@ import PropTypes from 'prop-types'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
 import styled from 'styled-components'
-import IconButton from 'material-ui/IconButton'
-import {
-  FiberManualRecord as Record,
-  PlayArrow as PlayIcon,
-  //Replay as ReplayIcon,
-  Stop as StopIcon,
-} from 'material-ui-icons'
-
-const RecordIcon = styled(Record)`
-  color: ${(props) => (props.status === 'running' ? 'green' : '')};
-`
+import SaveHistory from './SaveHistory'
+import HistoryStatus from './HistoryStatus'
 
 const ToolbarView = styled(Toolbar)`
   border-bottom: solid 1px #eee;
@@ -24,19 +15,6 @@ const ToolbarView = styled(Toolbar)`
 const Flexography = styled(Typography)`
   flex: 1;
 `
-
-const HistoryStatus = ({history: {status}}) => {
-  if (status !== 'running') return null
-  return (
-    <IconButton>
-      <RecordIcon status={status} />
-    </IconButton>
-  )
-}
-
-HistoryStatus.propTypes = {
-  history: PropTypes.object,
-}
 
 class HistoryActions extends Component {
   render() {
@@ -52,12 +30,7 @@ class HistoryActions extends Component {
         <HistoryStatus history={history} />
         <Typography variant="title">{title}</Typography>
         <Flexography>{args}</Flexography>
-        <IconButton>
-          <StopIcon />
-        </IconButton>
-        <IconButton>
-          <PlayIcon />
-        </IconButton>
+        <SaveHistory history={history} />
       </ToolbarView>
     )
   }

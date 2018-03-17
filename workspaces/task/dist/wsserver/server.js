@@ -16,7 +16,7 @@ const log_1 = require("../core/log");
 const Resolvers_1 = require("./Resolvers");
 const util_1 = require("./util");
 const lowdb = require("lowdb");
-const FileSync = require("lowdb/adapters/FileSync");
+const FileAsync = require("lowdb/adapters/FileAsync");
 const initResolvers = (rcontext) => {
     return (client, authData) => {
         const resolverContext = Object.assign({}, rcontext, { authData, client });
@@ -34,8 +34,9 @@ const initResolvers = (rcontext) => {
 };
 exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
     const project = (yield util_1.loadProjectFile(ctx.options));
-    const adapter = new FileSync(project.path);
-    const db = lowdb(adapter);
+    const adapter = new FileAsync(project.path);
+    const db = yield lowdb(adapter);
+    console.log('>db.get', project.path, db.get);
     const rcontext = {
         context: ctx,
         project,
