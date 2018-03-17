@@ -1,4 +1,4 @@
-export const routes = [
+const routes = [
   {name: 'saved', path: '/saved'},
 
   {name: 'tasks', path: '/tasks'},
@@ -6,3 +6,5 @@ export const routes = [
   {name: 'tasks.name', path: '/:taskfileId/:taskName'},
   {name: 'tasks.name.history', path: '/:historyId'},
 ]
+
+export default routes

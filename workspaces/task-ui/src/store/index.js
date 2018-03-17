@@ -6,13 +6,12 @@ import {logs} from './logs'
 import {histories} from './histories'
 import {init as initWebSocketClient} from '#/services/websocket'
 import {project} from './project'
-import {initRouter5, router} from './router'
-
-const models = {histories, logs, project, taskfiles, router}
+import {initRouter5} from './router'
+import routes from '#/routes'
 
 export const createStore = async () => {
-  const router5State = await initRouter5()
-  router.state = {route: router5State}
+  const router = await initRouter5(routes)
+  const models = {histories, logs, project, router, taskfiles}
 
   const store = init({
     models,
