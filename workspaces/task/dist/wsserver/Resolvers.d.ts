@@ -3,7 +3,7 @@ import { Project } from './types';
 /**
  * Resolvers (handlers) for websocket API
  *
- * Error codes must use
+ * Error codes must use (code may be 0 too)
  * [HTTP status codes](http://www.restapitutorial.com/httpstatuscodes.html).
  */
 export declare class Resolvers {

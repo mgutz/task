@@ -8,20 +8,16 @@ import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
 import {CodeError} from 'task-ws'
 
-// general response shape
-// {c: numeric_code, e: error_message, p: payload}
-
 /**
  * Resolvers (handlers) for websocket API
  *
- * Error codes must use
+ * Error codes must use (code may be 0 too)
  * [HTTP status codes](http://www.restapitutorial.com/httpstatuscodes.html).
  */
 export class Resolvers {
   constructor(public rcontext: ResolverContext) {}
 
   public addBookmark = async (bookmark: History) => {
-    console.log('addBookmark')
     const db = this.rcontext.projectDB
     const {scope} = bookmark
     if (scope === 'project') {
@@ -129,10 +125,4 @@ const sanitizeInboundArgv = (argv: Options): Options => {
     'list',
     'projectFile',
   ]) as Options
-
-  // const {projectFile, file, server, ...rest} = argv
-
-  // const newArgv = {...rest} as Options
-  // console.log('newArgv', newArgv)
-  // return newArgv
 }

@@ -14,19 +14,16 @@ const util_1 = require("./util");
 const usage_1 = require("../cli/usage");
 const tasks_1 = require("../core/tasks");
 const task_ws_1 = require("task-ws");
-// general response shape
-// {c: numeric_code, e: error_message, p: payload}
 /**
  * Resolvers (handlers) for websocket API
  *
- * Error codes must use
+ * Error codes must use (code may be 0 too)
  * [HTTP status codes](http://www.restapitutorial.com/httpstatuscodes.html).
  */
 class Resolvers {
     constructor(rcontext) {
         this.rcontext = rcontext;
         this.addBookmark = (bookmark) => __awaiter(this, void 0, void 0, function* () {
-            console.log('addBookmark');
             const db = this.rcontext.projectDB;
             const { scope } = bookmark;
             if (scope === 'project') {
@@ -110,9 +107,5 @@ const sanitizeInboundArgv = (argv) => {
         'list',
         'projectFile',
     ]);
-    // const {projectFile, file, server, ...rest} = argv
-    // const newArgv = {...rest} as Options
-    // console.log('newArgv', newArgv)
-    // return newArgv
 };
 //# sourceMappingURL=Resolvers.js.map
