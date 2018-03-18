@@ -78,7 +78,7 @@ function code {
       ```
 
 * [ ] Should `Task.form` result in prompts on the CLI?
-* [ ] Simplify the websocket resolvers on server. Should not have to build
+* [x] Simplify the websocket resolvers on server. Should not have to build
       JSON packets manually.
 
       ```js
@@ -106,10 +106,12 @@ function code {
 * [ ] bling: background iamge by taskfile (Taskproject.json)
 * [ ] bling: themes
 * [x] changing Taskproject.json didn't update task.form when I edit form schema
+* [ ] higlight text in logs; popup menu with `view as JSON`, `view as terminal`,
+      `decode base64`
 
 ## Theme
 
-[colors](https://material.io/color/#!/?view.left=0&view.right=0&secondary.color=26C6DA&primary.color=8D6E63)
+[colors](https://material.io/color/#!/?view.left=0&view.right=0&primary.color=8D6E63&secondary.color=4FC3F7)
 
 ## License
 

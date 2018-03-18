@@ -1,5 +1,4 @@
 import * as _ from 'lodash'
-import * as contrib from '../contrib'
 import * as iss from './iss'
 import {AppContext} from './AppContext'
 import {ChildProcess} from 'child_process'

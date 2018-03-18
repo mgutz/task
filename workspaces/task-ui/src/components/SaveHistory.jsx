@@ -5,7 +5,7 @@ import Button from 'material-ui/Button'
 import SaveHistoryFormDialog from './SaveHistoryFormDialog'
 import PropTypes from 'prop-types'
 
-const mapState = (state) => ({})
+const mapState = () => ({})
 
 const mapDispatch = ({project: {saveHistory}}) => ({saveHistory})
 

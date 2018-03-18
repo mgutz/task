@@ -1,13 +1,11 @@
 import * as _ from 'lodash'
 import * as fp from 'path'
-import * as iss from '../core/iss'
 import {AppContext} from '../core/AppContext'
 import {ResolverContext} from './types'
 import {loadProjectFile, runAsProcess} from './util'
 import {Project} from './types'
 import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
-import {parse} from 'querystring'
 import {CodeError} from 'task-ws'
 
 // general response shape

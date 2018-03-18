@@ -69,7 +69,6 @@ export default class History extends React.Component {
   doSetActive = (history) => () => {
     const {navigate} = this.props
     const {taskfileId, taskName, id} = history
-
     navigate({
       name: 'tasks.name.history',
       params: {

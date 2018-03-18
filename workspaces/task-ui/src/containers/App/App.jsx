@@ -18,9 +18,9 @@ const theme = {
       contrastText: '#fff',
     },
     secondary: {
-      main: '#26c6da',
-      light: '#6ff9ff',
-      dark: '#0095a8',
+      main: '#4fc3f7',
+      light: '#8bf6ff',
+      dark: '#0093c4',
       contrastText: '#000',
     },
   },
@@ -34,7 +34,6 @@ const theme = {
 }
 
 const muiTheme = createMuiTheme(theme)
-
 const mapState = (state) => ({route: state.router.route})
 
 @connect(mapState)

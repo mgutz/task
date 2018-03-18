@@ -5,15 +5,11 @@ import browserPlugin from 'router5/plugins/browser'
 import {default as createRouter5} from 'router5'
 
 // returns state
-export const initRouter5 = async (routes, opts = {defaultRoute: '/'}) => {
+export const initRouter5 = async (routes, opts = {defaultRoute: 'tasks'}) => {
   const router5 = createRouter5(routes, opts)
     // Plugins
     .usePlugin(loggerPlugin)
-    .usePlugin(
-      browserPlugin({
-        useHash: true,
-      })
-    )
+    .usePlugin(browserPlugin())
     .usePlugin(listenersPlugin())
 
   const model = {
