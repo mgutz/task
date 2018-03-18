@@ -17,6 +17,7 @@ const ColumnView = styled.div`
 `
 const ExpandRow = styled.div`
   flex: 1 1 auto;
+  border-bottom: solid 1px #ddd;
 `
 
 const Row = styled.div`

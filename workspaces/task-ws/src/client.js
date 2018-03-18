@@ -1,8 +1,3 @@
-/**
- * License: MIT
- * @see https://github.com/epixa/chuckt/blob/master/LICENSE.md
- * @version 0.2.0
- */
 export default class Client {
   constructor() {
     this.callbacks = new Callbacks();
@@ -27,9 +22,9 @@ export default class Client {
     this.socket.send(this.serialize(packet));
   }
 
-  async invoke(event, ...args) {
+  async invoke(method, ...args) {
     return new Promise((resolve, reject) => {
-      this.emit(event, args, obj => {
+      this.emit('invoke', [method, ...args], obj => {
         const {c: code, e: err, k: stack, p: payload} = obj;
 
         if (!err) {
@@ -92,38 +87,20 @@ export default class Client {
   }
 }
 
-/**
- * Callback collection
- *
- * Since callbacks are inherently volatile (once a registered callback is
- * fired, it is permanently deleted), some minor callback management is
- * necessary to minimize CPU and memory impact.
- *
- * @constructor
- */
-var Callbacks = function() {
-  this.callbacks = [];
-  this.max = 1;
-};
+class Callbacks {
+  constructor() {
+    this.callbacks = [];
+    this.max = 1;
+  }
 
-/**
- * Registers the given callback and returns the callback's id
- *
- * @param callback
- * @return {*}
- */
-Callbacks.prototype.register = function(callback) {
-  this.callbacks[++this.max] = callback;
-  return this.max;
-};
+  register(callback) {
+    const id = ++this.max;
+    this.callbacks[id] = callback;
+    return id;
+  }
 
-/**
- * Invokes the callback identified by the callbackid with any arguments
- *
- * @param callbackid
- * @param args
- */
-Callbacks.prototype.use = function(callbackid, args) {
-  this.callbacks[callbackid](args || {});
-  delete this.callbacks[callbackid];
-};
+  use(callbackid, args) {
+    this.callbacks[callbackid](args || {});
+    delete this.callbacks[callbackid];
+  }
+}

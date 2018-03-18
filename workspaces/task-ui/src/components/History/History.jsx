@@ -30,23 +30,26 @@ class History extends React.Component {
   }
 
   renderItems = (histories, task, activeHistoryId) => {
-    return histories.map((history) => {
-      const isActive = activeHistoryId === history.id
-      const classes = classNames({
-        'is-selected': isActive,
+    return histories
+      .slice(0)
+      .reverse()
+      .map((history) => {
+        const isActive = activeHistoryId === history.id
+        const classes = classNames({
+          'is-selected': isActive,
+        })
+
+        const onClick = isActive ? null : this.doSetActive(history)
+
+        return (
+          <AdHocRunHistory
+            key={history.id}
+            history={history}
+            className={classes}
+            onClick={onClick}
+          />
+        )
       })
-
-      const onClick = isActive ? null : this.doSetActive(history)
-
-      return (
-        <AdHocRunHistory
-          key={history.id}
-          history={history}
-          className={classes}
-          onClick={onClick}
-        />
-      )
-    })
   }
 
   render() {
