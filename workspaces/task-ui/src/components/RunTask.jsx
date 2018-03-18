@@ -18,6 +18,19 @@ const mapDispatch = ({
 
 @connect(null, mapDispatch)
 class RunTask extends Component {
+  static propTypes = {
+    children: PropTypes.node,
+    icon: PropTypes.node,
+    navigate: PropTypes.func,
+    run: PropTypes.func,
+    setActiveHistory: PropTypes.func,
+    task: PropTypes.object,
+  }
+
+  static defaultProps = {
+    icon: <PlayCircleFilledIcon />,
+  }
+
   constructor(props) {
     super(props)
     this.state = {
@@ -77,19 +90,18 @@ class RunTask extends Component {
 
     // id for tracking the new history item
     const newHistoryId = uid()
-    run({newHistoryId, args, refId: task.id, refKind: 'task'})
+    // where to navigate while running
+    const route = {
+      name: 'tasks.name.history',
+      params: {id: task.id, taskfileId, taskName, historyId: newHistoryId},
+    }
+    run({newHistoryId, args, refId: task.id, refKind: 'task', route})
 
     // set new history as active
     setActiveHistory({id: task.id, historyId: newHistoryId})
 
     // navigate to new history to highlight it
-    const params = {
-      id: task.id,
-      taskfileId,
-      taskName,
-      historyId: newHistoryId,
-    }
-    navigate({name: 'tasks.name.history', params})
+    navigate(route)
   }
 
   doShowForm = () => {
@@ -102,19 +114,6 @@ class RunTask extends Component {
       task && task.ui && _.isObject(task.ui.schema) && _.isObject(task.ui.form)
     )
   }
-}
-
-RunTask.propTypes = {
-  children: PropTypes.node,
-  icon: PropTypes.node,
-  navigate: PropTypes.func,
-  run: PropTypes.func,
-  setActiveHistory: PropTypes.func,
-  task: PropTypes.object,
-}
-
-RunTask.defaultProps = {
-  icon: <PlayCircleFilledIcon />,
 }
 
 const standardizeSchema = (schema) => {

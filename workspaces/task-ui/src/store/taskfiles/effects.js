@@ -71,8 +71,9 @@ export const effects = {
       newHistoryId: t.String,
       refId: t.String,
       refKind: t.String,
+      route: t.Object,
     })
-    const {args, newHistoryId, refId, refKind} = validate(payload)
+    const {args, newHistoryId, refId, refKind, route} = validate(payload)
     const [taskfileId, taskName, ...rest] = args
     //const newId = uid() // TODO this needs to be next callback id
     this.addHistory({
@@ -81,6 +82,7 @@ export const effects = {
       createdAt: Date.now(),
       refKind,
       refId,
+      route,
       status: 'running',
     })
 

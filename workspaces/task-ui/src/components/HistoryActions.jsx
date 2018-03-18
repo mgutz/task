@@ -17,6 +17,10 @@ const Flexography = styled(Typography)`
 `
 
 class HistoryActions extends Component {
+  static propTypes = {
+    history: PropTypes.object,
+  }
+
   render() {
     if (!this.props.history) return null
 
@@ -34,10 +38,6 @@ class HistoryActions extends Component {
       </ToolbarView>
     )
   }
-}
-
-HistoryActions.propTypes = {
-  history: PropTypes.object,
 }
 
 export default HistoryActions

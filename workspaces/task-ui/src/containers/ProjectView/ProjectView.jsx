@@ -11,10 +11,16 @@ const {Fragment} = React
 
 const mapState = (state) => ({project: state.project})
 
-const mapDispatch = ({project: {load}}) => ({loadProject: load})
+const mapDispatch = ({project: {loadProject}}) => ({loadProject})
 
 @connect(mapState, mapDispatch)
 class ProjectView extends React.Component {
+  static propTypes = {
+    loadProject: PropTypes.func,
+    project: PropTypes.object,
+    route: PropTypes.object,
+  }
+
   componentDidMount() {
     if (!this.props.project.taskfiles) this.props.loadProject()
   }
@@ -37,12 +43,6 @@ class ProjectView extends React.Component {
       </Fragment>
     )
   }
-}
-
-ProjectView.propTypes = {
-  loadProject: PropTypes.func,
-  project: PropTypes.object,
-  route: PropTypes.object,
 }
 
 export default ProjectView

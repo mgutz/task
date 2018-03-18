@@ -6,13 +6,27 @@ import PropTypes from 'prop-types'
 import HistoryStatus from './HistoryStatus'
 import {uid} from '#/util'
 
-const mapDispatch = ({taskfiles: {run, setActiveHistory}}) => ({
+const mapDispatch = ({
+  project: {setBookmarkActiveHistory},
+  taskfiles: {run, setActiveHistory},
+  router: {navigate},
+}) => ({
+  navigate,
   run,
+  setBookmarkActiveHistory,
   setActiveHistory,
 })
 
 @connect(null, mapDispatch)
 class ReplayTask extends React.Component {
+  static propTypes = {
+    history: PropTypes.object.isRequired,
+    navigate: PropTypes.func.isRequired,
+    run: PropTypes.func.isRequired,
+    setActiveHistory: PropTypes.func.isRequired,
+    setBookmarkActiveHistory: PropTypes.func.isRequired,
+  }
+
   render() {
     const {history} = this.props
 
@@ -28,24 +42,32 @@ class ReplayTask extends React.Component {
   }
 
   doReplay = (history) => () => {
-    const {setLocation, run, setActiveHistory} = this.props
+    const {
+      navigate,
+      run,
+      setActiveHistory,
+      setBookmarkActiveHistory,
+    } = this.props
     // id for tracking the new history item
     const newHistoryId = uid()
-    const {args, refId, refKind} = history
-    run({newHistoryId, args, refId, refKind})
+    const {args, refId, refKind, route: oldRoute} = history
 
-    // set new history as active
-    setActiveHistory({id: refId, historyId: newHistoryId})
+    // update route to use new history
+    const route = {
+      ...oldRoute,
+      params: {...oldRoute.params, historyId: newHistoryId},
+    }
 
-    setLocation(newHistoryId)
+    run({newHistoryId, args, refId, refKind, route})
+
+    if (refKind === 'task') {
+      // set new history as active
+      setActiveHistory({id: refId, historyId: newHistoryId})
+    } else if (refKind === 'bookmark') {
+      setBookmarkActiveHistory({id: refId, historyId: newHistoryId})
+    }
+    navigate(route)
   }
-}
-
-ReplayTask.propTypes = {
-  history: PropTypes.object.isRequired,
-  run: PropTypes.func.isRequired,
-  setActiveHistory: PropTypes.func.isRequired,
-  setLocation: PropTypes.func.isRequired,
 }
 
 export default ReplayTask

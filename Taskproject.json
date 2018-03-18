@@ -1,67 +1,34 @@
 {
   "bookmarks": [
     {
-      "id": "ByX3e7nYG",
+      "id": "B1StA4nYf",
       "args": [
         "Main",
         "hello",
         {
-          "name": "asdf"
+          "name": "adf"
         }
       ],
-      "createdAt": 1521393830661,
+      "createdAt": 1521401459606,
       "refKind": "task",
-      "refId": "HkYisxmntf",
-      "status": "closed",
-      "pid": 96105,
-      "taskfileId": "Main",
-      "taskName": "hello",
-      "statusedAt": 1521393831402,
-      "code": 0,
-      "scope": "project",
-      "title": "asdf"
-    },
-    {
-      "id": "rk-oM72Fz",
-      "args": [
-        "Main",
-        "hello",
-        {
-          "name": "asdf"
+      "refId": "SkOvORE3YM",
+      "route": {
+        "name": "tasks.name.history",
+        "params": {
+          "id": "SkOvORE3YM",
+          "taskfileId": "Main",
+          "taskName": "hello",
+          "historyId": "ByhuAEntz"
         }
-      ],
-      "createdAt": 1521394323554,
-      "refKind": "task",
-      "refId": "HytN5Mm2FM",
+      },
       "status": "closed",
-      "pid": 96901,
+      "pid": 6422,
       "taskfileId": "Main",
       "taskName": "hello",
-      "statusedAt": 1521394324214,
+      "statusedAt": 1521401460844,
       "code": 0,
       "scope": "project",
-      "title": "ssss"
-    },
-    {
-      "id": "Hkl1_72tG",
-      "args": [
-        "Main",
-        "hello",
-        {
-          "name": "sadf"
-        }
-      ],
-      "createdAt": 1521395665417,
-      "refKind": "task",
-      "refId": "S1YHRDQhtM",
-      "status": "closed",
-      "pid": 99388,
-      "taskfileId": "Main",
-      "taskName": "hello",
-      "statusedAt": 1521395666084,
-      "code": 0,
-      "scope": "project",
-      "title": "New One"
+      "title": "Hello Again"
     }
   ],
   "server": {

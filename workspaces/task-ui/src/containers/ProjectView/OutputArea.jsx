@@ -34,16 +34,16 @@ const mapState = (state) => {
 
 @connect(mapState)
 class OutputArea extends Component {
+  static propTypes = {
+    bookmark: PropTypes.object,
+    historyId: PropTypes.string,
+    task: PropTypes.object,
+  }
+
   render() {
     const {bookmark, historyId, task} = this.props
     return <HistoryLog historyId={historyId} task={task} bookmark={bookmark} />
   }
-}
-
-OutputArea.propTypes = {
-  bookmark: PropTypes.object,
-  historyId: PropTypes.string,
-  task: PropTypes.object,
 }
 
 export default OutputArea

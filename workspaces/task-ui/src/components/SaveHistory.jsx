@@ -11,6 +11,11 @@ const mapDispatch = ({project: {saveBookmark}}) => ({saveBookmark})
 
 @connect(mapState, mapDispatch)
 class SaveHistory extends Component {
+  static propTypes = {
+    history: PropTypes.object.isRequired,
+    saveBookmark: PropTypes.func,
+  }
+
   state = {
     showForm: false,
   }
@@ -52,11 +57,6 @@ class SaveHistory extends Component {
     this.setState({showForm: false})
     saveBookmark({title: values.title, history})
   }
-}
-
-SaveHistory.propTypes = {
-  history: PropTypes.object.isRequired,
-  saveBookmark: PropTypes.func,
 }
 
 export default SaveHistory

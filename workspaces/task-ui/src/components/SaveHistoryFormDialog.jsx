@@ -16,7 +16,13 @@ const mapForm = (_props) => {
   }
 }
 
-export default class FormDialog extends React.Component {
+class FormDialog extends React.Component {
+  static propTypes = {
+    onClose: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    open: PropTypes.bool,
+  }
+
   render() {
     return (
       <div>
@@ -71,8 +77,4 @@ export default class FormDialog extends React.Component {
   }
 }
 
-FormDialog.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  open: PropTypes.bool,
-}
+export default FormDialog

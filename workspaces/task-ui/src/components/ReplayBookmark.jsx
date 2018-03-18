@@ -7,16 +7,23 @@ import {uid} from '#/util'
 
 const mapDispatch = ({
   taskfiles: {run},
-  project: {setActiveBookmarkHistory},
+  project: {setBookmarkActiveHistory},
   router: {navigate},
 }) => ({
   navigate,
   run,
-  setActiveBookmarkHistory,
+  setBookmarkActiveHistory,
 })
 
 @connect(null, mapDispatch)
 class ReplayBookmark extends React.Component {
+  static propTypes = {
+    bookmark: PropTypes.object.isRequired,
+    navigate: PropTypes.func,
+    run: PropTypes.func,
+    setBookmarkActiveHistory: PropTypes.func,
+  }
+
   render() {
     const {bookmark} = this.props
 
@@ -28,30 +35,26 @@ class ReplayBookmark extends React.Component {
   }
 
   doReplay = (bookmark) => () => {
-    const {navigate, run, setActiveBookmarkHistory} = this.props
+    const {navigate, run, setBookmarkActiveHistory} = this.props
     // id for tracking the new history item
     const newHistoryId = uid()
     const {args, id, title} = bookmark
-    run({newHistoryId, args, refId: bookmark.id, refKind: 'bookmark'})
+    const route = {
+      name: 'bookmarks.title.history',
+      params: {
+        id,
+        title,
+        historyId: newHistoryId,
+      },
+    }
+    run({newHistoryId, args, refId: bookmark.id, refKind: 'bookmark', route})
 
     // set new history as active
-    setActiveBookmarkHistory({id, historyId: newHistoryId})
+    setBookmarkActiveHistory({id, historyId: newHistoryId})
 
     // navigate to new history to highlight it
-    const params = {
-      id,
-      title,
-      historyId: newHistoryId,
-    }
-    navigate({name: 'bookmarks.title.history', params})
+    navigate(route)
   }
-}
-
-ReplayBookmark.propTypes = {
-  bookmark: PropTypes.object.isRequired,
-  navigate: PropTypes.func,
-  run: PropTypes.func,
-  setActiveBookmarkHistory: PropTypes.func,
 }
 
 export default ReplayBookmark

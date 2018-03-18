@@ -25,16 +25,16 @@ const mapState = (state) => {
 
 @connect(mapState)
 class HistoryArea extends Component {
+  static propTypes = {
+    bookmark: PropTypes.object,
+    task: PropTypes.object,
+  }
+
   render() {
     if (!this.props.task && !this.props.bookmark) return null
     const {bookmark, task} = this.props
     return <History task={task} bookmark={bookmark} />
   }
-}
-
-HistoryArea.propTypes = {
-  bookmark: PropTypes.object,
-  task: PropTypes.object,
 }
 
 export default HistoryArea

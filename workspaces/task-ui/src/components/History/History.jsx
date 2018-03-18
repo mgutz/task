@@ -21,6 +21,14 @@ const mapDispatch = ({router: {navigate}}) => ({navigate})
 
 @connect(mapState, mapDispatch)
 class History extends React.Component {
+  static propTypes = {
+    histories: PropTypes.array,
+    bookmark: PropTypes.object,
+    navigate: PropTypes.func,
+    route: PropTypes.object,
+    task: PropTypes.object,
+  }
+
   renderItems = (histories, task, activeHistoryId) => {
     return histories.map((history) => {
       const isActive = activeHistoryId === history.id
@@ -36,7 +44,6 @@ class History extends React.Component {
           history={history}
           className={classes}
           onClick={onClick}
-          setLocation={this.doNavigate(history)}
         />
       )
     })
@@ -67,38 +74,6 @@ class History extends React.Component {
       },
     })
   }
-
-  // called by replay tasks to set the location for new history
-  doNavigate = ({args}) => (newHistoryId) => {
-    const {bookmark, navigate, task} = this.props
-
-    if (task) {
-      // navigate to new history to highlight it
-      const params = {
-        id: task.id,
-        taskfileId: args[0],
-        taskName: args[1],
-        newHistoryId,
-      }
-      navigate({name: 'tasks.name.history', params})
-    } else if (bookmark) {
-      // navigate to new history to highlight it
-      const params = {
-        id: bookmark.id,
-        title: bookmark.title,
-        newHistoryId,
-      }
-      navigate({name: 'bookmarks.title.history', params})
-    }
-  }
-}
-
-History.propTypes = {
-  histories: PropTypes.array,
-  bookmark: PropTypes.object,
-  navigate: PropTypes.func,
-  route: PropTypes.object,
-  task: PropTypes.object,
 }
 
 export default History

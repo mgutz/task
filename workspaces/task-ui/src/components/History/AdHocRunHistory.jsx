@@ -4,7 +4,7 @@ import {ListItem, ListItemText, ListItemSecondaryAction} from 'material-ui/List'
 import * as strftime from 'strftime'
 import ReplayTask from '../ReplayTask'
 
-const AdHocRunHistory = ({className, history, onClick, setLocation}) => {
+const AdHocRunHistory = ({className, history, onClick}) => {
   if (!history) return null
   const status =
     `pid: ${history.pid} ` +
@@ -22,7 +22,7 @@ const AdHocRunHistory = ({className, history, onClick, setLocation}) => {
     <ListItem className={className} key={history.id} onClick={onClick}>
       <ListItemText primary={caption} secondary={status} />
       <ListItemSecondaryAction>
-        <ReplayTask history={history} setLocation={setLocation} />
+        <ReplayTask history={history} />
       </ListItemSecondaryAction>
     </ListItem>
   )
@@ -32,7 +32,6 @@ AdHocRunHistory.propTypes = {
   className: PropTypes.string,
   history: PropTypes.object.isRequired,
   onClick: PropTypes.func,
-  setLocation: PropTypes.func,
 }
 
 export default AdHocRunHistory

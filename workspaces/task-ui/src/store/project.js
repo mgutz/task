@@ -33,17 +33,8 @@ export const project = {
   },
 
   effects: {
-    load() {
+    loadProject() {
       invoke('loadProject').then(this.setProject)
-    },
-
-    setActiveBookmarkHistory(payload) {
-      const validate = t.struct({
-        id: t.String,
-        historyId: t.String,
-      })
-      const {id, historyId} = validate(payload)
-      this.updateBookmark({id, activeHistoryId: historyId})
     },
 
     saveBookmark(payload) {
@@ -58,6 +49,15 @@ export const project = {
       const bookmark = {...history, ...{id, scope, title}}
       this.addBookmark(bookmark)
       invoke('addBookmark', bookmark)
+    },
+
+    setBookmarkActiveHistory(payload) {
+      const validate = t.struct({
+        id: t.String,
+        historyId: t.String,
+      })
+      const {id, historyId} = validate(payload)
+      this.updateBookmark({id, activeHistoryId: historyId})
     },
   },
 

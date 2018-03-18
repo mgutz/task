@@ -30,6 +30,16 @@ const mapDispatch = ({taskfiles: {fetchTasks}, router: {navigate}}) => ({
 @withState('collapsed', 'setCollapsed', true)
 @connect(mapState, mapDispatch)
 class Taskfile extends Component {
+  static propTypes = {
+    collapsed: PropTypes.bool,
+    fetchTasks: PropTypes.func,
+    navigate: PropTypes.func,
+    route: PropTypes.object,
+    setCollapsed: PropTypes.func,
+    tasks: PropTypes.array,
+    taskfile: PropTypes.object.isRequired,
+  }
+
   componentDidMount() {
     this.props.fetchTasks({taskfileId: this.props.taskfile.id})
   }
@@ -91,16 +101,6 @@ class Taskfile extends Component {
       },
     })
   }
-}
-
-Taskfile.propTypes = {
-  collapsed: PropTypes.bool,
-  fetchTasks: PropTypes.func,
-  navigate: PropTypes.func,
-  route: PropTypes.object,
-  setCollapsed: PropTypes.func,
-  tasks: PropTypes.array,
-  taskfile: PropTypes.object.isRequired,
 }
 
 export default Taskfile
