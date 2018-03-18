@@ -33,6 +33,17 @@ declare interface TaskResult {
   result: any
 }
 
+declare interface TaskUI {
+  // form order
+  form?: any[]
+  // JSON Schema
+  schema?: any
+  // whether to hide task in UI
+  hide?: boolean
+  // the initial values for the form
+  model?: any
+}
+
 declare interface RawTask {
   deps?: any[]
   desc?: string
@@ -41,7 +52,7 @@ declare interface RawTask {
   once?: boolean
   run?: TaskFunc
   // ui is currenly only used by the UI
-  ui?: any
+  ui?: TaskUI
   watch?: string[]
   _original?: Task
   _ran?: boolean

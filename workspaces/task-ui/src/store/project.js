@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import {invoke} from '../services/websocket'
 import * as t from 'tcomb'
 import producer from './producer'
@@ -32,8 +33,6 @@ export const project = {
       })
       validate(payload)
 
-      console.log('saving history')
-
       const {history, title} = payload
       const id = uid()
       this.addHistory({
@@ -48,6 +47,12 @@ export const project = {
       })
 
       invoke('addHistory', {...history, id, title, scope: 'project'})
+    },
+  },
+
+  selectors: {
+    savedById(state, id) {
+      return _.find(state.histories, {id})
     },
   },
 }

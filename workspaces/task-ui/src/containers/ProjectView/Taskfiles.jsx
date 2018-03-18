@@ -1,5 +1,6 @@
+import * as _ from 'lodash'
 import React, {PureComponent} from 'react'
-import TaskfileItem from '#/components/Taskfile'
+import Taskfile from '#/components/Taskfile'
 // import TasksNav from '#/components/TasksNav'
 import PropTypes from 'prop-types'
 //import {konsole} from '#/util'
@@ -15,7 +16,7 @@ export default class TaskFiles extends PureComponent {
     if (!taskfiles) return null
 
     return taskfiles.map((taskfile) => {
-      return <TaskfileItem key={taskfile.id} taskfile={taskfile} />
+      return <Taskfile key={taskfile.id} taskfile={taskfile} />
     })
   }
 

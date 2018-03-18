@@ -2,6 +2,7 @@ import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
 import {konsole, uid} from '#/util'
 import {select} from '@rematch/select'
+import {dispatch} from '@rematch/core'
 
 // Some reducers are listened for in other models but (for now) they still need
 // to be defined. This is an identity function.
@@ -15,6 +16,11 @@ export const effects = {
   // async action creators
   fetchTasks({taskfileId}) {
     invoke('tasks', taskfileId).then((tasks) => {
+      if (!Array.isArray(tasks) || tasks.length < 1) return
+      // makes code a lot easier if there is unique id
+      for (const task of tasks) {
+        task.id = uid()
+      }
       this.mergeTasks({taskfileId, tasks})
     })
   },
@@ -61,7 +67,7 @@ export const effects = {
    *
    * @param {any[]} args args[0] should be name of method to invoke.
    */
-  run(args) {
+  run(args, rootState) {
     const [taskfileId, taskName, ...rest] = args
     const historyId = uid() // TODO this needs to be next callback id
     this.addHistory({
@@ -75,18 +81,30 @@ export const effects = {
       taskName,
     })
 
+    // TODO this doesn't feel right to put this here
+    if (rootState.router.route.name.startsWith('tasks')) {
+      const params = {
+        taskfileId,
+        taskName,
+        historyId,
+      }
+      console.log('asdf', params)
+      dispatch.router.navigate({name: 'tasks.name.history', params})
+    }
     this.updateTask({taskfileId, activeHistoryId: historyId, taskName})
 
     // historyId is passed as tag
-    invoke('run', historyId, taskfileId, taskName, ...rest).then((payload) => {
-      const {pid} = payload
-      this.updateHistory({
-        id: historyId,
-        pid,
-        taskfileId,
-        taskName,
-      })
-    })
+    return invoke('run', historyId, taskfileId, taskName, ...rest).then(
+      (payload) => {
+        const {pid} = payload
+        this.updateHistory({
+          id: historyId,
+          pid,
+          taskfileId,
+          taskName,
+        })
+      }
+    )
   },
 
   // replays a run-time history entry

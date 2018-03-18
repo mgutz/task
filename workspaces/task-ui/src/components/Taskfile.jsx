@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import React, {Fragment, Component} from 'react'
 import PropTypes from 'prop-types'
 import Collapse from 'material-ui/transitions/Collapse'
@@ -35,18 +36,20 @@ class Taskfile extends Component {
   renderTasks(tasks) {
     const {route} = this.props
     return tasks.map((task) => {
+      // some tasks should only be run from CLI
+      const hide = _.get(task, 'ui.hide')
+      if (hide) return null
+
+      const isActive =
+        route.params.taskName === task.name &&
+        route.params.taskfileId === task.taskfileId
       const classes = classNames({
-        'is-selected':
-          route.params.taskName === task.name &&
-          route.params.taskfileId === task.taskfileId,
+        'is-selected': isActive,
       })
+      const onClick = isActive ? null : this.doSetActive(task)
 
       return (
-        <ListItem
-          className={classes}
-          key={task.name}
-          onClick={this.doSetActive(task)}
-        >
+        <ListItem className={classes} key={task.name} onClick={onClick}>
           <ListItemText primary={task.name} secondary={task.desc} />
           <ListItemIcon>
             <RunTask task={task} />

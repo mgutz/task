@@ -2,7 +2,6 @@ import * as _ from 'lodash'
 import React from 'react'
 import PropTypes from 'prop-types'
 import {ListItem, ListItemText, ListItemSecondaryAction} from 'material-ui/List'
-
 import * as strftime from 'strftime'
 import ReplayTask from '../ReplayTask'
 

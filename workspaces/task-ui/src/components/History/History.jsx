@@ -8,16 +8,20 @@ import classNames from 'classnames'
 import AdHocRunHistory from './AdHocRunHistory'
 
 const mapState = (state, props) => {
-  if (!props.task) return {}
+  const {route} = state.router
 
-  const {name, taskfileId} = props.task
-  return {
-    histories: select.histories.byQuery(state, {
-      taskfileId,
-      taskName: name,
-    }),
-    route: state.router.route,
+  if (props.task) {
+    const {name, taskfileId} = props.task
+    return {
+      histories: select.histories.byQuery(state, {
+        taskfileId,
+        taskName: name,
+      }),
+      route: state.router.route,
+    }
   }
+
+  return {route}
 }
 
 const mapDispatch = ({router: {navigate}}) => ({navigate})
@@ -33,9 +37,12 @@ export default class History extends React.Component {
 
   renderItems = (histories, task, activeHistoryId) => {
     return histories.map((history) => {
+      const isActive = activeHistoryId === history.id
       const classes = classNames({
-        'is-selected': activeHistoryId === history.id,
+        'is-selected': isActive,
       })
+
+      const onClick = isActive ? null : this.doSetActive(history)
 
       if (history.kind === 'run') {
         return (
@@ -43,7 +50,7 @@ export default class History extends React.Component {
             key={history.id}
             history={history}
             className={classes}
-            onClick={this.doSetActive(history)}
+            onClick={onClick}
           />
         )
       }

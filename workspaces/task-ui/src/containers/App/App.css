@@ -21,14 +21,16 @@ header {
 
 main {
   flex: 1;
+  background-color: #f8f8f8;
 }
 
 nav {
-  background-color: #ddd;
+  background-color: #ececec;
+  border-right: solid 1px #ddd;
 }
 
 aside {
-  background-color: #fafafa;
+  background-color: #f0f0f0;
   border-right: solid 1px #ddd;
 }
 

@@ -12,7 +12,7 @@ const handledElsewhere = (state) => state
  * `taskfileId`.
  */
 export const taskfiles = {
-  state: {}, // {[taskfile.id]: [tasks]}
+  state: {}, // {[taskfile.id]: [task1, task2, ..., taskN]}
 
   reducers: {
     addHistory: handledElsewhere,
