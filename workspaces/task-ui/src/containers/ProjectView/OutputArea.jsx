@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {select} from '@rematch/select'
-import TaskLog from '#/components/TaskLog'
+import HistoryLog from '#/components/HistoryLog'
 
 /*
 
@@ -18,13 +18,15 @@ const mapState = (state) => {
   const {name, params} = route
 
   if (name.startsWith('tasks')) {
-    const task = select.taskfiles.taskByIdThenName(
+    const task = select.taskfiles.taskByFileIdAndName(
       state,
       params.taskfileId,
       params.taskName
     )
-    return {task}
-  } else if (name.startsWith('saved')) {
+    return {task, historyId: params.historyId}
+  } else if (name.startsWith('bookmarks')) {
+    const bookmark = select.project.bookmarkQuery(state, {id: params.id})
+    return {bookmark, historyId: params.historyId}
   }
 
   return {}
@@ -33,13 +35,14 @@ const mapState = (state) => {
 @connect(mapState)
 class OutputArea extends Component {
   render() {
-    if (!this.props.task) return null
-    const {task} = this.props
-    return <TaskLog task={task} />
+    const {bookmark, historyId, task} = this.props
+    return <HistoryLog historyId={historyId} task={task} bookmark={bookmark} />
   }
 }
 
 OutputArea.propTypes = {
+  bookmark: PropTypes.object,
+  historyId: PropTypes.string,
   task: PropTypes.object,
 }
 

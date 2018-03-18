@@ -1,13 +1,12 @@
-import * as React from 'react'
 import './App.css'
-import ProjectView from '#/containers/ProjectView'
-import Info from '#/components/Info'
-import PropTypes from 'prop-types'
+import {connect} from 'react-redux'
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
+import * as React from 'react'
 import AppBar from 'material-ui/AppBar'
+import ProjectView from '#/containers/ProjectView'
+import PropTypes from 'prop-types'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
-import {connect} from 'react-redux'
 
 const theme = {
   palette: {
@@ -43,9 +42,9 @@ export default class App extends React.Component {
   }
 
   render() {
-    const {route} = this.props
-    let body =
-      route && route.name.startsWith('tasks') ? <ProjectView /> : <Info />
+    // const {route} = this.props
+    // let body =
+    //   route && route.name.startsWith('tasks') ? <ProjectView /> : <Info />
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div className="App">
@@ -58,7 +57,7 @@ export default class App extends React.Component {
               </Toolbar>
             </AppBar>
           </header>
-          {body}
+          <ProjectView />
           <footer>footer</footer>
         </div>
       </MuiThemeProvider>

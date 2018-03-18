@@ -23,7 +23,7 @@ class TaskArea extends Component {
     return (
       <React.Fragment>
         <Taskfiles taskfiles={project.taskfiles} />
-        <Saved histories={project.histories} />
+        <Saved bookmarks={project.bookmarks} />
       </React.Fragment>
     )
   }

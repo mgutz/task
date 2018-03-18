@@ -9,15 +9,15 @@ const mapState = (state) => {
   const {name, params} = route
 
   if (name.startsWith('tasks')) {
-    const task = select.taskfiles.taskByIdThenName(
+    const task = select.taskfiles.taskByFileIdAndName(
       state,
       params.taskfileId,
       params.taskName
     )
     return {task}
-  } else if (name.startsWith('saved')) {
-    const saved = select.project.savedById(state, params.saveId)
-    return {saved}
+  } else if (name.startsWith('bookmarks')) {
+    const bookmark = select.project.bookmarkQuery(state, {id: params.id})
+    return {bookmark}
   }
 
   return {}
@@ -26,15 +26,14 @@ const mapState = (state) => {
 @connect(mapState)
 class HistoryArea extends Component {
   render() {
-    if (!this.props.task) return null
-    const {saved, task} = this.props
-
-    return <History task={task} saved={saved} />
+    if (!this.props.task && !this.props.bookmark) return null
+    const {bookmark, task} = this.props
+    return <History task={task} bookmark={bookmark} />
   }
 }
 
 HistoryArea.propTypes = {
-  saved: PropTypes.object,
+  bookmark: PropTypes.object,
   task: PropTypes.object,
 }
 

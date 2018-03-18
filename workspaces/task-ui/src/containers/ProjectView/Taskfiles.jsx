@@ -1,4 +1,3 @@
-import * as _ from 'lodash'
 import React, {PureComponent} from 'react'
 import Taskfile from '#/components/Taskfile'
 // import TasksNav from '#/components/TasksNav'

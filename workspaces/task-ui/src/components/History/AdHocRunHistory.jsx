@@ -1,13 +1,11 @@
-import * as _ from 'lodash'
 import React from 'react'
 import PropTypes from 'prop-types'
 import {ListItem, ListItemText, ListItemSecondaryAction} from 'material-ui/List'
 import * as strftime from 'strftime'
 import ReplayTask from '../ReplayTask'
 
-const AdHocRunHistory = ({className, history, onClick}) => {
-  if (_.get(history, 'kind') !== 'run') return null
-
+const AdHocRunHistory = ({className, history, onClick, setLocation}) => {
+  if (!history) return null
   const status =
     `pid: ${history.pid} ` +
     (history.status === 'running'
@@ -24,7 +22,7 @@ const AdHocRunHistory = ({className, history, onClick}) => {
     <ListItem className={className} key={history.id} onClick={onClick}>
       <ListItemText primary={caption} secondary={status} />
       <ListItemSecondaryAction>
-        <ReplayTask history={history} />
+        <ReplayTask history={history} setLocation={setLocation} />
       </ListItemSecondaryAction>
     </ListItem>
   )
@@ -34,6 +32,7 @@ AdHocRunHistory.propTypes = {
   className: PropTypes.string,
   history: PropTypes.object.isRequired,
   onClick: PropTypes.func,
+  setLocation: PropTypes.func,
 }
 
 export default AdHocRunHistory

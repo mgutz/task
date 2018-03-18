@@ -25,16 +25,17 @@ const task_ws_1 = require("task-ws");
 class Resolvers {
     constructor(rcontext) {
         this.rcontext = rcontext;
-        this.addHistory = (history) => __awaiter(this, void 0, void 0, function* () {
+        this.addBookmark = (bookmark) => __awaiter(this, void 0, void 0, function* () {
+            console.log('addBookmark');
             const db = this.rcontext.projectDB;
-            const { scope } = history;
+            const { scope } = bookmark;
             if (scope === 'project') {
                 return db
-                    .get('histories')
-                    .push(history)
+                    .get('bookmarks')
+                    .push(bookmark)
                     .write();
             }
-            throw new task_ws_1.CodeError(422, `Only histories having project scope are saved currently: ${scope}`);
+            throw new task_ws_1.CodeError(422, `Only bookmarks having project scope are saved currently: ${scope}`);
         });
         /**
          * Loads and sets the project. The project may be reloaded by a

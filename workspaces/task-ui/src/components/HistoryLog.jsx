@@ -1,4 +1,4 @@
-import './TaskLog.css'
+import './HistoryLog.css'
 import * as React from 'react'
 import JSONView from './JSONView'
 import PropTypes from 'prop-types'
@@ -14,15 +14,15 @@ import {select} from '@rematch/select'
 // `
 
 const mapState = (state, props) => {
-  const {task} = props
+  const {historyId} = props
   return {
-    logIndex: state.logs[task.activeHistoryId],
-    history: select.histories.oneById(state, {id: task.activeHistoryId}),
+    logIndex: state.logs[historyId],
+    history: select.histories.oneById(state, {id: historyId}),
   }
 }
 
 @connect(mapState)
-export default class TaskLog extends React.PureComponent {
+export default class HistoryLog extends React.PureComponent {
   static propTypes = {
     history: PropTypes.object,
     logIndex: PropTypes.object,

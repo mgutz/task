@@ -7,7 +7,7 @@ import PropTypes from 'prop-types'
 
 const mapState = () => ({})
 
-const mapDispatch = ({project: {saveHistory}}) => ({saveHistory})
+const mapDispatch = ({project: {saveBookmark}}) => ({saveBookmark})
 
 @connect(mapState, mapDispatch)
 class SaveHistory extends Component {
@@ -48,15 +48,15 @@ class SaveHistory extends Component {
   }
 
   doSubmit = (values) => {
-    const {history, saveHistory} = this.props
+    const {history, saveBookmark} = this.props
     this.setState({showForm: false})
-    saveHistory({title: values.title, history})
+    saveBookmark({title: values.title, history})
   }
 }
 
 SaveHistory.propTypes = {
   history: PropTypes.object.isRequired,
-  saveHistory: PropTypes.func,
+  saveBookmark: PropTypes.func,
 }
 
 export default SaveHistory

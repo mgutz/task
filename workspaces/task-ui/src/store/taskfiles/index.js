@@ -12,7 +12,13 @@ const handledElsewhere = (state) => state
  * `taskfileId`.
  */
 export const taskfiles = {
-  state: {}, // {[taskfile.id]: [task1, task2, ..., taskN]}
+  // { taskfiles: {[id]: [taskID1, taskID2, ... , taskIDN]}
+  //   tasks: {id: task}
+  // }
+  state: {
+    taskfiles: {},
+    tasks: [],
+  },
 
   reducers: {
     addHistory: handledElsewhere,
@@ -21,47 +27,46 @@ export const taskfiles = {
 
     mergeTasks: producer((draft, payload) => {
       const {taskfileId, tasks} = payload
-
-      let tasksArr = draft[taskfileId]
+      let tasksArr = draft.taskfiles[taskfileId]
       if (!tasksArr) {
         tasksArr = []
-        draft[taskfileId] = tasksArr
+        draft.taskfiles[taskfileId] = tasksArr
       }
 
       for (const task of tasks) {
-        // facilitates  getting the parent taskfile
-        task.taskfileId = taskfileId
+        const idx = tasksArr.indexOf(task.id)
 
-        const idx = _.findIndex(tasksArr, {name: task.name})
-        if (idx > -1) {
-          tasksArr[idx] = {...tasksArr[idx], ...task}
-          continue
+        // not found, add to taskfiles and tasks
+        if (idx < 0) {
+          tasksArr.push(task.id)
+          draft.tasks.push(task)
         }
-        tasksArr.push(task)
       }
     }),
 
     updateTask: producer((draft, payload) => {
-      const {taskfileId, taskName, ...rest} = payload
-      const tasks = draft[taskfileId]
-      const idx = _.findIndex(tasks, {name: taskName})
+      const {id, ...rest} = payload
+      const idx = _.findIndex(draft.tasks, {id})
       if (idx < 0) {
-        konsole.error('Could not find task', taskName)
+        konsole.error('Could not find task by id', id)
         return
       }
-      tasks[idx] = {...tasks[idx], ...rest}
+
+      draft.tasks[idx] = {...draft.tasks[idx], ...rest}
     }),
   },
 
   effects,
 
   selectors: {
-    taskByIdThenName(state, taskfileId, taskName) {
-      const taskfile = state[taskfileId]
-      if (!taskfile) return null
+    taskByFileIdAndName(state, taskfileId, name) {
+      return _.find(state.tasks, {taskfileId, name})
+    },
 
-      const found = _.find(taskfile, {name: taskName})
-      return found
+    tasksByFileId(state, taskfileId) {
+      const ids = state.taskfiles[taskfileId]
+      if (!Array.isArray(ids)) return
+      return ids.map((id) => _.find(state.tasks, {id}))
     },
   },
 }

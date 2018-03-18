@@ -11,13 +11,14 @@ import classNames from 'classnames'
 import TocIcon from 'material-ui-icons/Toc'
 import styled from 'styled-components'
 import RunTask from './RunTask'
+import {select} from '@rematch/select'
 
 const InsetList = styled(List)`
   margin-left: 10px;
 `
 const mapState = (state, props) => {
   return {
-    tasks: state.taskfiles[props.taskfile.id],
+    tasks: select.taskfiles.tasksByFileId(state, props.taskfile.id),
     route: state.router.route,
   }
 }
@@ -84,6 +85,7 @@ class Taskfile extends Component {
     navigate({
       name: 'tasks.name',
       params: {
+        id: task.id,
         taskName: task.name,
         taskfileId: taskfile.id,
       },

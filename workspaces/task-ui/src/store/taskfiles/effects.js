@@ -1,8 +1,6 @@
 import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
 import {konsole, uid} from '#/util'
-import {select} from '@rematch/select'
-import {dispatch} from '@rematch/core'
 
 // Some reducers are listened for in other models but (for now) they still need
 // to be defined. This is an identity function.
@@ -20,6 +18,7 @@ export const effects = {
       // makes code a lot easier if there is unique id
       for (const task of tasks) {
         task.id = uid()
+        task.taskfileId = taskfileId
       }
       this.mergeTasks({taskfileId, tasks})
     })
@@ -41,7 +40,7 @@ export const effects = {
 
   // remote proc stderr data
   perr(payload) {
-    const [tag, _pid, lines] = payload
+    const [tag, _pid, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stderr})
   },
 
@@ -58,47 +57,39 @@ export const effects = {
 
   // remote proc stdout data
   pout(payload) {
-    const [tag, _pid, lines] = payload
+    const [tag, _pid, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stdout})
   },
 
   /**
    * Runs a task
    *
-   * @param {any[]} args args[0] should be name of method to invoke.
    */
-  run(args, rootState) {
+  run(payload) {
+    const validate = t.struct({
+      args: t.Array,
+      newHistoryId: t.String,
+      refId: t.String,
+      refKind: t.String,
+    })
+    const {args, newHistoryId, refId, refKind} = validate(payload)
     const [taskfileId, taskName, ...rest] = args
-    const historyId = uid() // TODO this needs to be next callback id
+    //const newId = uid() // TODO this needs to be next callback id
     this.addHistory({
-      id: historyId,
+      id: newHistoryId,
       args,
       createdAt: Date.now(),
-      kind: 'run',
-      method: 'run',
+      refKind,
+      refId,
       status: 'running',
-      taskfileId,
-      taskName,
     })
 
-    // TODO this doesn't feel right to put this here
-    if (rootState.router.route.name.startsWith('tasks')) {
-      const params = {
-        taskfileId,
-        taskName,
-        historyId,
-      }
-      console.log('asdf', params)
-      dispatch.router.navigate({name: 'tasks.name.history', params})
-    }
-    this.updateTask({taskfileId, activeHistoryId: historyId, taskName})
-
     // historyId is passed as tag
-    return invoke('run', historyId, taskfileId, taskName, ...rest).then(
+    return invoke('run', newHistoryId, taskfileId, taskName, ...rest).then(
       (payload) => {
         const {pid} = payload
         this.updateHistory({
-          id: historyId,
+          id: newHistoryId,
           pid,
           taskfileId,
           taskName,
@@ -107,43 +98,15 @@ export const effects = {
     )
   },
 
-  // replays a run-time history entry
-  replay(args, rootState) {
+  setActiveHistory(payload) {
     const validate = t.struct({
       id: t.String,
+      historyId: t.String,
     })
-    validate(args)
-
-    const history = select.histories.oneById(rootState, args)
-    if (!history) {
-      konsole.error('History not found with args', args)
-    }
-
-    this.run(history.args)
-  },
-
-  // reruns a saved task
-  rerun(args) {
-    const validate = t.struct({
-      kind: t.String,
-      args: t.Array,
-    })
-    validate(args)
-    this.run(args.args)
-  },
-
-  setActiveHistoryId(payload) {
-    const validate = t.struct({
-      taskfileId: t.String,
-      taskName: t.String,
-      historyId: t.string,
-    })
-    validate(payload)
-
-    const {taskfileId, taskName, historyId} = payload
+    const {id, historyId} = validate(payload)
 
     // example payload = {taskName, activeRunId}
-    this.updateTask({taskfileId, taskName, activeHistoryId: historyId})
+    this.updateTask({id, activeHistoryId: historyId})
   },
 
   /**
@@ -159,7 +122,7 @@ export const effects = {
   },
 
   update(payload) {
-    if (!payload.taskName) throw new Error('taskName is required')
+    if (!payload.id) throw new Error('taskName is required')
     // example payload = {taskName, activeRunId}
     this.updateTask(payload)
   },

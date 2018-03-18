@@ -20,19 +20,20 @@ import {CodeError} from 'task-ws'
 export class Resolvers {
   constructor(public rcontext: ResolverContext) {}
 
-  public addHistory = async (history: History) => {
+  public addBookmark = async (bookmark: History) => {
+    console.log('addBookmark')
     const db = this.rcontext.projectDB
-    const {scope} = history
+    const {scope} = bookmark
     if (scope === 'project') {
       return db
-        .get('histories')
-        .push(history)
+        .get('bookmarks')
+        .push(bookmark)
         .write()
     }
 
     throw new CodeError(
       422,
-      `Only histories having project scope are saved currently: ${scope}`
+      `Only bookmarks having project scope are saved currently: ${scope}`
     )
   }
 

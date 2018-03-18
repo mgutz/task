@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
@@ -9,32 +10,17 @@ import AdHocRunHistory from './AdHocRunHistory'
 
 const mapState = (state, props) => {
   const {route} = state.router
-
-  if (props.task) {
-    const {name, taskfileId} = props.task
-    return {
-      histories: select.histories.byQuery(state, {
-        taskfileId,
-        taskName: name,
-      }),
-      route: state.router.route,
-    }
+  let refId = _.get(props, 'task.id') || _.get(props, 'bookmark.id')
+  return {
+    histories: select.histories.byQuery(state, {refId}),
+    route,
   }
-
-  return {route}
 }
 
 const mapDispatch = ({router: {navigate}}) => ({navigate})
 
 @connect(mapState, mapDispatch)
-export default class History extends React.Component {
-  static propTypes = {
-    histories: PropTypes.array,
-    navigate: PropTypes.func.isRequired,
-    route: PropTypes.object.isRequired,
-    task: PropTypes.object,
-  }
-
+class History extends React.Component {
   renderItems = (histories, task, activeHistoryId) => {
     return histories.map((history) => {
       const isActive = activeHistoryId === history.id
@@ -44,19 +30,14 @@ export default class History extends React.Component {
 
       const onClick = isActive ? null : this.doSetActive(history)
 
-      if (history.kind === 'run') {
-        return (
-          <AdHocRunHistory
-            key={history.id}
-            history={history}
-            className={classes}
-            onClick={onClick}
-          />
-        )
-      }
-
-      throw new Error(
-        `History of kind '${history.kind}' is not currently handled`
+      return (
+        <AdHocRunHistory
+          key={history.id}
+          history={history}
+          className={classes}
+          onClick={onClick}
+          setLocation={this.doNavigate(history)}
+        />
       )
     })
   }
@@ -74,15 +55,50 @@ export default class History extends React.Component {
   }
 
   doSetActive = (history) => () => {
-    const {navigate} = this.props
+    const {navigate, route} = this.props
     const {taskfileId, taskName, id} = history
     navigate({
       name: 'tasks.name.history',
       params: {
+        historyId: id,
+        id: route.params.id,
         taskName,
         taskfileId,
-        historyId: id,
       },
     })
   }
+
+  // called by replay tasks to set the location for new history
+  doNavigate = ({args}) => (newHistoryId) => {
+    const {bookmark, navigate, task} = this.props
+
+    if (task) {
+      // navigate to new history to highlight it
+      const params = {
+        id: task.id,
+        taskfileId: args[0],
+        taskName: args[1],
+        newHistoryId,
+      }
+      navigate({name: 'tasks.name.history', params})
+    } else if (bookmark) {
+      // navigate to new history to highlight it
+      const params = {
+        id: bookmark.id,
+        title: bookmark.title,
+        newHistoryId,
+      }
+      navigate({name: 'bookmarks.title.history', params})
+    }
+  }
 }
+
+History.propTypes = {
+  histories: PropTypes.array,
+  bookmark: PropTypes.object,
+  navigate: PropTypes.func,
+  route: PropTypes.object,
+  task: PropTypes.object,
+}
+
+export default History

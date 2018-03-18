@@ -22,7 +22,7 @@ class HistoryActions extends Component {
 
     const {history} = this.props
 
-    const title = `${_.upperFirst(history.taskName)}`
+    const title = `${_.upperFirst(history.args[1])}`
     const args = JSON.stringify(history.args[2])
 
     return (

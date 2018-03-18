@@ -5,15 +5,26 @@ import producer from './producer'
 import {uid} from '#/util'
 
 export const project = {
-  state: {},
+  state: {
+    bookmarks: [],
+  },
 
   reducers: {
-    addHistory: producer((draft, payload) => {
-      if (!draft.histories) {
-        draft.histories = [payload]
+    addBookmark: producer((draft, payload) => {
+      if (!draft.bookmarks) {
+        draft.bookmarks = [payload]
         return
       }
-      draft.histories.push(payload)
+      draft.bookmarks.push(payload)
+    }),
+
+    updateBookmark: producer((draft, payload) => {
+      const {id, ...rest} = payload
+      const idx = _.findIndex(draft.bookmarks, {id})
+      if (idx < 0) {
+        throw new Error(`Bookmark not found, id=${id}`)
+      }
+      draft.bookmarks[id] = {...draft.bookmarks[id], ...rest}
     }),
 
     setProject: producer((draft, payload) => {
@@ -26,33 +37,33 @@ export const project = {
       invoke('loadProject').then(this.setProject)
     },
 
-    saveHistory(payload) {
+    setActiveBookmarkHistory(payload) {
+      const validate = t.struct({
+        id: t.String,
+        historyId: t.String,
+      })
+      const {id, historyId} = validate(payload)
+      this.updateBookmark({id, activeHistoryId: historyId})
+    },
+
+    saveBookmark(payload) {
       const validate = t.struct({
         title: t.String,
         history: t.Object,
       })
-      validate(payload)
+      const {history, title} = validate(payload)
 
-      const {history, title} = payload
       const id = uid()
-      this.addHistory({
-        id,
-        title,
-        kind: history.kind,
-        params: {
-          taskfileId: history.taskfileId,
-          taskName: history.taskName,
-          args: history.args,
-        },
-      })
-
-      invoke('addHistory', {...history, id, title, scope: 'project'})
+      const scope = 'project'
+      const bookmark = {...history, ...{id, scope, title}}
+      this.addBookmark(bookmark)
+      invoke('addBookmark', bookmark)
     },
   },
 
   selectors: {
-    savedById(state, id) {
-      return _.find(state.histories, {id})
+    bookmarkQuery(state, query) {
+      return _.find(state.bookmarks, query)
     },
   },
 }

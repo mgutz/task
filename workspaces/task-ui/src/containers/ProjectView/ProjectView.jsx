@@ -40,8 +40,8 @@ class ProjectView extends React.Component {
 }
 
 ProjectView.propTypes = {
-  loadProject: PropTypes.func.isRequired,
-  project: PropTypes.object.isRequired,
+  loadProject: PropTypes.func,
+  project: PropTypes.object,
   route: PropTypes.object,
 }
 

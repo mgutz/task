@@ -5,8 +5,16 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import PlayCircleFilledIcon from 'material-ui-icons/PlayCircleFilled'
 import IconButton from 'material-ui/IconButton'
+import {uid} from '#/util'
 
-const mapDispatch = ({taskfiles: {run}}) => ({run})
+const mapDispatch = ({
+  taskfiles: {run, setActiveHistory},
+  router: {navigate},
+}) => ({
+  navigate,
+  run,
+  setActiveHistory,
+})
 
 @connect(null, mapDispatch)
 class RunTask extends Component {
@@ -60,12 +68,28 @@ class RunTask extends Component {
   }
 
   doRun = (model) => {
-    const {run, task} = this.props
-    const runArgs = [task.taskfileId, task.name]
+    const {navigate, run, setActiveHistory, task} = this.props
+    const {taskfileId, name: taskName} = task
+    const args = [taskfileId, taskName]
     if (this.hasUI() && Object.keys(model).length > 0) {
-      runArgs.push(model)
+      args.push(model)
     }
-    return run(runArgs)
+
+    // id for tracking the new history item
+    const newHistoryId = uid()
+    run({newHistoryId, args, refId: task.id, refKind: 'task'})
+
+    // set new history as active
+    setActiveHistory({id: task.id, historyId: newHistoryId})
+
+    // navigate to new history to highlight it
+    const params = {
+      id: task.id,
+      taskfileId,
+      taskName,
+      historyId: newHistoryId,
+    }
+    navigate({name: 'tasks.name.history', params})
   }
 
   doShowForm = () => {
@@ -83,7 +107,9 @@ class RunTask extends Component {
 RunTask.propTypes = {
   children: PropTypes.node,
   icon: PropTypes.node,
+  navigate: PropTypes.func,
   run: PropTypes.func,
+  setActiveHistory: PropTypes.func,
   task: PropTypes.object,
 }
 

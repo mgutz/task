@@ -1,25 +1,46 @@
 {
-  "histories": [
+  "bookmarks": [
     {
-      "id": "HJPu1NcFM",
+      "id": "ByX3e7nYG",
       "args": [
         "Main",
         "hello",
         {
-          "name": "s"
+          "name": "asdf"
         }
       ],
-      "createdAt": 1521266538179,
-      "kind": "run",
-      "method": "run",
+      "createdAt": 1521393830661,
+      "refKind": "task",
+      "refId": "HkYisxmntf",
       "status": "closed",
+      "pid": 96105,
       "taskfileId": "Main",
       "taskName": "hello",
-      "pid": 34852,
-      "statusedAt": 1521266538846,
+      "statusedAt": 1521393831402,
       "code": 0,
-      "title": "Build Task",
-      "scope": "project"
+      "scope": "project",
+      "title": "asdf"
+    },
+    {
+      "id": "rk-oM72Fz",
+      "args": [
+        "Main",
+        "hello",
+        {
+          "name": "asdf"
+        }
+      ],
+      "createdAt": 1521394323554,
+      "refKind": "task",
+      "refId": "HytN5Mm2FM",
+      "status": "closed",
+      "pid": 96901,
+      "taskfileId": "Main",
+      "taskName": "hello",
+      "statusedAt": 1521394324214,
+      "code": 0,
+      "scope": "project",
+      "title": "ssss"
     }
   ],
   "server": {
