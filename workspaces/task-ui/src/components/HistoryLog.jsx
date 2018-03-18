@@ -2,16 +2,26 @@ import './HistoryLog.css'
 import * as React from 'react'
 import JSONView from './JSONView'
 import PropTypes from 'prop-types'
-import VirtualList from 'react-tiny-virtual-list'
 import {connect} from 'react-redux'
 import {logEntryAt, logLength} from '#/store/logs'
 import HistoryActions from './HistoryActions'
 import {select} from '@rematch/select'
+import {AutoSizer, List} from 'react-virtualized'
 
-// const VirtualList = styled(TinyVirtualList)`
-//   font-family: monospace;
-//   border-bottom: solid 1px #ccc;
-// `
+import styled from 'styled-components'
+
+const ColumnView = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`
+const ExpandRow = styled.div`
+  flex: 1 1 auto;
+`
+
+const Row = styled.div`
+  flex: 0 1 auto;
+`
 
 const mapState = (state, props) => {
   const {historyId} = props
@@ -35,19 +45,34 @@ export default class HistoryLog extends React.PureComponent {
     this.state = {selected: -1}
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.logIndex && nextProps.logIndex !== this.props.logIndex) {
+      const max = logLength(nextProps.logIndex)
+      this.setState({selected: max - 1})
+    }
+  }
+
   renderList(logIndex) {
+    const max = logLength(logIndex)
     return (
-      <VirtualList
-        className="task-log"
-        ref={this.doSetVirtualList}
-        width="100%"
-        height={600}
-        itemCount={logLength(logIndex)}
-        itemSize={20}
-        renderItem={this.renderItem}
-        scrollToIndex={logLength(logIndex)}
-        overscanCount={15}
-      />
+      <AutoSizer>
+        {({height, width}) => {
+          return (
+            <List
+              ref={this.doSetVirtualList}
+              className="task-log"
+              height={height}
+              overscanRowCount={10}
+              // noRowsRenderer={this._noRowsRenderer}
+              rowCount={max}
+              rowHeight={20}
+              rowRenderer={this.renderItem}
+              scrollToIndex={max}
+              width={width}
+            />
+          )
+        }}
+      </AutoSizer>
     )
   }
 
@@ -96,11 +121,13 @@ export default class HistoryLog extends React.PureComponent {
     const {selected} = this.state
 
     return (
-      <div>
-        <HistoryActions history={history} />
-        {logIndex && this.renderList(logIndex)}
-        {logIndex && this.renderSelectedDetail(logIndex, selected)}
-      </div>
+      <ColumnView>
+        <Row>
+          <HistoryActions history={history} />
+        </Row>
+        <ExpandRow>{logIndex && this.renderList(logIndex)}</ExpandRow>
+        <Row>{logIndex && this.renderSelectedDetail(logIndex, selected)}</Row>
+      </ColumnView>
     )
   }
 
@@ -110,7 +137,7 @@ export default class HistoryLog extends React.PureComponent {
 
   doSelect = (index) => () => {
     this.setState({selected: index}, () => {
-      this.virtualList.forceUpdate()
+      this.virtualList.forceUpdateGrid()
     })
   }
 }
