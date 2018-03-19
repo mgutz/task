@@ -72,8 +72,9 @@ export const effects = {
       refId: t.String,
       refKind: t.String,
       route: t.Object,
+      title: t.String,
     })
-    const {args, newHistoryId, refId, refKind, route} = validate(payload)
+    const {args, newHistoryId, refId, refKind, route, title} = validate(payload)
     const [taskfileId, taskName, ...rest] = args
     //const newId = uid() // TODO this needs to be next callback id
     this.addHistory({
@@ -84,6 +85,7 @@ export const effects = {
       refId,
       route,
       status: 'running',
+      title,
     })
 
     // historyId is passed as tag
@@ -109,18 +111,6 @@ export const effects = {
 
     // example payload = {taskName, activeRunId}
     this.updateTask({id, activeHistoryId: historyId})
-  },
-
-  /**
-   * Stops a task.
-   *
-   * @param args any[]
-   */
-  stop(args) {
-    invoke('stop', ...args).then((res) => {
-      konsole.log('stop result', res)
-      // update state
-    })
   },
 
   update(payload) {

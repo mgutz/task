@@ -1,5 +1,6 @@
 import * as _ from 'lodash'
 import * as fp from 'path'
+import * as os from 'os'
 import {AppContext} from '../core/AppContext'
 import {ResolverContext} from './types'
 import {loadProjectFile, runAsProcess} from './util'
@@ -7,6 +8,7 @@ import {Project} from './types'
 import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
 import {CodeError} from 'task-ws'
+import * as kill from 'tree-kill'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -42,6 +44,16 @@ export class Resolvers {
     const argv = this.rcontext.context.options
     const project = await loadProjectFile(argv, true)
     this.rcontext.project = project
+
+    // make paths relative to home to display in UI but do not alter real paths
+    if (Array.isArray(project.taskfiles)) {
+      const taskfiles = []
+      for (const taskfile of project.taskfiles) {
+        taskfiles.push({...taskfile, path: relativeToHomeDir(taskfile.path)})
+      }
+      return {...project, taskfiles}
+    }
+
     return project
   }
 
@@ -100,6 +112,12 @@ export class Resolvers {
     // to know which pid it is
     return {pid: cp.pid}
   }
+
+  // TODO we need to verify this is a pid started by task, very dangerous
+  public stop = (pid: number) => {
+    if (!pid) return
+    kill(pid)
+  }
 }
 
 /**
@@ -126,3 +144,6 @@ const sanitizeInboundArgv = (argv: Options): Options => {
     'projectFile',
   ]) as Options
 }
+
+const relativeToHomeDir = (path: string): string =>
+  fp.join('~', fp.relative(os.homedir(), fp.resolve(path)))

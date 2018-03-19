@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import * as shortid from 'shortid'
 
 /**
@@ -8,3 +9,10 @@ export const uid = () => {
 }
 
 export const konsole = console
+
+export const titleize = (s) => {
+  return _.upperFirst(_.camelCase(s))
+}
+export const taskTitle = (task) => {
+  return task.taskfileId.toLowerCase() + '.' + _.camelCase(task.name)
+}

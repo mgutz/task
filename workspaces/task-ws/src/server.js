@@ -11,9 +11,16 @@ const util = require('util');
     a: any[]      // arguments to method
 */
 
+const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
+
+const _connections = new Set();
+
+const isPromise = o => typeof o.then === 'function';
+
 class Server extends EventEmitter {
   constructor(connection) {
     super();
+
     this.conn = connection;
     connection.on('message', data => {
       this.process(data);
@@ -29,7 +36,7 @@ class Server extends EventEmitter {
       return this.$emitLocal(event, ...args);
     }
     const message = this.serialize({n: event, p: payload});
-    return this.conn.send(message);
+    this._send(message);
   }
 
   serialize(data) {
@@ -58,9 +65,9 @@ class Server extends EventEmitter {
           if (typeof err.stack !== 'undefined') {
             packet.k = err.stack;
           }
-          return conn.send(serialize(packet));
+          return this._send(serialize(packet));
         }
-        return conn.send(serialize({c: 0, i: callbackId, p: data}));
+        return this._send(serialize({c: 0, i: callbackId, p: data}));
       };
     }
 
@@ -99,15 +106,53 @@ class Server extends EventEmitter {
       }
     };
   }
-}
 
-const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
+  _send(data) {
+    for (const conn of _connections) {
+      if (conn.readyState !== 1) {
+        //console.log('Connection not in readyState readyState=', conn.readyState, 'data=', data);
+        continue;
+      }
+      conn.send(data);
+    }
+  }
+}
 
 //util.inherits(Server, events.EventEmitter);
 Server.prototype.$emitLocal = EventEmitter.prototype.emit;
 
-const isPromise = o => typeof o.then === 'function';
-
 function noop() {}
 
-module.exports = Server;
+const initMessaging = (wss, hook) => {
+  function heartbeat() {
+    this.isAlive = true;
+  }
+
+  wss.on('connection', function connection(ws) {
+    console.log('adding connection');
+    _connections.add(ws);
+    ws.isAlive = true;
+    ws.on('pong', heartbeat);
+    ws.on('close', function connection(ws) {
+      console.log('deleting connection');
+      _connections.delete(ws);
+    });
+
+    hook(new Server(ws));
+  });
+
+  const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+      if (ws.isAlive === false) {
+        console.log('terminating connection');
+        _connections.delete(ws);
+        return ws.terminate();
+      }
+
+      ws.isAlive = false;
+      ws.ping(noop);
+    });
+  }, 30000);
+};
+
+module.exports = {Server, initMessaging};

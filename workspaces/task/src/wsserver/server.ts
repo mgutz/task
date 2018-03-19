@@ -10,7 +10,7 @@ import {Resolvers} from './Resolvers'
 import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
 import * as FileAsync from 'lowdb/adapters/FileAsync'
-import {Server} from 'task-ws'
+import {Server, initMessaging} from 'task-ws'
 
 export interface StartOptions {
   port: number
@@ -34,9 +34,7 @@ export interface StartOptions {
 // }
 
 const initResolvers = (rcontext: ResolverContext) => {
-  return (ws: any, authData: any) => {
-    const client = new Server(ws)
-
+  return (client: any, authData: any) => {
     konsole.log('Connected')
     const resolverContext = {...rcontext, authData, client}
 
@@ -64,8 +62,8 @@ export const start = async (ctx: AppContext, opts: StartOptions) => {
   }
   const app = express()
   const server = http.createServer(app)
-  const ws = new WebSocket.Server({server})
-  ws.on('connection', initResolvers(rcontext))
+  const wss = new WebSocket.Server({server})
+  initMessaging(wss, initResolvers(rcontext))
 
   // const wss = new WSMessaging(
   //   {server},

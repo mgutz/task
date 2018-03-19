@@ -1,12 +1,13 @@
 import './OutputPanel.css'
+import * as _ from 'lodash'
 import * as React from 'react'
 import JSONView from './JSONView'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {logEntryAt, logLength} from '#/store/logs'
+import {logEntryAt} from '#/store/logs'
 import RunInfo from './RunInfo'
 import {select} from '@rematch/select'
-import {AutoSizer, List} from 'react-virtualized'
+import OutputStream from './OutputStream'
 
 import styled from 'styled-components'
 
@@ -41,70 +42,21 @@ export default class OutputPanel extends React.PureComponent {
     task: PropTypes.object,
   }
 
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {selected: -1}
+    this.messageProp = this.getMessageProp(props.task)
+  }
+
+  state = {
+    selected: -1,
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.logIndex && nextProps.logIndex !== this.props.logIndex) {
-      const max = logLength(nextProps.logIndex)
-      this.setState({selected: max - 1})
+    if (nextProps.task !== this.props.task) {
+      this.messageProp = this.getMessageProp(nextProps.task)
+      this.setState({selected: -1})
     }
-  }
-
-  renderOutput(logIndex) {
-    const max = logLength(logIndex)
-    return (
-      <AutoSizer>
-        {({height, width}) => {
-          return (
-            <List
-              ref={this.doSetVirtualList}
-              className="task-log"
-              height={height}
-              overscanRowCount={10}
-              // noRowsRenderer={this._noRowsRenderer}
-              rowCount={max}
-              rowHeight={20}
-              rowRenderer={this.renderItem}
-              scrollToIndex={max}
-              width={width}
-            />
-          )
-        }}
-      </AutoSizer>
-    )
-  }
-
-  renderItem = ({index, style}) => {
-    const {logIndex} = this.props
-    const {selected} = this.state
-    // eslint-disable-next-line
-    const o = logEntryAt(logIndex, index)
-    // TODO these keys should be user configurable
-    let str = o._msg_ || o.msg
-    if (str === undefined || str === '') {
-      return null
-    }
-    if (!str) str = JSON.stringify(o)
-
-    const classes =
-      selected === index ? 'task-entry is-entry-selected' : 'task-entry'
-    const lineClasses =
-      o._kind_ === 0 ? 'task-message' : 'task-message task-message-err'
-
-    //<div className={classes}>{o._kind_ === 0 ? 'out' : 'err'}</div>
-    return (
-      <div
-        className={classes}
-        key={index}
-        onClick={this.doSelect(index)}
-        style={style}
-      >
-        <div className={lineClasses}>{str}</div>
-      </div>
-    )
   }
 
   renderOutputDetail(logIndex, selected) {
@@ -127,19 +79,25 @@ export default class OutputPanel extends React.PureComponent {
         <Row>
           <RunInfo history={history} />
         </Row>
-        <ExpandRow>{logIndex && this.renderOutput(logIndex)}</ExpandRow>
+        <ExpandRow>
+          {logIndex && (
+            <OutputStream
+              logIndex={logIndex}
+              messageProp={this.messageProp}
+              onSelect={this.doSelect}
+            />
+          )}
+        </ExpandRow>
         <Row>{logIndex && this.renderOutputDetail(logIndex, selected)}</Row>
       </ColumnView>
     )
   }
 
-  doSetVirtualList = (instance) => {
-    this.virtualList = instance
+  doSelect = (index) => {
+    this.setState({selected: index})
   }
 
-  doSelect = (index) => () => {
-    this.setState({selected: index}, () => {
-      this.virtualList.forceUpdateGrid()
-    })
+  getMessageProp(task) {
+    return _.get(task, 'ui.log.messageProp') || '_msg_'
   }
 }

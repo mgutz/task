@@ -35,10 +35,10 @@
     "shelljs": "^0.8.1",
     "tiny-worker": "^2.1.2",
     "toposort": "^1.0.6",
+    "tree-kill": "^1.2.0",
     "typescript": "^2.7.2",
     "webworker-threads": "^0.7.13",
-    "ws": "^5.0.0",
-    "ws-messaging": "^1.0.0"
+    "ws": "^5.0.0"
   },
   "devDependencies": {
     "@types/chokidar": "^1.7.5",

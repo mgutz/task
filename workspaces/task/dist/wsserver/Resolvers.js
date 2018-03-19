@@ -10,10 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
 const fp = require("path");
+const os = require("os");
 const util_1 = require("./util");
 const usage_1 = require("../cli/usage");
 const tasks_1 = require("../core/tasks");
 const task_ws_1 = require("task-ws");
+const kill = require("tree-kill");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -43,6 +45,14 @@ class Resolvers {
             const argv = this.rcontext.context.options;
             const project = yield util_1.loadProjectFile(argv, true);
             this.rcontext.project = project;
+            // make paths relative to home to display in UI but do not alter real paths
+            if (Array.isArray(project.taskfiles)) {
+                const taskfiles = [];
+                for (const taskfile of project.taskfiles) {
+                    taskfiles.push(Object.assign({}, taskfile, { path: relativeToHomeDir(taskfile.path) }));
+                }
+                return Object.assign({}, project, { taskfiles });
+            }
             return project;
         });
         this.tasks = (taskfileId) => __awaiter(this, void 0, void 0, function* () {
@@ -81,6 +91,12 @@ class Resolvers {
             // to know which pid it is
             return { pid: cp.pid };
         };
+        // TODO we need to verify this is a pid started by task, very dangerous
+        this.stop = (pid) => {
+            if (!pid)
+                return;
+            kill(pid);
+        };
     }
 }
 exports.Resolvers = Resolvers;
@@ -108,4 +124,5 @@ const sanitizeInboundArgv = (argv) => {
         'projectFile',
     ]);
 };
+const relativeToHomeDir = (path) => fp.join('~', fp.relative(os.homedir(), fp.resolve(path)));
 //# sourceMappingURL=Resolvers.js.map

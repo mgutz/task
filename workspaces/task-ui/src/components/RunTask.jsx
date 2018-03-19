@@ -5,7 +5,7 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import PlayCircleFilledIcon from 'material-ui-icons/PlayCircleFilled'
 import IconButton from 'material-ui/IconButton'
-import {uid} from '#/util'
+import {uid, taskTitle} from '#/util'
 
 const mapDispatch = ({
   taskfiles: {run, setActiveHistory},
@@ -95,7 +95,14 @@ class RunTask extends Component {
       name: 'tasks.name.history',
       params: {id: task.id, taskfileId, taskName, historyId: newHistoryId},
     }
-    run({newHistoryId, args, refId: task.id, refKind: 'task', route})
+    run({
+      newHistoryId,
+      args,
+      refId: task.id,
+      refKind: 'task',
+      route,
+      title: taskTitle(task),
+    })
 
     // set new history as active
     setActiveHistory({id: task.id, historyId: newHistoryId})

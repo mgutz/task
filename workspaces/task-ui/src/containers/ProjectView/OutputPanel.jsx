@@ -18,14 +18,10 @@ const mapState = (state) => {
   const {name, params} = route
 
   if (name.startsWith('tasks')) {
-    const task = select.taskfiles.taskByFileIdAndName(
-      state,
-      params.taskfileId,
-      params.taskName
-    )
+    const task = select.taskfiles.taskById(state, params.id)
     return {task, historyId: params.historyId}
   } else if (name.startsWith('bookmarks')) {
-    const bookmark = select.project.bookmarkQuery(state, {id: params.id})
+    const bookmark = select.project.bookmarkById(state, params.id)
     return {bookmark, historyId: params.historyId}
   }
 

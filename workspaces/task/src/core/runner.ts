@@ -140,8 +140,11 @@ const clearTracking = (tasks: Tasks) => {
     task._ran = false
   }
 }
+
 const track = (task: Task) => (task._ran = true)
+
 const untrack = (task: Task) => (task._ran = false)
+
 const didRun = (task: Task) => task._ran
 
 export const run = async (ctx: AppContext, name: string, args?: TaskParam) => {

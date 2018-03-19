@@ -47,7 +47,14 @@ class ReplayBookmark extends React.Component {
         historyId: newHistoryId,
       },
     }
-    run({newHistoryId, args, refId: bookmark.id, refKind: 'bookmark', route})
+    run({
+      newHistoryId,
+      args,
+      refId: bookmark.id,
+      refKind: 'bookmark',
+      route,
+      title,
+    })
 
     // set new history as active
     setBookmarkActiveHistory({id, historyId: newHistoryId})

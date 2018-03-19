@@ -27,4 +27,5 @@ export declare class Resolvers {
     run: (tag: string, taskfileId: string, taskName: string, argv: Options) => {
         pid: number;
     };
+    stop: (pid: number) => void;
 }

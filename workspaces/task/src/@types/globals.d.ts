@@ -1,8 +1,8 @@
 declare module 'columnify'
 declare module 'require-uncached'
 declare module 'toposort'
-declare module 'ws-messaging'
 declare module 'task-ws'
+declare module 'tree-kill'
 
 declare interface Options {
   _: string[]

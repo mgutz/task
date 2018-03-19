@@ -1,5 +1,6 @@
 import * as _ from 'lodash'
 import producer from './producer'
+import {invoke} from '#/services/websocket'
 
 export const histories = {
   state: {}, // {[key: string]: History}
@@ -34,7 +35,11 @@ export const histories = {
   },
 
   // async action creators
-  effects: {},
+  effects: {
+    stop({pid}) {
+      invoke('stop', pid)
+    },
+  },
 
   selectors: {
     // example:
@@ -48,6 +53,10 @@ export const histories = {
     oneById(state, payload) {
       const {id} = payload
       return state[id]
+    },
+
+    runningTasks(state) {
+      return _.filter(state, {status: 'running'})
     },
   },
 }

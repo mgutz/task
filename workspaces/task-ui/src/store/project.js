@@ -62,8 +62,12 @@ export const project = {
   },
 
   selectors: {
+    bookmarkById(state, id) {
+      return _.find(state.bookmarks, {id})
+    },
+
     bookmarkQuery(state, query) {
-      return _.find(state.bookmarks, query)
+      return _.filter(state.bookmarks, query)
     },
   },
 }

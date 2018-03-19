@@ -32,8 +32,7 @@ const task_ws_1 = require("task-ws");
 //   }
 // }
 const initResolvers = (rcontext) => {
-    return (ws, authData) => {
-        const client = new task_ws_1.Server(ws);
+    return (client, authData) => {
         log_1.konsole.log('Connected');
         const resolverContext = Object.assign({}, rcontext, { authData, client });
         // register any function that does not start with '_'
@@ -59,8 +58,8 @@ exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
     };
     const app = express();
     const server = http.createServer(app);
-    const ws = new WebSocket.Server({ server });
-    ws.on('connection', initResolvers(rcontext));
+    const wss = new WebSocket.Server({ server });
+    task_ws_1.initMessaging(wss, initResolvers(rcontext));
     // const wss = new WSMessaging(
     //   {server},
     //   {connectionHook, WebSocketServer: WebSocket.Server}

@@ -8,8 +8,9 @@ import {effects} from './effects'
 const handledElsewhere = (state) => state
 
 /**
- * `taskfiles` is a data structure that holds `taskfile` information keyed by
- * `taskfileId`.
+ * TODO split out tasks and taskfiles
+ *
+ * `taskfiles` is a data structure that holds `taskfile` and `task` information
  */
 export const taskfiles = {
   state: {
@@ -56,6 +57,10 @@ export const taskfiles = {
   effects,
 
   selectors: {
+    taskById(state, id) {
+      return _.find(state.tasks, {id})
+    },
+
     taskByFileIdAndName(state, taskfileId, name) {
       return _.find(state.tasks, {taskfileId, name})
     },

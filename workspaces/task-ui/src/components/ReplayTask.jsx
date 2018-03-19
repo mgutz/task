@@ -50,7 +50,7 @@ class ReplayTask extends React.Component {
     } = this.props
     // id for tracking the new history item
     const newHistoryId = uid()
-    const {args, refId, refKind, route: oldRoute} = history
+    const {args, refId, refKind, route: oldRoute, title} = history
 
     // update route to use new history
     const route = {
@@ -58,7 +58,7 @@ class ReplayTask extends React.Component {
       params: {...oldRoute.params, historyId: newHistoryId},
     }
 
-    run({newHistoryId, args, refId, refKind, route})
+    run({newHistoryId, args, refId, refKind, route, title})
 
     if (refKind === 'task') {
       // set new history as active
