@@ -82,3 +82,11 @@ export const lazy_ = async (ctx) => {
 export const npm_ = ({contrib}) => {
   return contrib.importPackageTasks('.')
 }
+
+
+export const buildtask = {
+  desc: 'builds task',
+  run: ({shawn}) => {
+    return shawn(`tsc`, {cwd: 'workspaces/task'})
+  }
+}

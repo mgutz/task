@@ -6,10 +6,7 @@ export * from './importPackageTasks';
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
  * option props can be set to configure the the shell used.
  */
-export declare const shawn: (script: string, options?: {
-    shell: string;
-    shellArgs: string[];
-}) => cp.ChildProcess;
+export declare const shawn: (script: string, options?: {}) => cp.ChildProcess;
 /**
  * sleep is used to sleep for arbitrary milliseconds.
  */

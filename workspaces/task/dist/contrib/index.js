@@ -32,16 +32,13 @@ const defaults = {
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
  * option props can be set to configure the the shell used.
  */
-exports.shawn = (script, options = defaults) => {
-    const { shell, shellArgs } = options, otherOpts = __rest(options
-    // regarding detached, see https://stackoverflow.com/a/33367711
-    , ["shell", "shellArgs"]);
+exports.shawn = (script, options = {}) => {
+    const _a = Object.assign({}, defaults, options), { shell, shellArgs } = _a, otherOpts = __rest(_a, ["shell", "shellArgs"]);
     // regarding detached, see https://stackoverflow.com/a/33367711
     const opts = Object.assign({ detached: true, stdio: 'inherit' }, otherOpts);
     // execute the script
     const params = [...shellArgs, script];
-    const proc = cp.spawn(shell, params, opts);
-    return proc;
+    return cp.spawn(shell, params, opts);
 };
 /**
  * sleep is used to sleep for arbitrary milliseconds.

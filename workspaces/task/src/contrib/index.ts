@@ -12,8 +12,8 @@ const defaults = {
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
  * option props can be set to configure the the shell used.
  */
-export const shawn = (script: string, options = defaults) => {
-  const {shell, shellArgs, ...otherOpts} = options
+export const shawn = (script: string, options = {}) => {
+  const {shell, shellArgs, ...otherOpts} = {...defaults, ...options}
 
   // regarding detached, see https://stackoverflow.com/a/33367711
   const opts = {
@@ -24,8 +24,7 @@ export const shawn = (script: string, options = defaults) => {
 
   // execute the script
   const params = [...shellArgs, script]
-  const proc = cp.spawn(shell, params, opts)
-  return proc
+  return cp.spawn(shell, params, opts)
 }
 
 /**
