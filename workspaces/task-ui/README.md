@@ -111,7 +111,7 @@ function code {
 
 ## Theme
 
-[colors](https://material.io/color/#!/?view.left=0&view.right=0&primary.color=8D6E63&secondary.color=4FC3F7)
+[colors](https://material.io/color/#!/?view.left=0&view.right=0&primary.color=8D6E63&secondary.color=64B5F6)
 
 ## License
 

@@ -32,9 +32,9 @@ export const setLevel = (level: string) => {
   _log.level = level
 }
 
-export const newTerminalLogger = (): pino.Logger => {
+export const newTerminalLogger = (name = 'konsole'): pino.Logger => {
   const logger = pino({
-    name: 'generic',
+    name,
   })
 
   logger.addLevel('log', 25)

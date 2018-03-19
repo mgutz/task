@@ -17,9 +17,9 @@ const theme = {
       contrastText: '#fff',
     },
     secondary: {
-      main: '#4fc3f7',
-      light: '#8bf6ff',
-      dark: '#0093c4',
+      main: '#64b5f6',
+      light: '#9be7ff',
+      dark: '#2286c3',
       contrastText: '#000',
     },
   },
@@ -42,9 +42,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    // const {route} = this.props
-    // let body =
-    //   route && route.name.startsWith('tasks') ? <ProjectView /> : <Info />
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div className="App">
@@ -58,7 +55,7 @@ export default class App extends React.Component {
             </AppBar>
           </header>
           <ProjectView />
-          <footer>footer</footer>
+          {/* <footer>footer</footer> */}
         </div>
       </MuiThemeProvider>
     )

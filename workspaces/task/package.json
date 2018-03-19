@@ -6,6 +6,9 @@
   "bin": {
     "task": "./index.js"
   },
+  "scripts": {
+    "hello": "echo hello $USER"
+  },
   "version": "1.0.0-alpha.24",
   "main": "index.js",
   "license": "MIT",

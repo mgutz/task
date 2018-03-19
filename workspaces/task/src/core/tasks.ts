@@ -4,7 +4,7 @@ import * as fp from 'path'
 import * as fs from 'fs'
 import * as iss from './iss'
 import {appWorkDirectory, prettify, taskParam} from './util'
-import {getLogger, trace} from './log'
+import {getLogger, konsole, trace} from './log'
 import * as requireUncached from 'require-uncached'
 
 // Standardize differences between es6 exports and commonJs exports. Code
@@ -334,6 +334,16 @@ export const standardizeFile = async (
   const assignTask = async (key: string, taskdef: any) => {
     if (typeof taskdef === 'function' && key.endsWith('_')) {
       const newTaskDef = await taskdef(taskParam(argv))
+      if (Array.isArray(newTaskDef)) {
+        for (const tdef of newTaskDef) {
+          if (tdef.name && tdef.run) {
+            assignTask(tdef.name, tdef)
+            continue
+          }
+          konsole.error('Invalid task defintition', tdef)
+        }
+        return
+      }
       newTaskDef._original = taskdef
       taskdef = newTaskDef
     }

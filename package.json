@@ -1,4 +1,7 @@
 {
   "private": true,
+  "scripts": {
+    "hello": "echo Hello $USER"
+  },
   "workspaces": ["workspaces/task-ws", "workspaces/rematch-router5"]
 }

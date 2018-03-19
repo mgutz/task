@@ -16,8 +16,12 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 const cp = require("child_process");
+__export(require("./importPackageTasks"));
 const defaults = {
     shell: '/bin/bash',
     // '-c' tells bash and sh to run a command string

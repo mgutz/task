@@ -2,12 +2,12 @@ import * as fp from 'path'
 import * as fs from 'fs'
 
 export const hello = {
-  run: ({ argv }) => {
-    console.log(`Hello, ${argv.name}!`);
-    console.error('Random error 1');
-    console.error('Another error 2');
-    console.log('No error');
-    console.error('Ooops, another error!');
+  run: ({argv}) => {
+    console.log(`Hello, ${argv.name}!`)
+    console.error('Random error 1')
+    console.error('Another error 2')
+    console.log('No error')
+    console.error('Ooops, another error!')
   },
   ui: {
     // validation schema
@@ -19,23 +19,21 @@ export const hello = {
           type: 'string',
         },
       },
-      required: ['name']
+      required: ['name'],
     },
     // form ui
-    form: [
-      'name'
-    ]
-  }
-};
+    form: ['name'],
+  },
+}
 
 export const diagram = {
   desc: 'Generates PlantUML diagram',
-  run: ({ argv, sh }) => {
-    const file = argv.filename;
-    const path = fp.resolve(file + '.puml');
-    if (!fs.existsSync(path)) return console.error(`File does not exist: ${path}`);
-    const cmd = `java -jar $DOTFILES/bin/plantuml.jar -charset UTF-8 -tpng ${path}`;
-    sh.exec(cmd);
+  run: ({argv, sh}) => {
+    const file = argv.filename
+    const path = fp.resolve(file + '.puml')
+    if (!fs.existsSync(path)) return console.error(`File does not exist: ${path}`)
+    const cmd = `java -jar $DOTFILES/bin/plantuml.jar -charset UTF-8 -tpng ${path}`
+    sh.exec(cmd)
   },
   watch: ['./*.puml'],
   ui: {
@@ -44,21 +42,17 @@ export const diagram = {
         filename: {
           title: 'File',
           type: 'string',
-          enum: [
-            'diagram',
-          ]
-        }
+          enum: ['diagram'],
+        },
       },
-      required: ['filename']
+      required: ['filename'],
     },
-    form: [
-      'filename'
-    ],
+    form: ['filename'],
     model: {
-      filename: 'diagram'
-    }
+      filename: 'diagram',
+    },
   },
-};
+}
 
 export const lazy_ = async (ctx) => {
   const files = await ctx.globby(['./*.json'])
@@ -72,19 +66,19 @@ export const lazy_ = async (ctx) => {
           filename: {
             title: 'File',
             type: 'string',
-            enum: files
-          }
+            enum: files,
+          },
         },
-        required: ['filename']
+        required: ['filename'],
       },
-      form: [
-        'filename'
-      ],
+      form: ['filename'],
       model: {
-        filename: 'diagram'
-      }
+        filename: 'diagram',
+      },
     },
   }
 }
 
-
+export const npm_ = ({contrib}) => {
+  return contrib.importPackageTasks('.')
+}

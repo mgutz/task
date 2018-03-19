@@ -24,9 +24,9 @@ exports.setLevel = (level) => {
     exports.konsole.level = level;
     _log.level = level;
 };
-exports.newTerminalLogger = () => {
+exports.newTerminalLogger = (name = 'konsole') => {
     const logger = pino({
-        name: 'generic',
+        name,
     });
     logger.addLevel('log', 25);
     return logger;

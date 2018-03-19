@@ -94,6 +94,7 @@ declare interface TaskParam {
   event?: any
   exec: any
   globby: any
+  konsole: any
   prompt: any
   sh: any
   shawn: any

@@ -13,6 +13,7 @@ const contrib = require("../contrib");
 const fp = require("path");
 const fs = require("fs");
 const util_1 = require("util");
+const log_1 = require("./log");
 const readFileAsync = util_1.promisify(fs.readFile);
 exports.appWorkDirectory = fp.resolve(__dirname, '..', '..');
 exports.prettify = (o) => util_1.inspect(o);
@@ -44,6 +45,7 @@ exports.taskParam = (argv, additionalProps = {}) => {
     const sh = require('shelljs');
     const globby = require('globby');
     const prompt = require('inquirer').createPromptModule();
+    const konsole = log_1.newTerminalLogger();
     const execAsync = (...args) => {
         return new Promise((resolve, reject) => {
             sh.exec(...args, (code, stdout, stderr) => {
@@ -60,6 +62,7 @@ exports.taskParam = (argv, additionalProps = {}) => {
         contrib,
         exec: execAsync,
         globby,
+        konsole,
         prompt,
         sh,
         shawn: contrib.shawn,

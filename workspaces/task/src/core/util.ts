@@ -3,6 +3,7 @@ import * as contrib from '../contrib'
 import * as fp from 'path'
 import * as fs from 'fs'
 import {inspect, promisify} from 'util'
+import {newTerminalLogger} from './log'
 
 const readFileAsync = promisify(fs.readFile)
 
@@ -42,6 +43,8 @@ export const taskParam = (
   const globby = require('globby')
   const prompt = require('inquirer').createPromptModule()
 
+  const konsole = newTerminalLogger()
+
   const execAsync = (...args: any[]) => {
     return new Promise((resolve, reject) => {
       sh.exec(...args, (code: number, stdout: string, stderr: string) => {
@@ -59,6 +62,7 @@ export const taskParam = (
     contrib,
     exec: execAsync,
     globby,
+    konsole,
     prompt,
     sh,
     shawn: contrib.shawn,

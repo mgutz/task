@@ -274,6 +274,16 @@ exports.standardizeFile = (v, argv) => __awaiter(this, void 0, void 0, function*
     const assignTask = (key, taskdef) => __awaiter(this, void 0, void 0, function* () {
         if (typeof taskdef === 'function' && key.endsWith('_')) {
             const newTaskDef = yield taskdef(util_1.taskParam(argv));
+            if (Array.isArray(newTaskDef)) {
+                for (const tdef of newTaskDef) {
+                    if (tdef.name && tdef.run) {
+                        assignTask(tdef.name, tdef);
+                        continue;
+                    }
+                    log_1.konsole.error('Invalid task defintition', tdef);
+                }
+                return;
+            }
             newTaskDef._original = taskdef;
             taskdef = newTaskDef;
         }

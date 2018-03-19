@@ -3,12 +3,18 @@ import Button from 'material-ui/Button'
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogTitle,
 } from 'material-ui/Dialog'
 import PropTypes from 'prop-types'
 import {SchemaForm} from 'material-ui-schema-form'
 
-export default class SchemaFormDialog extends React.PureComponent {
+import Slide from 'material-ui/transitions/Slide'
+
+function Transition(props) {
+  return <Slide direction="up" {...props} />
+}
+
+class SchemaFormDialog extends React.PureComponent {
   static propTypes = {
     form: PropTypes.array.isRequired,
     model: PropTypes.object,
@@ -37,9 +43,10 @@ export default class SchemaFormDialog extends React.PureComponent {
           open={open}
           onClose={this.doClose}
           aria-labelledby="form-dialog-title"
+          transition={Transition}
         >
-          <DialogContent>
-            <DialogContentText>Enter Args</DialogContentText>
+          <DialogContent style={{width: '400px'}}>
+            <DialogTitle>Task Arguments</DialogTitle>
             <SchemaForm
               schema={schema}
               form={form}
@@ -77,3 +84,5 @@ export default class SchemaFormDialog extends React.PureComponent {
     if (this.props.onSubmit) this.props.onSubmit(this.state.model)
   }
 }
+
+export default SchemaFormDialog

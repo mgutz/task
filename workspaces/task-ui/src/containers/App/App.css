@@ -48,9 +48,7 @@ footer {
     rgba(255, 255, 255, 0),
     rgba(255, 255, 255, 5)
   ); */
-  margin: -3px 0;
-  border-top: double 3px #999;
-  border-bottom: double 3px #999;
+  background: #9be7ff;
 }
 
 .color-primary-contrast {

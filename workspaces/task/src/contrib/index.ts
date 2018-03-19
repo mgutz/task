@@ -1,4 +1,5 @@
 import * as cp from 'child_process'
+export * from './importPackageTasks'
 
 const defaults = {
   shell: '/bin/bash',

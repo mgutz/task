@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import * as cp from 'child_process';
+export * from './importPackageTasks';
 /**
  * shawn is short for shell spawns. It defaults to `bin/bash -c`. The options
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
