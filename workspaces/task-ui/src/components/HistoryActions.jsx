@@ -5,16 +5,38 @@ import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
 import styled from 'styled-components'
 import SaveHistory from './SaveHistory'
-import HistoryStatus from './HistoryStatus'
 
 const ToolbarView = styled(Toolbar)`
   border-bottom: solid 1px #eee;
   margin-bottom: 10px;
 `
-
-const Flexography = styled(Typography)`
+const Grow = styled.div`
   flex: 1;
 `
+
+const SimpleArgs = ({data}) => {
+  if (!data) return null
+
+  const simple = ['string', 'number']
+  const elements = []
+  for (const k in data) {
+    const typ = typeof k
+    if (simple.indexOf(typ) > -1) {
+      elements.push(
+        <span key={elements.length}>
+          <b>{k}</b>: {data[k]}
+        </span>
+      )
+    } else {
+      elements.push(
+        <span key={elements.length}>
+          <b>{k}</b>: ...
+        </span>
+      )
+    }
+  }
+  return elements
+}
 
 class HistoryActions extends Component {
   static propTypes = {
@@ -27,13 +49,15 @@ class HistoryActions extends Component {
     const {history} = this.props
 
     const title = `${_.upperFirst(history.args[1])}`
-    const args = JSON.stringify(history.args[2])
 
     return (
       <ToolbarView>
-        <HistoryStatus history={history} />
-        <Typography variant="title">{title}</Typography>
-        <Flexography>{args}</Flexography>
+        <Grow>
+          <Typography variant="title">{title}</Typography>
+          <Typography variant="subheading">
+            <SimpleArgs data={history.args[2]} />
+          </Typography>
+        </Grow>
         <SaveHistory history={history} />
       </ToolbarView>
     )

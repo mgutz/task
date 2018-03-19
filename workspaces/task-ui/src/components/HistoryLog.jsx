@@ -89,7 +89,8 @@ export default class HistoryLog extends React.PureComponent {
     }
     if (!str) str = JSON.stringify(o)
 
-    const classes = selected === index ? 'task-entry is-selected' : 'task-entry'
+    const classes =
+      selected === index ? 'task-entry is-entry-selected' : 'task-entry'
     const lineClasses =
       o._kind_ === 0 ? 'task-message' : 'task-message task-message-err'
 

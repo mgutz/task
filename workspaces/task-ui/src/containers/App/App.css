@@ -42,8 +42,15 @@ footer {
 }
 
 .is-selected {
-  background-color: #fff;
-  border: solid 1px #ccc;
+  /* background: linear-gradient(
+    rgba(255, 255, 255, 10),
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 5)
+  ); */
+  margin: -3px 0;
+  border-top: double 3px #999;
+  border-bottom: double 3px #999;
 }
 
 .color-primary-contrast {
