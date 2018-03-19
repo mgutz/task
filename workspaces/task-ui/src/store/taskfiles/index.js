@@ -12,9 +12,6 @@ const handledElsewhere = (state) => state
  * `taskfileId`.
  */
 export const taskfiles = {
-  // { taskfiles: {[id]: [taskID1, taskID2, ... , taskIDN]}
-  //   tasks: {id: task}
-  // }
   state: {
     taskfiles: {},
     tasks: [],

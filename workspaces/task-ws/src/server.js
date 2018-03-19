@@ -42,12 +42,12 @@ class Server extends EventEmitter {
     // {n: 'event', a: 'args', i?: 'callbackid'}
     // {c: statusCode, e: 'error', p: 'payload', 'i': callbackid}
     const o = JSON.parse(message);
-    if (typeof o.n === 'undefined') return;
+    if (!o.n) return;
 
     const {n: event, a: params, i: callbackId} = o;
 
     let cb;
-    if (typeof callbackId !== 'undefined') {
+    if (callbackId) {
       const conn = this.conn;
       const serialize = this.serialize;
       cb = (err, data) => {
@@ -67,37 +67,41 @@ class Server extends EventEmitter {
     this.$emitLocal(event, params, cb);
   }
 
-  handleRPC(params, cb = noop) {
+  handleRPC(params, cb) {
     const method = params[0];
     const args = params.slice(1);
     const fn = this.rpcMethods[method];
     if (typeof fn === 'function') {
-      fn(args, cb);
+      return fn(args, cb);
     }
+    console.error('Remote method not found: ' + method);
   }
 
   register(method, handler) {
     this.rpcMethods[method] = (args, cb) => {
       try {
         const result = args && args.length ? handler(...args) : handler();
+
+        // ensure errors are logged, forwarded with or without callback
         if (isPromise(result)) {
-          result.then(
-            res => {
-              cb(null, res);
-            },
-            err => {
-              cb(err);
-            }
-          );
+          if (cb) {
+            return result.then(res => cb(null, res), cb);
+          }
+          return result.catch(err => {
+            console.error(noCallbackMessage, err);
+          });
         } else {
-          cb(null, result);
+          if (cb) cb(null, result);
         }
       } catch (err) {
-        cb(err);
+        if (cb) return cb(err);
+        console.error(noCallbackMessage, err);
       }
     };
   }
 }
+
+const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
 
 //util.inherits(Server, events.EventEmitter);
 Server.prototype.$emitLocal = EventEmitter.prototype.emit;

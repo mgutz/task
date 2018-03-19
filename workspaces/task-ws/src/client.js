@@ -22,9 +22,10 @@ export default class Client {
     this.socket.send(this.serialize(packet));
   }
 
-  async invoke(method, ...args) {
+  // invoke('remoteMethod', arg1 , arg)
+  async invoke(...args) {
     return new Promise((resolve, reject) => {
-      this.emit('invoke', [method, ...args], obj => {
+      this.emit('invoke', args, obj => {
         const {c: code, e: err, k: stack, p: payload} = obj;
 
         if (!err) {
