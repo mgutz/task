@@ -1,8 +1,17 @@
 import React, {Component} from 'react'
-import {select} from '@rematch/select'
-import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import History from '#/components/History'
+import {connect} from 'react-redux'
+import {select} from '@rematch/select'
+import RealOutputPanel from '#/components/OutputPanel'
+
+/*
+
+const mapDispatch = (ownProps) => ({});
+
+const mapState = (state) => ({});
+
+@connect(mapState, mapDispatch)
+*/
 
 const mapState = (state) => {
   const route = state.router.route
@@ -14,27 +23,29 @@ const mapState = (state) => {
       params.taskfileId,
       params.taskName
     )
-    return {task}
+    return {task, historyId: params.historyId}
   } else if (name.startsWith('bookmarks')) {
     const bookmark = select.project.bookmarkQuery(state, {id: params.id})
-    return {bookmark}
+    return {bookmark, historyId: params.historyId}
   }
 
   return {}
 }
 
 @connect(mapState)
-class HistoryArea extends Component {
+class OutputPanel extends Component {
   static propTypes = {
     bookmark: PropTypes.object,
+    historyId: PropTypes.string,
     task: PropTypes.object,
   }
 
   render() {
-    if (!this.props.task && !this.props.bookmark) return null
-    const {bookmark, task} = this.props
-    return <History task={task} bookmark={bookmark} />
+    const {bookmark, historyId, task} = this.props
+    return (
+      <RealOutputPanel historyId={historyId} task={task} bookmark={bookmark} />
+    )
   }
 }
 
-export default HistoryArea
+export default OutputPanel

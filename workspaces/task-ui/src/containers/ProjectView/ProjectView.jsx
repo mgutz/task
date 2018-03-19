@@ -3,9 +3,9 @@ import {connect} from 'react-redux'
 // import TasksNav from '#/components/TasksNav'
 import PropTypes from 'prop-types'
 //import {konsole} from '#/util'
-import HistoryArea from './HistoryArea'
-import OutputArea from './OutputArea'
-import TaskArea from './TaskArea'
+import RunPanel from './RunPanel'
+import OutputPanel from './OutputPanel'
+import TaskPanel from './TaskPanel'
 
 const {Fragment} = React
 
@@ -32,13 +32,13 @@ class ProjectView extends React.Component {
     return (
       <Fragment>
         <nav>
-          <TaskArea project={project} />
+          <TaskPanel project={project} />
         </nav>
         <aside>
-          <HistoryArea />
+          <RunPanel />
         </aside>
         <div>
-          <OutputArea />
+          <OutputPanel />
         </div>
       </Fragment>
     )

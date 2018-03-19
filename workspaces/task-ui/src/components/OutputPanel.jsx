@@ -1,10 +1,10 @@
-import './HistoryLog.css'
+import './OutputPanel.css'
 import * as React from 'react'
 import JSONView from './JSONView'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {logEntryAt, logLength} from '#/store/logs'
-import HistoryActions from './HistoryActions'
+import RunInfo from './RunInfo'
 import {select} from '@rematch/select'
 import {AutoSizer, List} from 'react-virtualized'
 
@@ -33,7 +33,7 @@ const mapState = (state, props) => {
 }
 
 @connect(mapState)
-export default class HistoryLog extends React.PureComponent {
+export default class OutputPanel extends React.PureComponent {
   static propTypes = {
     history: PropTypes.object,
     logIndex: PropTypes.object,
@@ -53,7 +53,7 @@ export default class HistoryLog extends React.PureComponent {
     }
   }
 
-  renderList(logIndex) {
+  renderOutput(logIndex) {
     const max = logLength(logIndex)
     return (
       <AutoSizer>
@@ -107,7 +107,7 @@ export default class HistoryLog extends React.PureComponent {
     )
   }
 
-  renderSelectedDetail(logIndex, selected) {
+  renderOutputDetail(logIndex, selected) {
     if (selected < 0) return null
     return (
       <JSONView
@@ -125,10 +125,10 @@ export default class HistoryLog extends React.PureComponent {
     return (
       <ColumnView>
         <Row>
-          <HistoryActions history={history} />
+          <RunInfo history={history} />
         </Row>
-        <ExpandRow>{logIndex && this.renderList(logIndex)}</ExpandRow>
-        <Row>{logIndex && this.renderSelectedDetail(logIndex, selected)}</Row>
+        <ExpandRow>{logIndex && this.renderOutput(logIndex)}</ExpandRow>
+        <Row>{logIndex && this.renderOutputDetail(logIndex, selected)}</Row>
       </ColumnView>
     )
   }

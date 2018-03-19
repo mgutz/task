@@ -8,7 +8,7 @@ const RecordIcon = styled(Record)`
   color: ${(props) => (props.status === 'running' ? 'green' : '')};
 `
 
-const HistoryStatus = ({history: {status}}) => {
+const RunStatus = ({history: {status}}) => {
   if (status !== 'running') return null
   return (
     <IconButton>
@@ -17,8 +17,8 @@ const HistoryStatus = ({history: {status}}) => {
   )
 }
 
-HistoryStatus.propTypes = {
+RunStatus.propTypes = {
   history: PropTypes.object,
 }
 
-export default HistoryStatus
+export default RunStatus

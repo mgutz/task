@@ -54,7 +54,7 @@ export default class TaskFiles extends PureComponent {
     const {bookmarks, route} = this.props
     return (
       <List>
-        <ListSubheader>Saved</ListSubheader>
+        <ListSubheader>Bookmarks</ListSubheader>
         {this.renderItems(route, bookmarks)}
       </List>
     )

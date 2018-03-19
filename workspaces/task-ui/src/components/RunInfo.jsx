@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
 import styled from 'styled-components'
-import SaveHistory from './SaveHistory'
+import SaveBookmark from './SaveBookmark'
 
 const ToolbarView = styled(Toolbar)`
   border-bottom: solid 1px #eee;
@@ -38,7 +38,7 @@ const SimpleArgs = ({data}) => {
   return elements
 }
 
-class HistoryActions extends Component {
+class RunInfo extends Component {
   static propTypes = {
     history: PropTypes.object,
   }
@@ -58,10 +58,10 @@ class HistoryActions extends Component {
             <SimpleArgs data={history.args[2]} />
           </Typography>
         </Grow>
-        <SaveHistory history={history} />
+        <SaveBookmark history={history} />
       </ToolbarView>
     )
   }
 }
 
-export default HistoryActions
+export default RunInfo

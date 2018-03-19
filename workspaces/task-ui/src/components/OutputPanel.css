@@ -28,6 +28,7 @@
 .task-entry.is-entry-selected {
   background-color: #f8f8c0;
   border: solid 1px #f8f8b0;
+  margin: -1px;
 }
 
 .task-message-err {

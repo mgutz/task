@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import AddIcon from 'material-ui-icons/Add'
 import Button from 'material-ui/Button'
-import SaveHistoryFormDialog from './SaveHistoryFormDialog'
+import SaveBookmarkFormDialog from './SaveBookmarkFormDialog'
 import PropTypes from 'prop-types'
 
 const mapState = () => ({})
@@ -10,7 +10,7 @@ const mapState = () => ({})
 const mapDispatch = ({project: {saveBookmark}}) => ({saveBookmark})
 
 @connect(mapState, mapDispatch)
-class SaveHistory extends Component {
+class SaveBookmark extends Component {
   static propTypes = {
     history: PropTypes.object.isRequired,
     saveBookmark: PropTypes.func,
@@ -25,7 +25,7 @@ class SaveHistory extends Component {
     if (!showForm) return null
 
     return (
-      <SaveHistoryFormDialog
+      <SaveBookmarkFormDialog
         open={showForm}
         onClose={this.doCloseForm}
         onSubmit={this.doSubmit}
@@ -59,4 +59,4 @@ class SaveHistory extends Component {
   }
 }
 
-export default SaveHistory
+export default SaveBookmark

@@ -3,7 +3,7 @@ import {Replay as ReplayIcon} from 'material-ui-icons'
 import * as React from 'react'
 import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
-import HistoryStatus from './HistoryStatus'
+import RunStatus from './RunStatus'
 import {uid} from '#/util'
 
 const mapDispatch = ({
@@ -38,7 +38,7 @@ class ReplayTask extends React.Component {
       )
     }
 
-    return <HistoryStatus history={history} />
+    return <RunStatus history={history} />
   }
 
   doReplay = (history) => () => {

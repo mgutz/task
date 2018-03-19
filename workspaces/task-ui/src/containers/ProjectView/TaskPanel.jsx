@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, {Component} from 'react'
-import Saved from './Saved'
+import Bookmarks from './Bookmarks'
 import Taskfiles from './Taskfiles'
 
 /*
@@ -12,7 +12,7 @@ const mapState = (state) => ({});
 
 @connect(mapState, mapDispatch)
 */
-class TaskArea extends Component {
+class TaskPanel extends Component {
   static propTypes = {
     project: PropTypes.object,
   }
@@ -23,10 +23,10 @@ class TaskArea extends Component {
     return (
       <React.Fragment>
         <Taskfiles taskfiles={project.taskfiles} />
-        <Saved bookmarks={project.bookmarks} />
+        <Bookmarks bookmarks={project.bookmarks} />
       </React.Fragment>
     )
   }
 }
 
-export default TaskArea
+export default TaskPanel
