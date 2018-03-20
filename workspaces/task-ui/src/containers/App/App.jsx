@@ -24,10 +24,10 @@ const theme = {
     },
   },
   typography: {
-    htmlFontSize: 14,
+    //fontSize: 14,
     // Use the system font over Roboto.
     fontFamily:
-      'Oxygen,-apple-system,system-ui,BlinkMacSystemFont,' +
+      '"Maven Pro",-apple-system,system-ui,BlinkMacSystemFont,' +
       '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
   },
 }

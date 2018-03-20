@@ -5,12 +5,20 @@ import PropTypes from 'prop-types'
 import History from '#/components/History'
 import Tabs, {Tab} from 'material-ui/Tabs'
 import ProcessTools from '#/components/ProcessTools'
+import styled from 'styled-components'
 
 const mapState = (state) => {
   return {
     histories: select.histories.all(state),
     runningHistories: select.histories.runningTasks(state),
   }
+}
+
+const styles = {
+  tab: {
+    width: '50%',
+    minWidth: '0',
+  },
 }
 
 @connect(mapState)
@@ -39,7 +47,6 @@ class RunPanel extends Component {
     if (activeTab === 0) {
       return (
         <React.Fragment>
-          <ProcessTools />
           <History histories={runningHistories} title={runningTitle} />
         </React.Fragment>
       )
@@ -57,10 +64,10 @@ class RunPanel extends Component {
           textColor="primary"
           onChange={this.doSetActive}
         >
-          <Tab label="Running" style={{minWidth: 0}} />
-          <Tab label="History" style={{minWidth: 0}} />
+          <Tab label="Running" style={styles.tab} />
+          <Tab label="History" style={styles.tab} />
         </Tabs>
-
+        <ProcessTools />
         {this.renderHistories()}
       </React.Fragment>
     )

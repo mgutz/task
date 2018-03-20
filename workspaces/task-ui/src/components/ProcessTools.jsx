@@ -42,14 +42,14 @@ class ProcessTools extends Component {
                   component={TextField}
                   name="params"
                   label="Params"
-                  placeholder="pid, name or :port"
+                  placeholder="PID, name or :port"
                   margin="normal"
                 />
                 <Field
                   component={TextField}
                   name="repeat"
                   label="Repeat"
-                  placeholder="eeeess DANGEROUS!"
+                  placeholder="Repeat to confirm"
                   margin="normal"
                 />
               </form>

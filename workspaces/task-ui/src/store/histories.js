@@ -36,7 +36,7 @@ export const histories = {
       if (!item) {
         konsole.error(`History not found for id: ${id}`)
         konsole.error(
-          `A process may be alive that's stil emitting events to an undefined history after a pagre refresh`
+          `A process may be alive that is emitting events to an undefined history after a pagre refresh`
         )
         return
       }

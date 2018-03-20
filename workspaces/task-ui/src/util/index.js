@@ -21,3 +21,8 @@ export const taskSlug = (task) => {
 export const bookmarkSlug = (bookmark) => {
   return _.camelCase(bookmark.title)
 }
+
+export const stopPropagation = (e) => {
+  e.stopPropagation()
+  e.nativeEvent.stopImmediatePropagation()
+}

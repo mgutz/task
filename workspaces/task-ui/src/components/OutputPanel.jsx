@@ -8,7 +8,6 @@ import {logEntryAt} from '#/store/logs'
 import RunInfo from './RunInfo'
 import {select} from '@rematch/select'
 import OutputStream from './OutputStream'
-import {konsole, taskSlug} from '#/util'
 
 import styled from 'styled-components'
 

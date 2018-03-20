@@ -69,6 +69,7 @@ class OutputStream extends Component {
 
   render() {
     const {logIndex} = this.props
+    const {selected} = this.state
     const max = logLength(logIndex)
 
     return (
@@ -85,7 +86,7 @@ class OutputStream extends Component {
                 rowCount={max}
                 rowHeight={20}
                 rowRenderer={this.renderItem}
-                scrollToIndex={max}
+                scrollToIndex={selected}
                 width={width}
               />
             </div>
@@ -97,12 +98,11 @@ class OutputStream extends Component {
 
   doKeyDown = (e) => {
     const {selected, max} = this.state
-
     // reversed visually so moving up decreases, moving down increases
-    if (e.key === 'ArrowUp' && selected > 0) {
-      this.innerSelect(selected - 1)
-    } else if (e.key === 'ArrowDown' && selected + 1 < max) {
-      this.innerSelect(selected + 1)
+    if (e.key === 'ArrowUp') {
+      if (selected > 0) this.innerSelect(selected - 1)
+    } else if (e.key === 'ArrowDown') {
+      if (selected + 1 < max) this.innerSelect(selected + 1)
     }
   }
 

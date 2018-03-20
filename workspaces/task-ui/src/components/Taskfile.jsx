@@ -15,8 +15,16 @@ import {select} from '@rematch/select'
 import {taskSlug} from '#/util'
 
 const InsetList = styled(List)`
-  margin-left: 10px;
+  padding-left: 10px;
 `
+
+const Ellipsis = styled.div`
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
 const mapState = (state, props) => {
   return {
     tasks: select.taskfiles.tasksByFileId(state, props.taskfile.id),
@@ -60,8 +68,16 @@ class Taskfile extends Component {
       const onClick = isActive ? null : this.doSetActive(task)
 
       return (
-        <ListItem className={classes} key={task.name} onClick={onClick}>
-          <ListItemText primary={task.name} secondary={task.desc} />
+        <ListItem
+          className={classes}
+          key={task.name}
+          onClick={onClick}
+          title={task.desc}
+        >
+          <ListItemText
+            primary={task.name}
+            secondary={<Ellipsis>{task.desc}</Ellipsis>}
+          />
           <ListItemIcon>
             <RunTask task={task} />
           </ListItemIcon>
