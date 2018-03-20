@@ -8,6 +8,7 @@ import {logEntryAt} from '#/store/logs'
 import RunInfo from './RunInfo'
 import {select} from '@rematch/select'
 import OutputStream from './OutputStream'
+import {konsole, taskSlug} from '#/util'
 
 import styled from 'styled-components'
 
@@ -37,6 +38,7 @@ const mapState = (state, props) => {
 export default class OutputPanel extends React.PureComponent {
   static propTypes = {
     history: PropTypes.object,
+    historyId: PropTypes.string,
     logIndex: PropTypes.object,
     // pid: PropTypes.number,
     task: PropTypes.object,
@@ -45,7 +47,6 @@ export default class OutputPanel extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {selected: -1}
-    this.messageProp = this.getMessageProp(props.task)
   }
 
   state = {
@@ -53,8 +54,7 @@ export default class OutputPanel extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.task !== this.props.task) {
-      this.messageProp = this.getMessageProp(nextProps.task)
+    if (nextProps.historyId !== this.props.historyId) {
       this.setState({selected: -1})
     }
   }
@@ -71,8 +71,10 @@ export default class OutputPanel extends React.PureComponent {
   }
 
   render() {
-    const {history, logIndex} = this.props
+    const {history, logIndex, task} = this.props
     const {selected} = this.state
+
+    if (!history) return null
 
     return (
       <ColumnView>
@@ -83,7 +85,7 @@ export default class OutputPanel extends React.PureComponent {
           {logIndex && (
             <OutputStream
               logIndex={logIndex}
-              messageProp={this.messageProp}
+              task={task}
               onSelect={this.doSelect}
             />
           )}
@@ -95,9 +97,5 @@ export default class OutputPanel extends React.PureComponent {
 
   doSelect = (index) => {
     this.setState({selected: index})
-  }
-
-  getMessageProp(task) {
-    return _.get(task, 'ui.log.messageProp') || '_msg_'
   }
 }

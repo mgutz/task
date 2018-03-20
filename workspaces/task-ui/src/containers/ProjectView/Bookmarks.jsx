@@ -4,9 +4,10 @@ import PropTypes from 'prop-types'
 //import {konsole} from '#/util'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List, {ListItemIcon, ListItem, ListItemText} from 'material-ui/List'
-import BoomarkBorderIcon from 'material-ui-icons/BookmarkBorder'
+//import BoomarkBorderIcon from 'material-ui-icons/BookmarkBorder'
 import ReplayBookmark from '#/components/ReplayBookmark'
 import {connect} from 'react-redux'
+import {bookmarkSlug} from '#/util'
 
 const mapState = (state) => {
   const {route} = state.router
@@ -38,9 +39,9 @@ export default class TaskFiles extends PureComponent {
 
       return (
         <ListItem className={classes} key={bookmark.id} onClick={onClick}>
-          <ListItemIcon>
+          {/* <ListItemIcon>
             <BoomarkBorderIcon />
-          </ListItemIcon>
+          </ListItemIcon> */}
           <ListItemText primary={bookmark.title} />
           <ListItemIcon>
             <ReplayBookmark bookmark={bookmark} />
@@ -60,8 +61,11 @@ export default class TaskFiles extends PureComponent {
     )
   }
 
-  doSetActive = ({id, title}) => () => {
+  doSetActive = (bookmark) => () => {
     const {navigate} = this.props
-    navigate({name: 'bookmarks.title', params: {id, title}})
+    navigate({
+      name: 'bookmarks.title',
+      params: {id: bookmark.id, title: bookmarkSlug(bookmark)},
+    })
   }
 }

@@ -3,7 +3,7 @@ import {PlayCircleFilled as PlayIcon} from 'material-ui-icons'
 import * as React from 'react'
 import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
-import {uid} from '#/util'
+import {uid, bookmarkSlug} from '#/util'
 
 const mapDispatch = ({
   taskfiles: {run},
@@ -43,7 +43,7 @@ class ReplayBookmark extends React.Component {
       name: 'bookmarks.title.history',
       params: {
         id,
-        title,
+        title: bookmarkSlug(bookmark),
         historyId: newHistoryId,
       },
     }

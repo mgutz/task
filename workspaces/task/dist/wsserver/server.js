@@ -31,6 +31,21 @@ const task_ws_1 = require("task-ws");
 //     return Promise.resolve()
 //   }
 // }
+const initResolversWsMessaging = (rcontext) => {
+    return (client, authData) => {
+        const resolverContext = Object.assign({}, rcontext, { authData, client });
+        // register any function that does not start with '_'
+        const resolvers = new Resolvers_1.Resolvers(resolverContext);
+        for (const k in resolvers) {
+            // @ts-ignore
+            const resolver = resolvers[k];
+            if (k.startsWith('_') || typeof resolver !== 'function')
+                continue;
+            client.register(k, resolver);
+        }
+        return Promise.resolve();
+    };
+};
 const initResolvers = (rcontext) => {
     return (client, authData) => {
         log_1.konsole.log('Connected');
@@ -58,12 +73,17 @@ exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
     };
     const app = express();
     const server = http.createServer(app);
+    // BEGIN task-ws
     const wss = new WebSocket.Server({ server });
     task_ws_1.initMessaging(wss, initResolvers(rcontext));
+    // END task-ws
+    // BEGIN ws-messaging
+    // const connectionHook = initResolversWsMessaging(rcontext)
     // const wss = new WSMessaging(
     //   {server},
     //   {connectionHook, WebSocketServer: WebSocket.Server}
     // )
+    // END ws-messaging
     server.listen(opts.port, (err) => {
         if (err)
             return log_1.konsole.error(err);

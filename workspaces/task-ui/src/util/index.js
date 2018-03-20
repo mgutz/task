@@ -13,6 +13,11 @@ export const konsole = console
 export const titleize = (s) => {
   return _.upperFirst(_.camelCase(s))
 }
-export const taskTitle = (task) => {
-  return task.taskfileId.toLowerCase() + '.' + _.camelCase(task.name)
+
+export const taskSlug = (task) => {
+  return _.camelCase(task.taskfileId) + '.' + _.camelCase(task.name)
+}
+
+export const bookmarkSlug = (bookmark) => {
+  return _.camelCase(bookmark.title)
 }

@@ -1,8 +1,10 @@
 declare module 'columnify'
+declare module 'fkill'
 declare module 'require-uncached'
 declare module 'toposort'
 declare module 'task-ws'
 declare module 'tree-kill'
+declare module 'ws-messaging'
 
 declare interface Options {
   _: string[]
@@ -42,6 +44,8 @@ declare interface TaskUI {
   hide?: boolean
   // the initial values for the form
   model?: any
+  // mustache template pattern to format log entry if app emits JSON
+  formatLog?: string
 }
 
 declare interface RawTask {

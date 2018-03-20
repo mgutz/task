@@ -16,6 +16,7 @@ const usage_1 = require("../cli/usage");
 const tasks_1 = require("../core/tasks");
 const task_ws_1 = require("task-ws");
 const kill = require("tree-kill");
+const fkillit = require("fkill");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -35,6 +36,9 @@ class Resolvers {
                     .write();
             }
             throw new task_ws_1.CodeError(422, `Only bookmarks having project scope are saved currently: ${scope}`);
+        });
+        this.fkill = (argv) => __awaiter(this, void 0, void 0, function* () {
+            return fkillit(argv);
         });
         /**
          * Loads and sets the project. The project may be reloaded by a
@@ -94,7 +98,7 @@ class Resolvers {
         // TODO we need to verify this is a pid started by task, very dangerous
         this.stop = (pid) => {
             if (!pid)
-                return;
+                return `z`;
             kill(pid);
         };
     }

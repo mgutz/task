@@ -1,4 +1,3 @@
-import * as _ from 'lodash'
 import React, {Component} from 'react'
 import {AutoSizer, List} from 'react-virtualized'
 import {logEntryAt, logLength} from '#/store/logs'
@@ -9,6 +8,7 @@ class OutputStream extends Component {
     logIndex: PropTypes.object,
     onSelect: PropTypes.func.isRequired,
     messageProp: PropTypes.string, // property name  of message in json objects
+    task: PropTypes.object,
   }
 
   constructor(props) {
@@ -29,16 +29,25 @@ class OutputStream extends Component {
   }
 
   renderItem = ({index, style}) => {
-    const {logIndex, messageProp} = this.props
+    const {logIndex, task} = this.props
     const {selected} = this.state
     // eslint-disable-next-line
     const o = logEntryAt(logIndex, index)
-    // TODO these keys should be user configurable
-    let str = o[messageProp]
-    if (str === undefined || str === '') {
-      return null
+
+    let str
+    if (o._msg_) {
+      str = o._msg_
+    } else if (task.formatLog) {
+      try {
+        str = task.formatLog(o)
+      } catch (err) {
+        // do nothing
+      }
     }
     if (!str) str = JSON.stringify(o)
+
+    // TODO show message if no str
+    // if (!str) str = JSON.stringify(o)
 
     const classes =
       selected === index ? 'task-entry is-entry-selected' : 'task-entry'

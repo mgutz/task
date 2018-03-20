@@ -1,6 +1,9 @@
+import _ from 'lodash'
 import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
-import {konsole, uid} from '#/util'
+import {uid} from '#/util'
+
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 
 // Some reducers are listened for in other models but (for now) they still need
 // to be defined. This is an identity function.
@@ -19,6 +22,9 @@ export const effects = {
       for (const task of tasks) {
         task.id = uid()
         task.taskfileId = taskfileId
+        if (task.ui && task.ui.formatLog) {
+          task.formatLog = _.template(task.ui.formatLog)
+        }
       }
       this.mergeTasks({taskfileId, tasks})
     })

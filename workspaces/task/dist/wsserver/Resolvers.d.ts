@@ -10,6 +10,7 @@ export declare class Resolvers {
     rcontext: ResolverContext;
     constructor(rcontext: ResolverContext);
     addBookmark: (bookmark: History) => Promise<any>;
+    fkill: (argv: string[]) => Promise<any>;
     /**
      * Loads and sets the project. The project may be reloaded by a
      * browser refresh. The project may only be loaded from a known location for
@@ -27,5 +28,5 @@ export declare class Resolvers {
     run: (tag: string, taskfileId: string, taskName: string, argv: Options) => {
         pid: number;
     };
-    stop: (pid: number) => void;
+    stop: (pid: number) => "z" | undefined;
 }

@@ -11,7 +11,8 @@ const util = require('util');
     a: any[]      // arguments to method
 */
 
-const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
+const noCallbackMessage =
+  'There is no callback and error occured while executing a registered method.';
 
 const _connections = new Set();
 
@@ -48,7 +49,15 @@ class Server extends EventEmitter {
 
     // {n: 'event', a: 'args', i?: 'callbackid'}
     // {c: statusCode, e: 'error', p: 'payload', 'i': callbackid}
-    const o = JSON.parse(message);
+    let o;
+
+    try {
+      o = JSON.parse(message);
+    } catch (err) {
+      console.error('Invalid JSON packet', message);
+      return;
+    }
+
     if (!o.n) return;
 
     const {n: event, a: params, i: callbackId} = o;
@@ -109,8 +118,8 @@ class Server extends EventEmitter {
 
   _send(data) {
     for (const conn of _connections) {
+      // 1 === OPEN
       if (conn.readyState !== 1) {
-        //console.log('Connection not in readyState readyState=', conn.readyState, 'data=', data);
         continue;
       }
       conn.send(data);
@@ -123,18 +132,19 @@ Server.prototype.$emitLocal = EventEmitter.prototype.emit;
 
 function noop() {}
 
+// https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
 const initMessaging = (wss, hook) => {
   function heartbeat() {
     this.isAlive = true;
   }
 
   wss.on('connection', function connection(ws) {
-    console.log('adding connection');
+    //console.log('adding connection');
     _connections.add(ws);
     ws.isAlive = true;
     ws.on('pong', heartbeat);
     ws.on('close', function connection(ws) {
-      console.log('deleting connection');
+      //console.log('deleting connection');
       _connections.delete(ws);
     });
 
@@ -144,11 +154,10 @@ const initMessaging = (wss, hook) => {
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
-        console.log('terminating connection');
+        //console.log('terminating connection');
         _connections.delete(ws);
         return ws.terminate();
       }
-
       ws.isAlive = false;
       ws.ping(noop);
     });

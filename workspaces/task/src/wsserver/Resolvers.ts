@@ -9,6 +9,7 @@ import {parseArgv} from '../cli/usage'
 import {loadTasks} from '../core/tasks'
 import {CodeError} from 'task-ws'
 import * as kill from 'tree-kill'
+import * as fkillit from 'fkill'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -33,6 +34,10 @@ export class Resolvers {
       422,
       `Only bookmarks having project scope are saved currently: ${scope}`
     )
+  }
+
+  public fkill = async (argv: string[]) => {
+    return fkillit(argv)
   }
 
   /**
@@ -115,7 +120,7 @@ export class Resolvers {
 
   // TODO we need to verify this is a pid started by task, very dangerous
   public stop = (pid: number) => {
-    if (!pid) return
+    if (!pid) return `z`
     kill(pid)
   }
 }

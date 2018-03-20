@@ -1,4 +1,3 @@
-import * as _ from 'lodash'
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
@@ -14,7 +13,6 @@ const mapDispatch = ({router: {navigate}}) => ({navigate})
 class History extends React.Component {
   static propTypes = {
     histories: PropTypes.array,
-    bookmark: PropTypes.object,
     navigate: PropTypes.func,
     route: PropTypes.object,
     title: PropTypes.string,

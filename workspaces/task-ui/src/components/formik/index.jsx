@@ -6,7 +6,8 @@ import PropTypes from 'prop-types'
 const createElement = (Element) => {
   // eslint-disable-next-line
   const el = ({field, form, ...rest}) => {
-    return <Element {...field} {...rest} />
+    const isError = form.dirty && form.errors[field.name]
+    return <Element {...field} {...rest} error={Boolean(isError)} />
   }
   el.displayName = 'formik(' + getDisplayName(Element) + ')'
   el.propTypes = {

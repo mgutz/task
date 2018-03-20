@@ -12,6 +12,7 @@ import TocIcon from 'material-ui-icons/Toc'
 import styled from 'styled-components'
 import RunTask from './RunTask'
 import {select} from '@rematch/select'
+import {taskSlug} from '#/util'
 
 const InsetList = styled(List)`
   margin-left: 10px;
@@ -46,14 +47,13 @@ class Taskfile extends Component {
 
   renderTasks(tasks) {
     const {route} = this.props
+    const {params} = route
     return tasks.map((task) => {
       // some tasks should only be run from CLI
       const hide = _.get(task, 'ui.hide')
       if (hide) return null
 
-      const isActive =
-        route.params.taskName === task.name &&
-        route.params.taskfileId === task.taskfileId
+      const isActive = params.id === task.id
       const classes = classNames({
         'is-selected': isActive,
       })
@@ -91,13 +91,12 @@ class Taskfile extends Component {
   }
 
   doSetActive = (task) => () => {
-    const {navigate, taskfile} = this.props
+    const {navigate} = this.props
     navigate({
       name: 'tasks.name',
       params: {
         id: task.id,
-        taskName: task.name,
-        taskfileId: taskfile.id,
+        title: taskSlug(task),
       },
     })
   }

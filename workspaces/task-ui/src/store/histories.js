@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import producer from './producer'
 import {invoke} from '#/services/websocket'
+import {konsole} from '#/util'
 
 export const histories = {
   state: {}, // {[key: string]: History}
@@ -26,10 +27,19 @@ export const histories = {
 
     'taskfiles/updateHistory': producer((draft, payload) => {
       const {id} = payload
-      if (!id) throw new Error('History id is required', payload)
+      if (!id) {
+        konsole.error('History id is required', payload)
+        return
+      }
 
       const item = draft[id]
-      if (!item) throw new Error(`History not found for id: ${id}`)
+      if (!item) {
+        konsole.error(`History not found for id: ${id}`)
+        konsole.error(
+          `A process may be alive that's stil emitting events to an undefined history after a pagre refresh`
+        )
+        return
+      }
       draft[id] = {...draft[id], ...payload}
     }),
   },
@@ -38,6 +48,10 @@ export const histories = {
   effects: {
     stop({pid}) {
       invoke('stop', pid)
+    },
+
+    kill({argv}) {
+      invoke('fkill', ...argv)
     },
   },
 
@@ -57,6 +71,10 @@ export const histories = {
 
     runningTasks(state) {
       return _.filter(state, {status: 'running'})
+    },
+
+    all(state) {
+      return Object.values(state)
     },
   },
 }

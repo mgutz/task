@@ -4,31 +4,13 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import History from '#/components/History'
 import Tabs, {Tab} from 'material-ui/Tabs'
+import ProcessTools from '#/components/ProcessTools'
 
 const mapState = (state) => {
-  const route = state.router.route
-  const {name, params} = route
-  const runningHistories = select.histories.runningTasks(state)
-
-  if (name.startsWith('tasks.name')) {
-    const task = select.taskfiles.taskById(state, params.id)
-    if (!task) return {}
-    return {
-      task,
-      histories: select.histories.byQuery(state, {refId: task.id}),
-      runningHistories,
-    }
-  } else if (name.startsWith('bookmarks.title')) {
-    const bookmark = select.project.bookmarkById(state, params.id)
-    if (!bookmark) return {}
-    return {
-      bookmark,
-      histories: select.histories.byQuery(state, {refId: bookmark.id}),
-      runningHistories,
-    }
+  return {
+    histories: select.histories.all(state),
+    runningHistories: select.histories.runningTasks(state),
   }
-
-  return {}
 }
 
 @connect(mapState)
@@ -54,8 +36,15 @@ class RunPanel extends Component {
         ? 'Running Tasks'
         : 'No Running Tasks'
 
-    if (activeTab === 0)
-      return <History histories={runningHistories} title={runningTitle} />
+    if (activeTab === 0) {
+      return (
+        <React.Fragment>
+          <ProcessTools />
+          <History histories={runningHistories} title={runningTitle} />
+        </React.Fragment>
+      )
+    }
+
     return <History histories={histories} title={historiesTitle} />
   }
 

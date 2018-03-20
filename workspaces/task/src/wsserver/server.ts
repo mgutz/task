@@ -11,6 +11,7 @@ import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
 import * as FileAsync from 'lowdb/adapters/FileAsync'
 import {Server, initMessaging} from 'task-ws'
+import * as WSMessaging from 'ws-messaging'
 
 export interface StartOptions {
   port: number
@@ -32,6 +33,23 @@ export interface StartOptions {
 //     return Promise.resolve()
 //   }
 // }
+
+const initResolversWsMessaging = (rcontext: ResolverContext) => {
+  return (client: any, authData: any) => {
+    const resolverContext = {...rcontext, authData, client}
+
+    // register any function that does not start with '_'
+    const resolvers = new Resolvers(resolverContext)
+    for (const k in resolvers) {
+      // @ts-ignore
+      const resolver = resolvers[k]
+      if (k.startsWith('_') || typeof resolver !== 'function') continue
+      client.register(k, resolver)
+    }
+
+    return Promise.resolve()
+  }
+}
 
 const initResolvers = (rcontext: ResolverContext) => {
   return (client: any, authData: any) => {
@@ -62,13 +80,19 @@ export const start = async (ctx: AppContext, opts: StartOptions) => {
   }
   const app = express()
   const server = http.createServer(app)
+
+  // BEGIN task-ws
   const wss = new WebSocket.Server({server})
   initMessaging(wss, initResolvers(rcontext))
+  // END task-ws
 
+  // BEGIN ws-messaging
+  // const connectionHook = initResolversWsMessaging(rcontext)
   // const wss = new WSMessaging(
   //   {server},
   //   {connectionHook, WebSocketServer: WebSocket.Server}
   // )
+  // END ws-messaging
 
   server.listen(opts.port, (err: any) => {
     if (err) return konsole.error(err)

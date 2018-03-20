@@ -1,11 +1,11 @@
 const routes = [
   {name: 'bookmarks', path: '/bookmarks'},
   {name: 'bookmarks.title', path: '/:title/:id'},
-  {name: 'bookmarks.title.history', path: '/:historyId'},
+  {name: 'bookmarks.title.history', path: '/history/:historyId'},
 
   {name: 'tasks', path: '/tasks'},
-  {name: 'tasks.name', path: '/:taskfileId/:taskName/:id'},
-  {name: 'tasks.name.history', path: '/:historyId'},
+  {name: 'tasks.name', path: '/:title/:id'},
+  {name: 'tasks.name.history', path: '/history/:historyId'},
 ]
 
 export default routes

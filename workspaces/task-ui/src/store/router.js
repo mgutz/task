@@ -29,6 +29,19 @@ export const initRouter5 = async (routes, opts = {defaultRoute: 'tasks'}) => {
           this.setRoute(state)
         })
       },
+
+      navigateToDefault() {
+        console.log('navigating to default')
+        router5.navigateToDefault((err, state) => {
+          if (err) {
+            if (err.code !== 'SAME_STATES') {
+              konsole.error('Navigation Error', err)
+            }
+            return
+          }
+          this.setRoute(state)
+        })
+      },
     },
   }
 
