@@ -2,11 +2,8 @@ import './App.css'
 import {connect} from 'react-redux'
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
 import * as React from 'react'
-import AppBar from 'material-ui/AppBar'
-import ProjectView from '#/containers/ProjectView'
+import ProjectView from '../ProjectView'
 import PropTypes from 'prop-types'
-import Toolbar from 'material-ui/Toolbar'
-import Typography from 'material-ui/Typography'
 
 const theme = {
   palette: {

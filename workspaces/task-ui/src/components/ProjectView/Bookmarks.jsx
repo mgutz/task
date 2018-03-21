@@ -1,11 +1,8 @@
 import React, {PureComponent} from 'react'
-// import TasksNav from '#/components/TasksNav'
 import PropTypes from 'prop-types'
-//import {konsole} from '#/util'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List, {ListItemIcon, ListItem, ListItemText} from 'material-ui/List'
-//import BoomarkBorderIcon from 'material-ui-icons/BookmarkBorder'
-import ReplayBookmark from '#/components/ReplayBookmark'
+import ReplayBookmark from '../ReplayBookmark'
 import {connect} from 'react-redux'
 import {bookmarkSlug} from '#/util'
 

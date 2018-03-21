@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {select} from '@rematch/select'
-import RealOutputPanel from '#/components/OutputPanel'
+import RealOutputPanel from '../OutputPanel'
 
 const mapState = (state) => {
   const route = state.router.route

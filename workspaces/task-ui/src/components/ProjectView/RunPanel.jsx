@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {select} from '@rematch/select'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import History from '#/components/History'
+import History from '../History'
 import Tabs, {Tab} from 'material-ui/Tabs'
 
 const mapState = (state) => {

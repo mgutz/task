@@ -5,14 +5,9 @@ import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
 import {uid, bookmarkSlug} from '#/util'
 
-const mapDispatch = ({
-  taskfiles: {run},
-  project: {setBookmarkActiveHistory},
-  router: {navigate},
-}) => ({
+const mapDispatch = ({taskfiles: {run}, router: {navigate}}) => ({
   navigate,
   run,
-  setBookmarkActiveHistory,
 })
 
 @connect(null, mapDispatch)
@@ -21,7 +16,6 @@ class ReplayBookmark extends React.Component {
     bookmark: PropTypes.object.isRequired,
     navigate: PropTypes.func,
     run: PropTypes.func,
-    setBookmarkActiveHistory: PropTypes.func,
   }
 
   render() {
@@ -35,7 +29,7 @@ class ReplayBookmark extends React.Component {
   }
 
   doReplay = (bookmark) => () => {
-    const {navigate, run, setBookmarkActiveHistory} = this.props
+    const {run} = this.props
     // id for tracking the new history item
     const newHistoryId = uid()
     const {args, id, title} = bookmark
@@ -55,12 +49,6 @@ class ReplayBookmark extends React.Component {
       route,
       title,
     })
-
-    // set new history as active
-    setBookmarkActiveHistory({id, historyId: newHistoryId})
-
-    // navigate to new history to highlight it
-    navigate(route)
   }
 }
 

@@ -19,7 +19,7 @@ export const taskfiles = {
   },
 
   reducers: {
-    addHistory: handledElsewhere,
+    record: handledElsewhere,
     appendLog: handledElsewhere,
     updateHistory: handledElsewhere,
 

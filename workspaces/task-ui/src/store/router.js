@@ -1,8 +1,8 @@
 import {konsole} from '#/util'
 import {createRouter} from '../services/router'
 
-// returns state
-export const initRouter5 = async (routes, opts = {defaultRoute: 'tasks'}) => {
+// Initializes router and returns a model.
+export const initRouter5 = async (routes, opts = {}) => {
   const router5 = createRouter(routes, opts)
 
   const model = {
@@ -47,7 +47,6 @@ export const initRouter5 = async (routes, opts = {defaultRoute: 'tasks'}) => {
   return new Promise((resolve, reject) => {
     router5.start((err, state) => {
       if (err) return reject(err)
-      konsole.debug('router5 initial state', state)
       model.state.route = state
       return resolve(model)
     })

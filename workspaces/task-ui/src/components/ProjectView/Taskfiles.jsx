@@ -1,8 +1,6 @@
 import React, {PureComponent} from 'react'
-import Taskfile from '#/components/Taskfile'
-// import TasksNav from '#/components/TasksNav'
+import Taskfile from '../Taskfile'
 import PropTypes from 'prop-types'
-//import {konsole} from '#/util'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List from 'material-ui/List'
 

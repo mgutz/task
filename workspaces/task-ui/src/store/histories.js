@@ -16,7 +16,7 @@ export const histories = {
      *  method - the remote method invoked
      *  args - the args for remote method
      */
-    'taskfiles/addHistory': producer((draft, payload) => {
+    'taskfiles/record': producer((draft, payload) => {
       const {id} = payload
       const item = draft[id]
       if (!item) {

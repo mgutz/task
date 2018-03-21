@@ -57,6 +57,7 @@ export const effects = {
       id: tag,
       pid,
       status: 'errored',
+      statusedAt: Date.now(),
       error,
     })
   },
@@ -74,49 +75,21 @@ export const effects = {
   run(payload) {
     const validate = t.struct({
       args: t.Array,
-      newHistoryId: t.String,
-      refId: t.String,
-      refKind: t.String,
-      route: t.Object,
-      title: t.String,
+      historyId: t.String,
     })
-    const {args, newHistoryId, refId, refKind, route, title} = validate(payload)
+    const {args, historyId} = validate(payload)
     const [taskfileId, taskName, ...rest] = args
-    //const newId = uid() // TODO this needs to be next callback id
-    this.addHistory({
-      id: newHistoryId,
-      args,
-      createdAt: Date.now(),
-      refKind,
-      refId,
-      route,
-      status: 'running',
-      title,
-    })
 
     // historyId is passed as tag
-    return invoke('run', newHistoryId, taskfileId, taskName, ...rest).then(
+    return invoke('run', historyId, taskfileId, taskName, ...rest).then(
       (payload) => {
         const {pid} = payload
         this.updateHistory({
-          id: newHistoryId,
+          id: historyId,
           pid,
-          taskfileId,
-          taskName,
         })
       }
     )
-  },
-
-  setActiveHistory(payload) {
-    const validate = t.struct({
-      id: t.String,
-      historyId: t.String,
-    })
-    const {id, historyId} = validate(payload)
-
-    // example payload = {taskName, activeRunId}
-    this.updateTask({id, activeHistoryId: historyId})
   },
 
   update(payload) {

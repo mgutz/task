@@ -5,15 +5,10 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import PlayCircleFilledIcon from 'material-ui-icons/PlayCircleFilled'
 import IconButton from 'material-ui/IconButton'
-import {uid, taskSlug} from '#/util'
+import {taskSlug} from '#/util'
 
-const mapDispatch = ({
-  taskfiles: {run, setActiveHistory},
-  router: {navigate},
-}) => ({
-  navigate,
+const mapDispatch = ({taskfiles: {run}}) => ({
   run,
-  setActiveHistory,
 })
 
 @connect(null, mapDispatch)
@@ -81,35 +76,30 @@ class RunTask extends Component {
   }
 
   doRun = (model) => {
-    const {navigate, run, setActiveHistory, task} = this.props
+    const {run, task} = this.props
     const {taskfileId, name: taskName} = task
     const args = [taskfileId, taskName]
     if (this.hasUI() && Object.keys(model).length > 0) {
       args.push(model)
     }
 
-    // id for tracking the new history item
-    const newHistoryId = uid()
     // where to navigate while running
     const title = taskSlug(task)
-    const route = {
-      name: 'tasks.name.history',
-      params: {id: task.id, title, historyId: newHistoryId},
-    }
+
     run({
-      newHistoryId,
       args,
-      refId: task.id,
-      refKind: 'task',
-      route,
-      title,
+
+      // reference info for bookmarking
+      ref: {
+        id: task.id,
+        kind: 'task',
+        route: {
+          name: 'tasks.name.history',
+          params: {id: task.id, title, historyId: null}, // historyId filled in by middleware
+        },
+        title,
+      },
     })
-
-    // set new history as active
-    setActiveHistory({id: task.id, historyId: newHistoryId})
-
-    // navigate to new history to highlight it
-    navigate(route)
   }
 
   doShowForm = () => {

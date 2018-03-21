@@ -1,8 +1,6 @@
 import * as React from 'react'
 import {connect} from 'react-redux'
-// import TasksNav from '#/components/TasksNav'
 import PropTypes from 'prop-types'
-//import {konsole} from '#/util'
 import RunPanel from './RunPanel'
 import OutputPanel from './OutputPanel'
 import TaskPanel from './TaskPanel'

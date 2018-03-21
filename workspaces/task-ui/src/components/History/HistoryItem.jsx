@@ -17,7 +17,7 @@ const AdHocRunHistory = ({className, history, onClick}) => {
     status += ' for ' + (history.statusedAt - history.createdAt) + 'ms'
   }
 
-  const caption = history.title
+  const caption = history.ref.title
 
   return (
     <ListItem className={className} key={history.id} onClick={onClick}>

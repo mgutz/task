@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from 'material-ui/Button'
-import {TextField} from '#/components/formik'
+import {TextField} from './formik'
 import Dialog, {
   DialogActions,
   DialogContent,

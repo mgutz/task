@@ -1,4 +1,4 @@
-import {konsole, uid} from '#/util'
+import {konsole} from '#/util'
 import Client from 'task-ws/client'
 import Sockette from 'sockette'
 
@@ -6,7 +6,6 @@ import Sockette from 'sockette'
 const hostname = '127.0.0.1'
 const port = '4200'
 const url = `ws://${hostname}:${port}`
-
 const client = new Client()
 
 export const init = () => {
@@ -16,31 +15,29 @@ export const init = () => {
       maxAttempts: 10,
       onopen: (e) => {
         konsole.log('Connected', e)
-        client.setSocket(ws)
+        client.init(ws)
         resolve(client)
       },
       onmessage: (e) => client.process(e.data),
-      onreconnect: (e) => konsole.log('Reconnecting...', e),
-      // onmaximum: (e) => console.log('Stop Attempting!', e),
-      // onclose: (e) => console.log('Closed!', e),
-      // onerror: (e) => console.log('Error:', e),
+      onreconnect: (e) => konsole.log('ws reconnecting...', e),
+      onmaximum: (e) => konsole.error('ws stopped after max attempts', e),
+      onclose: (e) => konsole.log('ws connection closed', e),
+      onerror: (e) => konsole.error('ws error', e),
     })
   })
 }
 
-// @ts-ignore
-//export const client = new Client(url, {auth: authData})
-
+let msgid = 1
 export const invoke = (method, ...args) => {
-  const msgid = uid()
-  konsole.debug(`[${msgid}] Invoking '${method}':`, args)
+  const id = msgid++
+  konsole.debug(`[${id}] Invoking ${method} ...`, args)
   return client
     .invoke(method, ...args)
     .then((res) => {
-      konsole.debug(`[${msgid}] Result`, res)
+      konsole.debug(`[${id}] RES`, res)
       return res
     })
     .catch((err) => {
-      konsole.error(`[${msgid}] ERR invoking ${method} err=${err}`)
+      konsole.error(`[${id}] ERR`, err)
     })
 }

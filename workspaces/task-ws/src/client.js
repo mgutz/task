@@ -1,22 +1,24 @@
 export default class Client {
   constructor() {
-    this.callbacks = new Callbacks();
     this.listeners = {};
   }
 
-  setSocket(socket) {
+  // This must be called prior to using socket. This allows for the callsite
+  // to create a reference to an instance of this client before socket
+  // connection can be established
+  init(socket) {
     this.socket = socket;
   }
 
   emit(event, args, cb) {
     const packet = {n: event};
 
-    if (typeof cb === 'function') {
-      packet.i = this.callbacks.register(cb);
-    }
-
     if (args.length) {
       packet.a = args;
+    }
+
+    if (typeof cb === 'function') {
+      packet.i = callbacks.register(cb);
     }
 
     this.socket.send(this.serialize(packet));
@@ -66,7 +68,7 @@ export default class Client {
 
     // message is a callback, so execute it
     if (callbackId) {
-      this.callbacks.use(callbackId, parsed);
+      callbacks.use(callbackId, parsed);
       return;
     }
 
@@ -88,20 +90,18 @@ export default class Client {
   }
 }
 
-class Callbacks {
-  constructor() {
-    this.callbacks = [];
-    this.max = 1;
-  }
+const callbacks = {
+  funcs: {},
+  id: 0,
 
-  register(callback) {
-    const id = ++this.max;
-    this.callbacks[id] = callback;
+  register: fn => {
+    const id = ++callbacks.id;
+    callbacks.funcs[id] = fn;
     return id;
-  }
+  },
 
-  use(callbackid, args) {
-    this.callbacks[callbackid](args || {});
-    delete this.callbacks[callbackid];
+  use: (id, args) => {
+    callbacks.funcs[id](args || {});
+    delete callbacks.funcs[id];
   }
-}
+};

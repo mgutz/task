@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import {init} from '@rematch/core'
 import selectorsPlugin from '@rematch/select'
+import {activeHistories} from './activeHistories'
 import {taskfiles} from './taskfiles'
 import {logs} from './logs'
 import {histories} from './histories'
@@ -9,64 +10,51 @@ import {project} from './project'
 import {initRouter5} from './router'
 import {api} from './api'
 import routes from '#/routes'
-import {trace} from './middleware/trace'
+//import {trace} from './middleware/trace'
+import recordPlugin from './plugins/recordPlugin'
+
+const recordable = ['taskfiles/run']
 
 export const createStore = async () => {
-  const router = await initRouter5(routes)
-  const models = {api, histories, logs, project, router, taskfiles}
+  const router = await initRouter5(routes, {defaultRoute: 'tasks'})
+  const models = {
+    activeHistories,
+    api,
+    histories,
+    logs,
+    project,
+    router,
+    taskfiles,
+  }
 
   const store = init({
     models,
-    plugins: [selectorsPlugin()],
+    plugins: [selectorsPlugin(), recordPlugin(recordable)],
     redux: {
-      middlewares: [trace],
+      middlewares: [],
     },
   })
 
   const wsClient = await initWebSocketClient()
 
-  hookWebSocket(store, wsClient)
+  hookWebSocket(store.dispatch, wsClient)
   _.set(window, 'DBG.store', store)
   return store
 }
 
-const hookWebSocket = (store, client) => {
-  /*
-  proc.stdout.on('data', (data) => {
-    client.send('pout', [taskfileId, taskName, tag, proc.pid, data])
-  })
-
-  proc.stderr.setEncoding('utf-8')
-  proc.stderr.on('data', (data) => {
-    client.send('perr', [taskfileId, taskName, tag, proc.pid, data])
-  })
-
-  proc.on('close', () => {
-    client.send('pclose', [taskfileId, taskName, tag, proc.pid, code])
-  })
-
-  proc.on('error', (err) => {
-    client.send('perror', [taskfileId, taskName, tag, proc.pid, err])
-  })
-  */
-
+/**
+ * Handle process events from server.
+ */
+const hookWebSocket = (dispatch, client) => {
   // process.stdout event
-  client.on('pout', (payload) => {
-    store.dispatch({type: 'taskfiles/pout', payload})
-  })
+  client.on('pout', dispatch.taskfiles.pout)
 
   // process.stderr event
-  client.on('perr', (payload) => {
-    store.dispatch({type: 'taskfiles/perr', payload})
-  })
+  client.on('perr', dispatch.taskfiles.perr)
 
   // process error event
-  client.on('perror', (payload) => {
-    store.dispatch({type: 'taskfiles/perror', payload})
-  })
+  client.on('perror', dispatch.taskfiles.perror)
 
   // process close event
-  client.on('pclose', (payload) => {
-    store.dispatch({type: 'taskfiles/pclose', payload})
-  })
+  client.on('pclose', dispatch.taskfiles.pclose)
 }
