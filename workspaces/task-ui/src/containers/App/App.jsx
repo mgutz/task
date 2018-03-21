@@ -45,17 +45,8 @@ export default class App extends React.Component {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div className="App">
-          <header className="App-header">
-            <AppBar color="primary" elevation={0} position="static">
-              <Toolbar>
-                <Typography color="inherit" variant="title">
-                  Task
-                </Typography>
-              </Toolbar>
-            </AppBar>
-          </header>
           <ProjectView />
-          {/* <footer>footer</footer> */}
+          <footer>footer</footer>
         </div>
       </MuiThemeProvider>
     )

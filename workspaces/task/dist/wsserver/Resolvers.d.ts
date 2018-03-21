@@ -17,6 +17,10 @@ export declare class Resolvers {
      * security purposes hence no arguments.
      */
     loadProject: () => Promise<Project>;
+    /**
+     * Find process by pid, name or keyword.
+     */
+    filterProcesses: (kind: string, keyword: string) => Promise<any>;
     tasks: (taskfileId: string) => Promise<Task[]>;
     /**
      * Runs a task by name found in taskfile entry from  `Taskproject.json`

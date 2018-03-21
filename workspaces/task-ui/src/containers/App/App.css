@@ -1,15 +1,8 @@
 .App {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 60px 250px 1fr;
+  grid-template-rows: 1fr auto;
   min-height: 100vh;
-}
-
-@media (min-width: 768px) {
-  .App {
-    display: grid;
-    grid-template-columns: 250px 250px 1fr;
-    grid-template-rows: auto 1fr auto;
-  }
 }
 
 header {
@@ -19,19 +12,18 @@ header {
   color: white;
 }
 
-main {
-  flex: 1;
-  background-color: #f8f8f8;
-}
-
 nav {
-  background-color: #f0f0f0;
-  border-right: solid 1px #ddd;
+  background-color: #5f4339;
+  color: #fff;
 }
 
 aside {
-  background-color: #f4f4f4;
-  border-right: solid 1px #ddd;
+  background-color: #8c6d62;
+  color: #fff;
+}
+
+main {
+  background-color: #f8f8f8;
 }
 
 footer {

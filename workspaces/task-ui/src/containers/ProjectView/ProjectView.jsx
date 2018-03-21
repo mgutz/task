@@ -7,6 +7,24 @@ import RunPanel from './RunPanel'
 import OutputPanel from './OutputPanel'
 import TaskPanel from './TaskPanel'
 import {select} from '@rematch/select'
+import styled from 'styled-components'
+
+const Output = styled.div`
+  display: flex;
+  height: 100%:
+  border: solid 2px green;
+`
+
+const RunPanelContainer = styled.div`
+  width: 250px;
+  height: 100%;
+  border-right: solid 1px #ddd;
+`
+
+const OutputPanelContainer = styled.div`
+  flex: 1;
+  height: 100%;
+`
 
 const {Fragment} = React
 
@@ -61,14 +79,19 @@ class ProjectView extends React.Component {
     return (
       <Fragment>
         <nav>
-          <TaskPanel project={project} />
+          <span>T</span>
         </nav>
         <aside>
-          <RunPanel />
+          <TaskPanel project={project} />
         </aside>
-        <div>
-          <OutputPanel />
-        </div>
+        <Output>
+          <RunPanelContainer>
+            <RunPanel />
+          </RunPanelContainer>
+          <OutputPanelContainer>
+            <OutputPanel />
+          </OutputPanelContainer>
+        </Output>
       </Fragment>
     )
   }

@@ -1,3 +1,96 @@
-/* html {
-  font-size: 87.5%;
+/* Settings */
+:root {
+  --offset: 0rem;
+  --max_width: 100%;
+  --columns: 1;
+  --gutter: 0rem;
+  --baseline: 1rem;
+  --baseline-shift: 0rem;
+  --color: hsla(204, 80%, 72%, 0.25);
+  --color-text: hsla(204, 80%, 72%, 1);
+  --media-query: '';
+}
+
+/* @media (min-width: 35em) {
+  :root {
+    --offset: 2rem;
+    --gutter: 0.75rem;
+    --color: hsla(286, 51%, 44%, 0.25);
+    --color-text: hsla(286, 51%, 44%, 1);
+    --media-query: 'small';
+  }
+}
+
+@media (min-width: 48em) {
+  :root {
+    --offset: 3rem;
+    --columns: 12;
+    --gutter: 1rem;
+    --color: hsla(204, 80%, 72%, 0.25);
+    --color-text: hsla(204, 80%, 72%, 1);
+    --media-query: 'medium';
+  }
+}
+
+@media (min-width: 70em) {
+  :root {
+    --offset: 4rem;
+    --color: hsla(286, 51%, 44%, 0.25);
+    --color-text: hsla(286, 51%, 44%, 1);
+    --media-query: 'large';
+  }
 } */
+
+/* Helper variables */
+:root {
+  --repeating-width: calc(100% / var(--columns));
+  --column-width: calc((100% / var(--columns)) - var(--gutter));
+  --background-width: calc(100% + var(--gutter));
+  --background-columns: repeating-linear-gradient(
+    to right,
+    var(--color),
+    var(--color) var(--column-width),
+    transparent var(--column-width),
+    transparent var(--repeating-width)
+  );
+  --background-baseline: repeating-linear-gradient(
+    to bottom,
+    var(--color),
+    var(--color) 1px,
+    transparent 1px,
+    transparent var(--baseline)
+  );
+}
+
+.grid {
+  position: relative;
+}
+
+.grid::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-right: auto;
+  margin-left: auto;
+  width: calc(100% - (2 * var(--offset)));
+  max-width: var(--max_width);
+  min-height: 100vh;
+  content: '';
+  background-image: var(--background-columns), var(--background-baseline);
+  background-size: var(--background-width) 100%;
+  background-position: 0 var(--baseline-shift);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.grid::after {
+  content: var(--media-query);
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  color: var(--color-text);
+}

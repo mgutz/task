@@ -7,15 +7,20 @@ import {histories} from './histories'
 import {init as initWebSocketClient} from '#/services/websocket'
 import {project} from './project'
 import {initRouter5} from './router'
+import {api} from './api'
 import routes from '#/routes'
+import {trace} from './middleware/trace'
 
 export const createStore = async () => {
   const router = await initRouter5(routes)
-  const models = {histories, logs, project, router, taskfiles}
+  const models = {api, histories, logs, project, router, taskfiles}
 
   const store = init({
     models,
     plugins: [selectorsPlugin()],
+    redux: {
+      middlewares: [trace],
+    },
   })
 
   const wsClient = await initWebSocketClient()

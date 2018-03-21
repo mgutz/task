@@ -4,8 +4,6 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import History from '#/components/History'
 import Tabs, {Tab} from 'material-ui/Tabs'
-import ProcessTools from '#/components/ProcessTools'
-import styled from 'styled-components'
 
 const mapState = (state) => {
   return {
@@ -16,7 +14,7 @@ const mapState = (state) => {
 
 const styles = {
   tab: {
-    width: '50%',
+    width: '33%',
     minWidth: '0',
   },
 }
@@ -34,41 +32,47 @@ class RunPanel extends Component {
     activeTab: 0,
   }
 
-  renderHistories() {
-    const {histories, runningHistories} = this.props
-    const {activeTab} = this.state
-    const historiesTitle =
-      histories && histories.length ? 'History' : 'No History'
-    const runningTitle =
-      runningHistories && runningHistories.length
-        ? 'Running Tasks'
-        : 'No Running Tasks'
+  constructor() {
+    super()
+    this.activeTabs = [
+      {label: 'History', render: this.renderHistories},
+      {label: 'Running', render: this.renderRunning},
+      // this.renderFind,
+    ]
+  }
 
-    if (activeTab === 0) {
-      return (
-        <React.Fragment>
-          <History histories={runningHistories} title={runningTitle} />
-        </React.Fragment>
-      )
-    }
+  renderHistories = () => {
+    const {histories} = this.props
+    // const historiesTitle =
+    //   histories && histories.length ? 'History' : 'No History'
+    return <History histories={histories} />
+  }
 
-    return <History histories={histories} title={historiesTitle} />
+  renderRunning = () => {
+    const {runningHistories} = this.props
+    // const runningTitle =
+    //   runningHistories && runningHistories.length
+    //     ? 'Running Tasks'
+    //     : 'No Running Tasks'
+    return <History histories={runningHistories} />
   }
 
   render() {
+    const {activeTab} = this.state
+
     return (
       <React.Fragment>
         <Tabs
-          value={this.state.activeTab}
+          value={activeTab}
           indicatorColor="primary"
           textColor="primary"
           onChange={this.doSetActive}
         >
-          <Tab label="Running" style={styles.tab} />
-          <Tab label="History" style={styles.tab} />
+          {this.activeTabs.map(({label}) => (
+            <Tab key={label} label={label} style={styles.tab} />
+          ))}
         </Tabs>
-        <ProcessTools />
-        {this.renderHistories()}
+        {this.activeTabs[activeTab].render()}
       </React.Fragment>
     )
   }

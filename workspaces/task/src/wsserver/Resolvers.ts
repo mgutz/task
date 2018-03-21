@@ -10,6 +10,7 @@ import {loadTasks} from '../core/tasks'
 import {CodeError} from 'task-ws'
 import * as kill from 'tree-kill'
 import * as fkillit from 'fkill'
+import * as findProcess from 'find-process'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -60,6 +61,23 @@ export class Resolvers {
     }
 
     return project
+  }
+
+  /**
+   * Find process by pid, name or keyword.
+   */
+  public filterProcesses = async (
+    kind: string,
+    keyword: string
+  ): Promise<any> => {
+    const allowed = ['name', 'pid', 'port']
+    if (allowed.indexOf(kind) < 0) {
+      throw new CodeError(422, 'Invalid process kind')
+    }
+    if (!keyword) {
+      throw new CodeError(422, 'Keyword is required')
+    }
+    return findProcess(kind, keyword)
   }
 
   public tasks = async (taskfileId: string) => {

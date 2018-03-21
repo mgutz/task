@@ -1,5 +1,6 @@
 declare module 'columnify'
 declare module 'fkill'
+declare module 'find-process'
 declare module 'require-uncached'
 declare module 'toposort'
 declare module 'task-ws'

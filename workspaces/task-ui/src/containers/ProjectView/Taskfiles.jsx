@@ -23,7 +23,7 @@ export default class TaskFiles extends PureComponent {
     const {taskfiles} = this.props
 
     return (
-      <List>
+      <List color="inherit">
         <ListSubheader>Task Files</ListSubheader>
         {this.renderTaskfiles(taskfiles)}
       </List>

@@ -17,6 +17,7 @@ const tasks_1 = require("../core/tasks");
 const task_ws_1 = require("task-ws");
 const kill = require("tree-kill");
 const fkillit = require("fkill");
+const findProcess = require("find-process");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -58,6 +59,19 @@ class Resolvers {
                 return Object.assign({}, project, { taskfiles });
             }
             return project;
+        });
+        /**
+         * Find process by pid, name or keyword.
+         */
+        this.filterProcesses = (kind, keyword) => __awaiter(this, void 0, void 0, function* () {
+            const allowed = ['name', 'pid', 'port'];
+            if (allowed.indexOf(kind) < 0) {
+                throw new task_ws_1.CodeError(422, 'Invalid process kind');
+            }
+            if (!keyword) {
+                throw new task_ws_1.CodeError(422, 'Keyword is required');
+            }
+            return findProcess(kind, keyword);
         });
         this.tasks = (taskfileId) => __awaiter(this, void 0, void 0, function* () {
             const found = _.find(this.rcontext.project.taskfiles, { id: taskfileId });
