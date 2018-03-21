@@ -55,7 +55,7 @@ class SaveBookmark extends Component {
   doSubmit = (values) => {
     const {history, saveBookmark} = this.props
     this.setState({showForm: false})
-    saveBookmark({title: values.title, history})
+    saveBookmark({title: values.title, record: history})
   }
 }
 

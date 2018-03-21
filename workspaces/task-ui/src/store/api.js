@@ -1,7 +1,5 @@
 import _ from 'lodash'
 import {invoke} from '#/services/websocket'
-import * as t from 'tcomb'
-import {uid} from '#/util'
 
 export const api = {
   state: {

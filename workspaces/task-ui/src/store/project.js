@@ -37,16 +37,10 @@ export const project = {
       invoke('loadProject').then(this.setProject)
     },
 
-    saveBookmark(payload) {
-      const validate = t.struct({
-        title: t.String,
-        history: t.Object,
-      })
-      const {history, title} = validate(payload)
-
+    saveBookmark({title, record}) {
       const id = uid()
       const scope = 'project'
-      const bookmark = {...history, ...{id, scope, title}}
+      const bookmark = {id, record, scope, title}
       this.addBookmark(bookmark)
       invoke('addBookmark', bookmark)
     },

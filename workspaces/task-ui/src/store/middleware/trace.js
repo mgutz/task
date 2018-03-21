@@ -1,4 +1,5 @@
-export const trace = (store) => (next) => (action) => {
-  console.log('Middleware triggered:', action)
+import {konsole} from '#/util'
+export const trace = () => (next) => (action) => {
+  konsole.log('Middleware triggered:', action)
   next(action)
 }

@@ -25,6 +25,10 @@ export class Resolvers {
     const db = this.rcontext.projectDB
     const {scope} = bookmark
     if (scope === 'project') {
+      if (!db.has('bookmarks').value()) {
+        await db.set('bookmarks', []).write()
+      }
+
       return db
         .get('bookmarks')
         .push(bookmark)

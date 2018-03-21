@@ -9,7 +9,7 @@ const recordPlugin = (whitelist) => {
     expose: {
       effects: {},
     },
-    init: ({effects, dispatch, createDispatcher, validate}) => ({
+    init: ({dispatch}) => ({
       onModel(model) {
         const {name} = model
         const actions = dispatch[name]
@@ -25,6 +25,7 @@ const recordPlugin = (whitelist) => {
 
             const {ref, ...args} = payload
 
+            //console.log('RECORDING', payload)
             const validate = t.struct({
               id: t.String,
               route: t.maybe(
@@ -68,6 +69,7 @@ const recordPlugin = (whitelist) => {
               }
             }
 
+            //console.log('RECORD running effect', {...args, historyId})
             return await effect({...args, historyId})
           }
 
@@ -75,20 +77,6 @@ const recordPlugin = (whitelist) => {
         }
       },
     }),
-
-    // middleware: (store) => (next) => (action) => {
-    //   const {type} = action
-    //   console.log('ACTION', action)
-    //   if (once) {
-    //     console.log('EFFECTS', effects)
-    //     once = false
-    //   }
-    //   if (action.type in effects) {
-    //     const {type, payload, meta} = action
-    //     console.log('EFFECT', {type, payload, meta})
-    //   }
-    //   next(action)
-    // },
   }
 }
 

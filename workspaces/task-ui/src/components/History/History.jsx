@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List from 'material-ui/List'
 import classNames from 'classnames'
-import HistoryItem from './HistoryItem'
+import Record from './Record'
 
 const mapState = (state) => ({route: state.router.route})
 const mapDispatch = ({router: {navigate}}) => ({navigate})
@@ -18,22 +18,22 @@ class History extends React.Component {
     title: PropTypes.string,
   }
 
-  renderItems = (histories, activeHistoryId) => {
-    return histories
+  renderItems = (records, activeHistoryId) => {
+    return records
       .slice(0)
       .reverse()
-      .map((history) => {
-        const isActive = activeHistoryId === history.id
+      .map((record) => {
+        const isActive = activeHistoryId === record.id
         const classes = classNames({
           'is-selected': isActive,
         })
 
-        const onClick = isActive ? null : this.doSetActive(history)
+        const onClick = isActive ? null : this.doSetActive(record)
 
         return (
-          <HistoryItem
-            key={history.id}
-            history={history}
+          <Record
+            key={record.id}
+            record={record}
             className={classes}
             onClick={onClick}
           />
@@ -51,9 +51,9 @@ class History extends React.Component {
     )
   }
 
-  doSetActive = (history) => () => {
+  doSetActive = (record) => () => {
     const {navigate} = this.props
-    navigate(history.route)
+    navigate(record.route)
   }
 }
 

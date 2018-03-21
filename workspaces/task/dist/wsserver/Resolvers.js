@@ -31,11 +31,17 @@ class Resolvers {
             const db = this.rcontext.projectDB;
             const { scope } = bookmark;
             if (scope === 'project') {
+                console.log('DBG:10000');
+                if (!db.has('bookmarks').value()) {
+                    console.log('DBG:10100');
+                    yield db.set('bookmarks', []).write();
+                }
                 return db
                     .get('bookmarks')
                     .push(bookmark)
                     .write();
             }
+            console.log('DBG:11000');
             throw new task_ws_1.CodeError(422, `Only bookmarks having project scope are saved currently: ${scope}`);
         });
         this.fkill = (argv) => __awaiter(this, void 0, void 0, function* () {

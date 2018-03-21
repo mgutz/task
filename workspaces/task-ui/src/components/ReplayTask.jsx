@@ -5,36 +5,36 @@ import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
 import RunStatus from './RunStatus'
 
-const mapDispatch = ({taskfiles: {run}, router: {navigate}}) => ({
+const mapDispatch = ({histories: {replay}, router: {navigate}}) => ({
   navigate,
-  run,
+  replay,
 })
 
 @connect(null, mapDispatch)
 class ReplayTask extends React.Component {
   static propTypes = {
-    history: PropTypes.object.isRequired,
     navigate: PropTypes.func.isRequired,
-    run: PropTypes.func.isRequired,
+    record: PropTypes.object.isRequired,
+    replay: PropTypes.func.isRequired,
   }
 
   render() {
-    const {history} = this.props
+    const {record} = this.props
 
-    if (history.status === 'closed') {
+    if (record.status === 'closed') {
       return (
-        <IconButton onClick={this.doReplay(history)}>
+        <IconButton onClick={this.doReplay(record)}>
           <ReplayIcon />
         </IconButton>
       )
     }
 
-    return <RunStatus history={history} />
+    return <RunStatus history={record} />
   }
 
-  doReplay = (history) => () => {
-    const {run} = this.props
-    run(history)
+  doReplay = (record) => () => {
+    const {replay} = this.props
+    replay({record})
   }
 }
 

@@ -11,12 +11,11 @@ const util = require('util');
     a: any[]      // arguments to method
 */
 
-const noCallbackMessage =
-  'There is no callback and error occured while executing a registered method.';
+const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
 
 const _connections = new Set();
 
-const isPromise = o => typeof o.then === 'function';
+const isPromise = o => o && typeof o.then === 'function';
 
 class Server extends EventEmitter {
   constructor(connection) {

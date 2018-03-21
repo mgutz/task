@@ -3,11 +3,11 @@ import {PlayCircleFilled as PlayIcon} from 'material-ui-icons'
 import * as React from 'react'
 import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
-import {uid, bookmarkSlug} from '#/util'
+import {bookmarkSlug} from '#/util'
 
-const mapDispatch = ({taskfiles: {run}, router: {navigate}}) => ({
+const mapDispatch = ({histories: {replay}, router: {navigate}}) => ({
   navigate,
-  run,
+  replay,
 })
 
 @connect(null, mapDispatch)
@@ -15,7 +15,7 @@ class ReplayBookmark extends React.Component {
   static propTypes = {
     bookmark: PropTypes.object.isRequired,
     navigate: PropTypes.func,
-    run: PropTypes.func,
+    replay: PropTypes.func,
   }
 
   render() {
@@ -29,25 +29,27 @@ class ReplayBookmark extends React.Component {
   }
 
   doReplay = (bookmark) => () => {
-    const {run} = this.props
+    const {replay} = this.props
     // id for tracking the new history item
-    const newHistoryId = uid()
-    const {args, id, title} = bookmark
-    const route = {
-      name: 'bookmarks.title.history',
-      params: {
-        id,
-        title: bookmarkSlug(bookmark),
-        historyId: newHistoryId,
+    const {record, id, title} = bookmark
+
+    const ref = {
+      id,
+      kind: 'bookmark',
+      title,
+      route: {
+        name: 'bookmarks.title.history',
+        params: {
+          id,
+          title: bookmarkSlug(bookmark),
+          historyId: null, // filled in by recordPlugin
+        },
       },
     }
-    run({
-      newHistoryId,
-      args,
-      refId: bookmark.id,
-      refKind: 'bookmark',
-      route,
-      title,
+
+    replay({
+      ref,
+      record,
     })
   }
 }
