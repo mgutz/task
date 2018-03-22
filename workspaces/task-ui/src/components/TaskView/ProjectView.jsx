@@ -6,6 +6,7 @@ import OutputPanel from './OutputPanel'
 import TaskPanel from './TaskPanel'
 import {select} from '@rematch/select'
 import styled from 'styled-components'
+import {dispatch} from '@rematch/core'
 
 const Output = styled.div`
   display: flex;
@@ -43,10 +44,10 @@ const mapState = (state) => {
   }
 }
 
-const mapDispatch = ({
-  project: {loadProject},
-  router: {navigateToDefault},
-}) => ({loadProject, navigateToDefault})
+const mapDispatch = (dispatch) => {
+  const {project: {loadProject}, router: {navigateToDefault}} = dispatch
+  return {loadProject, navigateToDefault}
+}
 
 @connect(mapState, mapDispatch)
 class ProjectView extends React.Component {
@@ -59,13 +60,16 @@ class ProjectView extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.project.taskfiles) this.props.loadProject()
+    if (!this.props.project.taskfiles) {
+      this.props.loadProject()
+    }
 
     // Task ids are temporary since they are created on the fly, on a refresh
     // the id no longer exist in application state so go to default route
     const {invalidRoute, navigateToDefault} = this.props
     if (invalidRoute) {
       navigateToDefault()
+      dispatch({type: 'reset'})
       return
     }
   }

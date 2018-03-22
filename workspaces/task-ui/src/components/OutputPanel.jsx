@@ -1,5 +1,4 @@
 import './OutputPanel.css'
-import * as _ from 'lodash'
 import * as React from 'react'
 import JSONView from './JSONView'
 import PropTypes from 'prop-types'
@@ -39,7 +38,6 @@ export default class OutputPanel extends React.PureComponent {
     history: PropTypes.object,
     historyId: PropTypes.string,
     logIndex: PropTypes.object,
-    // pid: PropTypes.number,
     task: PropTypes.object,
   }
 

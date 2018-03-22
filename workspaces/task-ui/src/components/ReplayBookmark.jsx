@@ -31,6 +31,7 @@ class ReplayBookmark extends React.Component {
   doReplay = (bookmark) => () => {
     const {replay} = this.props
     // id for tracking the new history item
+    console.log('doReplay', bookmark)
     const {record, id, title} = bookmark
 
     const ref = {

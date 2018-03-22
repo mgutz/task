@@ -3,6 +3,7 @@ import {invoke} from '../services/websocket'
 import * as t from 'tcomb'
 import producer from './producer'
 import {uid} from '#/util'
+import {dispatch} from '@rematch/core'
 
 export const project = {
   state: {
@@ -34,7 +35,14 @@ export const project = {
 
   effects: {
     loadProject() {
-      invoke('loadProject').then(this.setProject)
+      invoke('loadProject').then((res) => {
+        this.setProject(res)
+        if (res.taskfiles) {
+          for (const taskfile of res.taskfiles) {
+            dispatch.taskfiles.fetchTasks({taskfileId: taskfile.id})
+          }
+        }
+      })
     },
 
     saveBookmark({title, record}) {

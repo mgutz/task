@@ -40,12 +40,9 @@ export default class App extends React.Component {
     route: PropTypes.object,
   }
 
-  constructor() {
-    super()
-  }
-
   renderView() {
     const {name} = this.props.route
+    if (name.startsWith('bookmarks')) return <TaskView />
     if (name.startsWith('tasks')) return <TaskView />
     if (name.startsWith('settings')) return <SettingsView />
     return <div>Route not found</div>

@@ -8,15 +8,6 @@ export const histories = {
   state: {}, // {[key: string]: History}
 
   reducers: {
-    /**
-     * Eash task has a history list where the last-in is newest.
-     *
-     * payload:
-     *  pid - ID log
-     *  taskName - the owner
-     *  method - the remote method invoked
-     *  args - the args for remote method
-     */
     'taskfiles/record': producer((draft, payload) => {
       const {id} = payload
       const item = draft[id]
@@ -62,6 +53,7 @@ export const histories = {
     // the reference to the bookmark and the args executed are of the original
     // task.
     replay({ref, record}) {
+      console.log('REPLAYING', record)
       dispatch.taskfiles.run({ref: ref || record.ref, ...record.args})
     },
   },

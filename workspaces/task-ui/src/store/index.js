@@ -6,6 +6,7 @@ import {taskfiles} from './taskfiles'
 import {logs} from './logs'
 import {histories} from './histories'
 import {init as initWebSocketClient} from '#/services/websocket'
+import {router as router5} from '#/services/router'
 import {project} from './project'
 import {initRouter5} from './router'
 import {api} from './api'
@@ -32,12 +33,16 @@ export const createStore = async () => {
     plugins: [selectorsPlugin(), recordPlugin(recordable)],
     redux: {
       middlewares: [],
+      rootReducers: {
+        RESET: () => undefined,
+      },
     },
   })
 
   const wsClient = await initWebSocketClient()
 
   hookWebSocket(store.dispatch, wsClient)
+  hookRouter(store.dispatch)
   _.set(window, 'DBG.store', store)
   return store
 }
@@ -57,4 +62,11 @@ const hookWebSocket = (dispatch, client) => {
 
   // process close event
   client.on('pclose', dispatch.taskfiles.pclose)
+}
+
+const hookRouter = (dispatch) => {
+  router5.addListener((toState, fromState) => {
+    if (router5.areStatesEqual(toState, fromState)) return
+    dispatch.router.setRoute(toState)
+  })
 }

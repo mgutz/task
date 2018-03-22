@@ -3,66 +3,43 @@ import PropTypes from 'prop-types'
 import ListSubheader from 'material-ui/List/ListSubheader'
 import List, {ListItemIcon, ListItem, ListItemText} from 'material-ui/List'
 import ReplayBookmark from '../ReplayBookmark'
-import {connect} from 'react-redux'
 import {bookmarkSlug} from '#/util'
+import Activate from '../Activate'
 
-const mapState = (state) => {
-  const {route} = state.router
-  return {
-    route,
-  }
-}
-
-const mapDispatch = ({router: {navigate}}) => ({navigate})
-
-@connect(mapState, mapDispatch)
 export default class TaskFiles extends PureComponent {
   static propTypes = {
     bookmarks: PropTypes.array,
-    navigate: PropTypes.func,
-    route: PropTypes.object,
   }
 
-  renderItems(route, bookmarks) {
+  renderItems(bookmarks) {
     if (!bookmarks) return null
 
-    const {name, params} = route
-
     return bookmarks.map((bookmark) => {
-      const isActive =
-        name.startsWith('bookmarks.title') && params.id === bookmark.id
-      const classes = isActive ? 'is-selected' : ''
-      const onClick = isActive ? null : this.doSetActive(bookmark)
+      const route = {
+        name: 'bookmarks.title',
+        params: {id: bookmark.id, title: bookmarkSlug(bookmark)},
+      }
 
       return (
-        <ListItem className={classes} key={bookmark.id} onClick={onClick}>
-          {/* <ListItemIcon>
-            <BoomarkBorderIcon />
-          </ListItemIcon> */}
-          <ListItemText primary={bookmark.title} />
-          <ListItemIcon>
-            <ReplayBookmark bookmark={bookmark} />
-          </ListItemIcon>
-        </ListItem>
+        <Activate key={bookmark.id} class="is-selected" route={route}>
+          <ListItem>
+            <ListItemText primary={bookmark.title} />
+            <ListItemIcon>
+              <ReplayBookmark bookmark={bookmark} />
+            </ListItemIcon>
+          </ListItem>
+        </Activate>
       )
     })
   }
 
   render() {
-    const {bookmarks, route} = this.props
+    const {bookmarks} = this.props
     return (
       <List>
         <ListSubheader>Bookmarks</ListSubheader>
-        {this.renderItems(route, bookmarks)}
+        {this.renderItems(bookmarks)}
       </List>
     )
-  }
-
-  doSetActive = (bookmark) => () => {
-    const {navigate} = this.props
-    navigate({
-      name: 'bookmarks.title',
-      params: {id: bookmark.id, title: bookmarkSlug(bookmark)},
-    })
   }
 }
