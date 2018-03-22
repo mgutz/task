@@ -8,7 +8,9 @@ export const initRouter5 = async (routes, opts = {}) => {
   const model = {
     name: 'router',
 
-    state: {},
+    state: {
+      router: router5,
+    },
 
     reducers: {
       setRoute: (state, payload) => {

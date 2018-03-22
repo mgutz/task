@@ -53,7 +53,7 @@ class History extends React.Component {
 
   doSetActive = (record) => () => {
     const {navigate} = this.props
-    navigate(record.route)
+    navigate(record.ref.route)
   }
 }
 

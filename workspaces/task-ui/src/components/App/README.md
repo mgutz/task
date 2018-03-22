@@ -5,7 +5,7 @@ UI is split into 3 regions. Mode, Actions and Output. Below is an example in
 
 
 ```
-Mode        Actions                                      Output
+Modes        Actions                                      Output
 +------+ +--------------++-----------------------------------------------------------------+
 |      | |              ||      RunPanel                   Output Panel                    |
 |      | | +----------+ ||  +--------------++--------------------------------------------+ |

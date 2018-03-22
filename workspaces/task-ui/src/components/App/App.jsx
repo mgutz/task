@@ -2,8 +2,10 @@ import './App.css'
 import {connect} from 'react-redux'
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
 import * as React from 'react'
-import ProjectView from '../ProjectView'
+import TaskView from '../TaskView'
 import PropTypes from 'prop-types'
+import Modes from '../Modes'
+import SettingsView from '../SettingsView'
 
 const theme = {
   palette: {
@@ -38,12 +40,25 @@ export default class App extends React.Component {
     route: PropTypes.object,
   }
 
+  constructor() {
+    super()
+  }
+
+  renderView() {
+    const {name} = this.props.route
+    if (name.startsWith('tasks')) return <TaskView />
+    if (name.startsWith('settings')) return <SettingsView />
+    return <div>Route not found</div>
+  }
+
   render() {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div className="App">
-          <ProjectView />
-          <footer>footer</footer>
+          <nav>
+            <Modes />
+          </nav>
+          {this.renderView()}
         </div>
       </MuiThemeProvider>
     )

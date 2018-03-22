@@ -28,6 +28,7 @@ class Server extends EventEmitter {
 
     this.rpcMethods = {};
     this.handleRPC = this.handleRPC.bind(this);
+
     this.on('invoke', this.handleRPC);
   }
 
@@ -43,43 +44,39 @@ class Server extends EventEmitter {
     return JSON.stringify(data);
   }
 
+  // {n: 'event', a: 'args', i?: 'callbackid'}
+  // returns {c: statusCode, e: 'error', p: 'payload',  i?: callbackid}
   process(message) {
     if (message[0] !== '{') return;
 
-    // {n: 'event', a: 'args', i?: 'callbackid'}
-    // {c: statusCode, e: 'error', p: 'payload', 'i': callbackid}
-    let o;
-
     try {
-      o = JSON.parse(message);
+      const o = JSON.parse(message);
+      if (!o.n) return;
+
+      const {n: event, a: params, i: callbackId} = o;
+
+      let cb;
+      if (callbackId) {
+        cb = (err, data) => {
+          if (err) {
+            const packet = {e: err.message, i: callbackId};
+            packet.c = typeof err.code !== 'undefined' ? err.code : 500;
+
+            if (typeof err.stack !== 'undefined') {
+              packet.k = err.stack;
+            }
+            return this._send(this.serialize(packet));
+          }
+          return this._send(this.serialize({c: 0, i: callbackId, p: data}));
+        };
+      }
+
+      this.$emitLocal(event, params, cb);
     } catch (err) {
-      console.error('Invalid JSON packet', message);
+      console.error('Error while processing packet', message);
+      console.error(err);
       return;
     }
-
-    if (!o.n) return;
-
-    const {n: event, a: params, i: callbackId} = o;
-
-    let cb;
-    if (callbackId) {
-      const conn = this.conn;
-      const serialize = this.serialize;
-      cb = (err, data) => {
-        if (err) {
-          const packet = {e: err.message, i: callbackId};
-          packet.c = typeof err.code !== 'undefined' ? err.code : 500;
-
-          if (typeof err.stack !== 'undefined') {
-            packet.k = err.stack;
-          }
-          return this._send(serialize(packet));
-        }
-        return this._send(serialize({c: 0, i: callbackId, p: data}));
-      };
-    }
-
-    this.$emitLocal(event, params, cb);
   }
 
   handleRPC(params, cb) {

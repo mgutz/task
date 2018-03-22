@@ -76,9 +76,6 @@ class ProjectView extends React.Component {
 
     return (
       <Fragment>
-        <nav>
-          <span>T</span>
-        </nav>
         <aside>
           <TaskPanel project={project} />
         </aside>

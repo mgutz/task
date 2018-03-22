@@ -7,9 +7,7 @@ import PlayCircleFilledIcon from 'material-ui-icons/PlayCircleFilled'
 import IconButton from 'material-ui/IconButton'
 import {taskSlug} from '#/util'
 
-const mapDispatch = ({taskfiles: {run}}) => ({
-  run,
-})
+const mapDispatch = ({taskfiles: {run}}) => ({run})
 
 @connect(null, mapDispatch)
 class RunTask extends Component {
