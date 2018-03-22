@@ -5,7 +5,7 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import PlayCircleFilledIcon from 'material-ui-icons/PlayCircleFilled'
 import IconButton from 'material-ui/IconButton'
-import {taskSlug} from '#/util'
+import {stopPropagation, taskSlug} from '#/util'
 
 const mapDispatch = ({taskfiles: {run}}) => ({run})
 
@@ -41,7 +41,7 @@ class RunTask extends Component {
     const {ui} = task
     const {model, schema, showForm} = this.state
     const hasForm = this.hasUI()
-    const runFunc = hasForm ? this.doShowForm : this.doRun
+    const runFunc = hasForm ? this.doShowForm : this.doRunNoPropagation
 
     return (
       <div>
@@ -71,6 +71,11 @@ class RunTask extends Component {
     this.setState((prevState) => {
       return {...prevState, model: {...prevState.model, [key]: value}}
     })
+  }
+
+  doRunNoPropagation = (e) => {
+    stopPropagation(e)
+    this.doRun()
   }
 
   doRun = (model) => {

@@ -1,12 +1,11 @@
 import React, {PureComponent} from 'react'
 import PropTypes from 'prop-types'
-import ListSubheader from 'material-ui/List/ListSubheader'
 import List, {ListItemIcon, ListItem, ListItemText} from 'material-ui/List'
-import ReplayBookmark from '../ReplayBookmark'
+import ReplayBookmark from './ReplayBookmark'
 import {bookmarkSlug} from '#/util'
-import Activate from '../Activate'
+import {Activate} from '#/services/router'
 
-export default class TaskFiles extends PureComponent {
+export default class Bookmarks extends PureComponent {
   static propTypes = {
     bookmarks: PropTypes.array,
   }
@@ -35,11 +34,6 @@ export default class TaskFiles extends PureComponent {
 
   render() {
     const {bookmarks} = this.props
-    return (
-      <List>
-        <ListSubheader>Bookmarks</ListSubheader>
-        {this.renderItems(bookmarks)}
-      </List>
-    )
+    return <List>{this.renderItems(bookmarks)}</List>
   }
 }

@@ -1,14 +1,17 @@
+import * as _ from 'lodash'
 import React, {Component} from 'react'
 import {select} from '@rematch/select'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import History from '../History'
+import History from './History'
 import Tabs, {Tab} from 'material-ui/Tabs'
+import Bookmarks from './Bookmarks'
 
 const mapState = (state) => {
   return {
     histories: select.histories.all(state),
-    runningHistories: select.histories.runningTasks(state),
+    //runningHistories: select.histories.runningTasks(state),
+    bookmarks: state.project.bookmarks,
   }
 }
 
@@ -23,6 +26,7 @@ const styles = {
 class RunPanel extends Component {
   static propTypes = {
     bookmark: PropTypes.object,
+    bookmarks: PropTypes.array,
     histories: PropTypes.array,
     runningHistories: PropTypes.array,
     task: PropTypes.object,
@@ -36,25 +40,24 @@ class RunPanel extends Component {
     super()
     this.activeTabs = [
       {label: 'History', render: this.renderHistories},
-      {label: 'Running', render: this.renderRunning},
-      // this.renderFind,
+      {label: 'Bookmarks', render: this.renderBookmarks},
     ]
   }
 
-  renderHistories = () => {
-    const {histories} = this.props
-    // const historiesTitle =
-    //   histories && histories.length ? 'History' : 'No History'
-    return <History histories={histories} />
+  renderBookmarks = () => {
+    const {bookmarks} = this.props
+    return <Bookmarks bookmarks={bookmarks} />
   }
 
-  renderRunning = () => {
-    const {runningHistories} = this.props
-    // const runningTitle =
-    //   runningHistories && runningHistories.length
-    //     ? 'Running Tasks'
-    //     : 'No Running Tasks'
-    return <History histories={runningHistories} />
+  renderHistories = () => {
+    const {histories: records} = this.props
+
+    const list = records.slice(0).reverse()
+
+    const running = _.filter(list, {status: 'running'}) || []
+    const notRunning = _.filter(list, (r) => r.status !== 'running') || []
+    const ordered = [...running, ...notRunning]
+    return <History records={ordered} />
   }
 
   render() {

@@ -4,6 +4,7 @@ import * as React from 'react'
 import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
 import RunStatus from './RunStatus'
+import {stopPropagation} from '#/util'
 
 const mapDispatch = ({histories: {replay}, router: {navigate}}) => ({
   navigate,
@@ -32,7 +33,8 @@ class ReplayTask extends React.Component {
     return <RunStatus history={record} />
   }
 
-  doReplay = (record) => () => {
+  doReplay = (record) => (e) => {
+    stopPropagation(e)
     const {replay} = this.props
     replay({record})
   }

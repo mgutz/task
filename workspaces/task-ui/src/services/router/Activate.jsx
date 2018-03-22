@@ -1,11 +1,11 @@
 import React, {PureComponent} from 'react'
 import PropTypes from 'prop-types'
-import {router} from '#/services/router'
 import {connect} from 'react-redux'
+import {router} from './router'
 
-// listens for changes in route
+// <Activate class="is-selected" route={{name, params}}><Child /></Activate>
 @connect((state) => ({currentRoute: state.router.route}))
-class Activate extends PureComponent {
+export class Activate extends PureComponent {
   static propTypes = {
     class: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
@@ -34,5 +34,3 @@ class Activate extends PureComponent {
     router.navigate(route.name, route.params)
   }
 }
-
-export default Activate

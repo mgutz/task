@@ -8,7 +8,14 @@ module.exports = function override(config, env) {
 
   config = rewireCSSNext(config, env)
 
+  // import components on demand used by `antd`
+  // config = injectBabelPlugin(
+  //   ['import', {libraryName: 'antd', libraryDirectory: 'es', style: 'css'}],
+  //   config
+  // )
+
   // allow @decorators
   config = injectBabelPlugin('transform-decorators-legacy', config)
+
   return config
 }

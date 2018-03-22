@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import ListIcon from 'material-ui-icons/List'
 import SettingsIcon from 'material-ui-icons/Settings'
-import Flex, {FlexItem} from 'styled-flex-component'
 import IconButton from 'material-ui/IconButton'
-import Activate from './Activate'
+import {Activate} from '#/services/router'
+import Box from './Box'
 
 class Modes extends Component {
   constructor() {
@@ -21,18 +21,18 @@ class Modes extends Component {
     }
     return (
       <Activate class="is-selected" route={route} key={i}>
-        <FlexItem className="foo">
+        <Box>
           <IconButton>{mode.icon}</IconButton>
-        </FlexItem>
+        </Box>
       </Activate>
     )
   }
 
   render() {
     return (
-      <Flex center column>
+      <Box flexDirection="column" alignItems="center">
         {this.modes.map(this.renderItem)}
-      </Flex>
+      </Box>
     )
   }
 }

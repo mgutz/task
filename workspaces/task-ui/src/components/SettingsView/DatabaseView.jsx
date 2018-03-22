@@ -1,11 +1,15 @@
 import * as React from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import OutputPanel from './OutputPanel'
-import TaskPanel from './TaskPanel'
 import {select} from '@rematch/select'
+import styled from 'styled-components'
 import {dispatch} from '@rematch/core'
-import Box from '../Box'
+
+const Output = styled.div`
+  display: flex;
+  height: 100%:
+  border: solid 2px green;
+`
 
 const {Fragment} = React
 
@@ -32,7 +36,7 @@ const mapDispatch = (dispatch) => {
 }
 
 @connect(mapState, mapDispatch)
-class ProjectView extends React.Component {
+class DatabaseView extends React.Component {
   static propTypes = {
     invalidRoute: PropTypes.bool,
     loadProject: PropTypes.func.isRequired,
@@ -63,14 +67,14 @@ class ProjectView extends React.Component {
     return (
       <Fragment>
         <aside>
-          <TaskPanel project={project} />
+          <div>Actions</div>
         </aside>
-        <Box height="100%">
-          <OutputPanel />
-        </Box>
+        <Output>
+          <div>OUTPUT</div>
+        </Output>
       </Fragment>
     )
   }
 }
 
-export default ProjectView
+export default DatabaseView

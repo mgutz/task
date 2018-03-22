@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types'
 import React, {Component} from 'react'
-import Bookmarks from './Bookmarks'
 import Taskfiles from './Taskfiles'
 
 /*
@@ -23,7 +22,6 @@ class TaskPanel extends Component {
     return (
       <React.Fragment>
         <Taskfiles taskfiles={project.taskfiles} />
-        <Bookmarks bookmarks={project.bookmarks} />
       </React.Fragment>
     )
   }

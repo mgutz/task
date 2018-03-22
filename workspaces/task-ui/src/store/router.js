@@ -22,6 +22,7 @@ export const initRouter5 = async (routes, opts = {}) => {
       navigate(args) {
         const {name, params} = args
         router5.navigate(name, params, (err, state) => {
+          console.log('store NAVIGATE', {err, state})
           if (err) {
             if (err.code !== 'SAME_STATES') {
               konsole.error('Navigation Error', err)

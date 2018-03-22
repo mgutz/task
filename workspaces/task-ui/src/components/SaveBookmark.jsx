@@ -34,6 +34,8 @@ class SaveBookmark extends Component {
   }
 
   render() {
+    const {ref} = this.props.history
+    if (ref && ref.kind === 'bookmark') return null
     return (
       <div>
         <Button variant="fab" color="secondary" onClick={this.doShowForm} mini>

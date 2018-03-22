@@ -12,7 +12,7 @@ import styled from 'styled-components'
 import RunTask from './RunTask'
 import {select} from '@rematch/select'
 import {taskSlug} from '#/util'
-import Activate from './Activate'
+import {Activate} from '#/services/router'
 
 const InsetList = styled(List)`
   padding-left: 10px;

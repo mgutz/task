@@ -6,6 +6,13 @@ import TaskView from '../TaskView'
 import PropTypes from 'prop-types'
 import Modes from '../Modes'
 import SettingsView from '../SettingsView'
+import RunPanel from '../RunPanel'
+
+import styled from 'styled-components'
+
+const HistoryPanel = styled.div`
+  background-color: #f0f0f0;
+`
 
 const theme = {
   palette: {
@@ -56,6 +63,9 @@ export default class App extends React.Component {
             <Modes />
           </nav>
           {this.renderView()}
+          <HistoryPanel>
+            <RunPanel />
+          </HistoryPanel>
         </div>
       </MuiThemeProvider>
     )

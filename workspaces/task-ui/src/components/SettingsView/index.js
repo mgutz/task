@@ -1,1 +1,1 @@
-export {default} from './SettingsView.jsx'
+export {default} from './DatabaseView.jsx'

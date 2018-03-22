@@ -1,7 +1,9 @@
+import * as _ from 'lodash'
 import React, {Component} from 'react'
 import {AutoSizer, List} from 'react-virtualized'
 import {logEntryAt, logLength} from '#/store/logs'
 import PropTypes from 'prop-types'
+import Ansi from 'ansi-to-react'
 
 class OutputStream extends Component {
   static propTypes = {
@@ -35,16 +37,17 @@ class OutputStream extends Component {
     const o = logEntryAt(logIndex, index)
 
     let str
-    if (o._msg_) {
+    if (o._msg_ !== undefined) {
       str = o._msg_
     } else if (task.formatLog) {
       try {
         str = task.formatLog(o)
       } catch (err) {
-        // do nothing
+        str = JSON.stringify(o)
       }
+    } else {
+      str = JSON.stringify(o)
     }
-    if (!str) str = JSON.stringify(o)
 
     // TODO show message if no str
     // if (!str) str = JSON.stringify(o)
@@ -62,7 +65,9 @@ class OutputStream extends Component {
         onClick={this.doSelect(index)}
         style={style}
       >
-        <div className={lineClasses}>{str}</div>
+        <div className={lineClasses}>
+          <Ansi>{str}</Ansi>
+        </div>
       </div>
     )
   }
@@ -101,8 +106,10 @@ class OutputStream extends Component {
     // reversed visually so moving up decreases, moving down increases
     if (e.key === 'ArrowUp') {
       if (selected > 0) this.innerSelect(selected - 1)
+      e.preventDefault()
     } else if (e.key === 'ArrowDown') {
       if (selected + 1 < max) this.innerSelect(selected + 1)
+      e.preventDefault()
     }
   }
 
@@ -114,11 +121,22 @@ class OutputStream extends Component {
     this.virtualList = instance
   }
 
+  propsSelect = _.debounce((index) => {
+    this.props.onSelect(index)
+  }, 150)
+
+  updateGrid = _.debounce(() => {
+    this.virtualList.forceUpdateGrid()
+  }, 125)
+
   innerSelect = (index) => {
-    this.setState({selected: index}, () => {
-      this.virtualList.forceUpdateGrid()
-      this.props.onSelect(index)
-    })
+    // this.setState({selected: index}, () => {
+    //   this.virtualList.forceUpdateGrid()
+    //   this.propsSelect(index)
+    // })
+    this.setState({selected: index})
+    this.updateGrid()
+    this.propsSelect(index)
   }
 }
 

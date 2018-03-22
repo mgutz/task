@@ -45,10 +45,8 @@ class RunInfo extends Component {
 
   render() {
     if (!this.props.history) return null
-
     const {history} = this.props
-
-    const title = `${_.upperFirst(history.args[1])}`
+    const {title} = history.ref
 
     return (
       <ToolbarView>

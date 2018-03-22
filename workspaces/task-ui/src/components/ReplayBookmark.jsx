@@ -3,7 +3,7 @@ import {PlayCircleFilled as PlayIcon} from 'material-ui-icons'
 import * as React from 'react'
 import IconButton from 'material-ui/IconButton'
 import PropTypes from 'prop-types'
-import {bookmarkSlug} from '#/util'
+import {bookmarkSlug, stopPropagation} from '#/util'
 
 const mapDispatch = ({histories: {replay}, router: {navigate}}) => ({
   navigate,
@@ -28,10 +28,11 @@ class ReplayBookmark extends React.Component {
     )
   }
 
-  doReplay = (bookmark) => () => {
+  doReplay = (bookmark) => (e) => {
+    stopPropagation(e)
+
     const {replay} = this.props
     // id for tracking the new history item
-    console.log('doReplay', bookmark)
     const {record, id, title} = bookmark
 
     const ref = {
