@@ -21,7 +21,7 @@ class Modes extends Component {
     }
     return (
       <Activate class="is-selected" route={route} key={i}>
-        <Box>
+        <Box shape="rounded">
           <IconButton>{mode.icon}</IconButton>
         </Box>
       </Activate>
@@ -30,7 +30,7 @@ class Modes extends Component {
 
   render() {
     return (
-      <Box flexDirection="column" alignItems="center">
+      <Box flexDirection="column" alignItems="center" margin="10px 0">
         {this.modes.map(this.renderItem)}
       </Box>
     )

@@ -22,6 +22,7 @@ class SchemaFormDialog extends React.PureComponent {
     onSubmit: PropTypes.func,
     open: PropTypes.bool,
     schema: PropTypes.object.isRequired,
+    title: PropTypes.string.isRequired,
   }
 
   constructor(props) {
@@ -33,7 +34,7 @@ class SchemaFormDialog extends React.PureComponent {
   }
 
   render() {
-    const {form, open, schema} = this.props
+    const {form, open, schema, title} = this.props
     const {model} = this.state
 
     return (
@@ -46,7 +47,7 @@ class SchemaFormDialog extends React.PureComponent {
           transition={Transition}
         >
           <DialogContent style={{width: '400px'}}>
-            <DialogTitle>Task Arguments</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <SchemaForm
               schema={schema}
               form={form}

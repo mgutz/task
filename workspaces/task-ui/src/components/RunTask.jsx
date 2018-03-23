@@ -56,6 +56,7 @@ class RunTask extends Component {
               onModelChange={this.doModelChange}
               onSubmit={this.doRun}
               maxWidth="md"
+              title={taskSlug(task) + ' Arguments'}
             />
           )}
         <IconButton onClick={runFunc}>{icon}</IconButton>

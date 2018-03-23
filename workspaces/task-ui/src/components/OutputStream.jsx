@@ -127,7 +127,7 @@ class OutputStream extends Component {
 
   updateGrid = _.debounce(() => {
     this.virtualList.forceUpdateGrid()
-  }, 125)
+  }, 100)
 
   innerSelect = (index) => {
     // this.setState({selected: index}, () => {

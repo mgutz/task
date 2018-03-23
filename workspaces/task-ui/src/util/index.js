@@ -10,16 +10,18 @@ export const uid = () => {
 
 export const konsole = console
 
-export const titleize = (s) => {
-  return _.upperFirst(_.camelCase(s))
+export const pascalCase = (s) => {
+  return _.upperFirst(camelCase(s))
 }
 
+export const camelCase = _.camelCase
+
 export const taskSlug = (task) => {
-  return _.camelCase(task.taskfileId) + '.' + _.camelCase(task.name)
+  return pascalCase(task.taskfileId) + '.' + camelCase(task.name)
 }
 
 export const bookmarkSlug = (bookmark) => {
-  return _.camelCase(bookmark.title)
+  return camelCase(bookmark.title)
 }
 
 export const stopPropagation = (e) => {
