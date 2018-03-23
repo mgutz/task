@@ -30,7 +30,7 @@ class ReplayTask extends React.Component {
       )
     }
 
-    return <RunStatus history={record} />
+    return <RunStatus record={record} />
   }
 
   doReplay = (record) => (e) => {

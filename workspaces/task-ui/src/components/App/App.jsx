@@ -2,17 +2,11 @@ import './App.css'
 import {connect} from 'react-redux'
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
 import * as React from 'react'
-import TaskView from '../TaskView'
+import TaskMode from '../TaskMode'
 import PropTypes from 'prop-types'
-import Modes from '../Modes'
-import SettingsView from '../SettingsView'
-import RunPanel from '../RunPanel'
-
-import styled from 'styled-components'
-
-const HistoryPanel = styled.div`
-  background-color: #f0f0f0;
-`
+import ModeBar from '../ModeBar'
+import DatabaseMode from '../DatabaseMode'
+import HistoryPanel from '../HistoryPanel'
 
 const theme = {
   palette: {
@@ -47,25 +41,25 @@ export default class App extends React.Component {
     route: PropTypes.object,
   }
 
-  renderView() {
+  renderMode() {
     const {name} = this.props.route
-    if (name.startsWith('bookmarks')) return <TaskView />
-    if (name.startsWith('tasks')) return <TaskView />
-    if (name.startsWith('settings')) return <SettingsView />
+    if (name.startsWith('bookmarks')) return <TaskMode />
+    if (name.startsWith('tasks')) return <TaskMode />
+    if (name.startsWith('settings')) return <DatabaseMode />
     return <div>Route not found</div>
   }
 
   render() {
+    const currentModeView = this.renderMode()
+
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div className="App">
           <nav>
-            <Modes />
+            <ModeBar />
           </nav>
-          {this.renderView()}
-          <HistoryPanel>
-            <RunPanel />
-          </HistoryPanel>
+          {currentModeView}
+          <HistoryPanel />
         </div>
       </MuiThemeProvider>
     )

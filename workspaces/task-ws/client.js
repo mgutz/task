@@ -1,1 +1,2 @@
-export {default} from './src/client';
+const client = require('./src/client')
+module.exports = client

@@ -2,70 +2,32 @@ import * as _ from 'lodash'
 import * as express from 'express'
 import * as http from 'http'
 import * as WebSocket from 'ws'
-// import * as WSMessaging from 'ws-messaging'
 import {AppContext} from '../core/AppContext'
 import {konsole} from '../core/log'
 import {Project, ResolverContext} from './types'
-import {Resolvers} from './Resolvers'
+import * as taskHandlers from './taskHandlers'
 import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
 import * as FileAsync from 'lowdb/adapters/FileAsync'
-import {Server, initMessaging} from 'task-ws'
+import {Server, initMessaging, RPCRegistry} from 'task-ws'
 import * as WSMessaging from 'ws-messaging'
 
 export interface StartOptions {
   port: number
 }
 
-// const initResolvers = (rcontext: ResolverContext) => {
-//   return (client: any, authData: any) => {
-//     const resolverContext = {...rcontext, authData, client}
-
-//     // register any function that does not start with '_'
-//     const resolvers = new Resolvers(resolverContext)
-//     for (const k in resolvers) {
-//       // @ts-ignore
-//       const resolver = resolvers[k]
-//       if (k.startsWith('_') || typeof resolver !== 'function') continue
-//       client.register(k, resolver)
-//     }
-
-//     return Promise.resolve()
-//   }
-// }
-
-const initResolversWsMessaging = (rcontext: ResolverContext) => {
-  return (client: any, authData: any) => {
-    const resolverContext = {...rcontext, authData, client}
-
-    // register any function that does not start with '_'
-    const resolvers = new Resolvers(resolverContext)
-    for (const k in resolvers) {
-      // @ts-ignore
-      const resolver = resolvers[k]
-      if (k.startsWith('_') || typeof resolver !== 'function') continue
-      client.register(k, resolver)
-    }
-
-    return Promise.resolve()
-  }
+interface HandlersDict {
+  [k: string]: (context: ResolverContext, ...args: any[]) => Promise<any>
 }
 
-const initResolvers = (rcontext: ResolverContext) => {
-  return (client: any, authData: any) => {
+const onConnection = (rcontext: ResolverContext) => {
+  const registry = new RPCRegistry()
+  registry.register('task', taskHandlers)
+
+  // only this function is called on connection, handlers above initialize once
+  return (socket: any) => {
     konsole.log('Connected')
-    const resolverContext = {...rcontext, authData, client}
-
-    // register any function that does not start with '_'
-    const resolvers = new Resolvers(resolverContext)
-    for (const k in resolvers) {
-      // @ts-ignore
-      const resolver = resolvers[k]
-      if (k.startsWith('_') || typeof resolver !== 'function') continue
-      client.register(k, resolver)
-    }
-
-    return Promise.resolve()
+    return new Server(socket, rcontext, registry)
   }
 }
 
@@ -81,23 +43,11 @@ export const start = async (ctx: AppContext, opts: StartOptions) => {
   const app = express()
   const server = http.createServer(app)
 
-  // BEGIN task-ws
   const wss = new WebSocket.Server({server})
-  initMessaging(wss, initResolvers(rcontext))
-  // END task-ws
-
-  // BEGIN ws-messaging
-  // const connectionHook = initResolversWsMessaging(rcontext)
-  // const wss = new WSMessaging(
-  //   {server},
-  //   {connectionHook, WebSocketServer: WebSocket.Server}
-  // )
-  // END ws-messaging
+  initMessaging(wss, onConnection(rcontext))
 
   server.listen(opts.port, (err: any) => {
     if (err) return konsole.error(err)
     konsole.info(`Running websocket server on http://localhost:${opts.port}`)
   })
 }
-
-// server needs Taskproject.ts

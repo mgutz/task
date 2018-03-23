@@ -32,7 +32,7 @@ const mapDispatch = (dispatch) => {
 }
 
 @connect(mapState, mapDispatch)
-class ProjectView extends React.Component {
+class TaskMode extends React.Component {
   static propTypes = {
     invalidRoute: PropTypes.bool,
     loadProject: PropTypes.func.isRequired,
@@ -73,4 +73,4 @@ class ProjectView extends React.Component {
   }
 }
 
-export default ProjectView
+export default TaskMode

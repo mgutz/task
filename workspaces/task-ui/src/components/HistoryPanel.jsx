@@ -6,6 +6,13 @@ import PropTypes from 'prop-types'
 import History from './History'
 import Tabs, {Tab} from 'material-ui/Tabs'
 import Bookmarks from './Bookmarks'
+import styled from 'styled-components'
+import {TopToolbar} from './styled'
+
+const HistoryContainer = styled.div`
+  background-color: #fcfcfc;
+  border-left: solid 1px #f0f0f0;
+`
 
 const mapState = (state) => {
   return {
@@ -23,7 +30,7 @@ const styles = {
 }
 
 @connect(mapState)
-class RunPanel extends Component {
+class HistoryPanel extends Component {
   static propTypes = {
     bookmark: PropTypes.object,
     bookmarks: PropTypes.array,
@@ -64,7 +71,8 @@ class RunPanel extends Component {
     const {activeTab} = this.state
 
     return (
-      <React.Fragment>
+      <HistoryContainer>
+        <TopToolbar />
         <Tabs
           value={activeTab}
           indicatorColor="primary"
@@ -76,7 +84,7 @@ class RunPanel extends Component {
           ))}
         </Tabs>
         {this.activeTabs[activeTab].render()}
-      </React.Fragment>
+      </HistoryContainer>
     )
   }
 
@@ -85,4 +93,4 @@ class RunPanel extends Component {
   }
 }
 
-export default RunPanel
+export default HistoryPanel

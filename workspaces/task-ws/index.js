@@ -1,4 +1,5 @@
-const {initMessaging, Server} = require('./src/server');
-const CodeError = require('./src/codeError');
+const server = require('./src/server')
+const registry = require('./src/rpcRegistry')
+const CodeError = require('./src/codeError')
 
-module.exports = {initMessaging, CodeError, Server};
+module.exports = Object.assign({}, registry, server, CodeError)

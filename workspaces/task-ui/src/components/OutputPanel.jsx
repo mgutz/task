@@ -61,7 +61,7 @@ export default class OutputPanel extends React.PureComponent {
     return (
       <Box flexDirection="column" height="100%">
         <Box>
-          <RunInfo history={history} />
+          <RunInfo record={history} />
         </Box>
         <Box flex="1">
           {logIndex && (

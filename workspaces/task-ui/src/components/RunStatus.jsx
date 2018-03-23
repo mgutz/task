@@ -13,14 +13,14 @@ const mapDispatch = ({histories: {stop}}) => ({stop})
 @connect(null, mapDispatch)
 class RunStatus extends Component {
   static propTypes = {
-    history: PropTypes.object.isRequired,
+    record: PropTypes.object.isRequired,
     stop: PropTypes.func.isRequired,
   }
 
   state = {hover: false}
 
   render() {
-    const {history: {status}} = this.props
+    const {record: {status}} = this.props
     const {hover} = this.state
 
     const onClick = hover ? this.doStop : null
@@ -47,7 +47,7 @@ class RunStatus extends Component {
   }
 
   doStop = () => {
-    const {stop, history: {pid}} = this.props
+    const {stop, record: {pid}} = this.props
     stop({pid})
   }
 }

@@ -1,5 +1,7 @@
-const {EventEmitter} = require('events');
-const util = require('util');
+/* eslint-disable no-console */
+const {EventEmitter} = require('events')
+
+const _connections = new Set()
 
 /*
   {
@@ -10,154 +12,126 @@ const util = require('util');
     i: number     // callback id
     a: any[]      // arguments to method
 */
-
-const noCallbackMessage = 'There is no callback and error occured while executing a registered method.';
-
-const _connections = new Set();
-
-const isPromise = o => o && typeof o.then === 'function';
-
 class Server extends EventEmitter {
-  constructor(connection) {
-    super();
+  constructor(connection, context, rpcRegistry) {
+    super()
 
-    this.conn = connection;
-    connection.on('message', data => {
-      this.process(data);
-    });
+    this.conn = connection
+    connection.on('message', (data) => {
+      this.process(data)
+    })
 
-    this.rpcMethods = {};
-    this.handleRPC = this.handleRPC.bind(this);
+    this.handleRPC = this.handleRPC.bind(this)
 
-    this.on('invoke', this.handleRPC);
+    this.rpcRegistry = rpcRegistry
+    this.on('invoke', this.handleRPC)
+    this.context = Object.assign({}, context, {client: this})
   }
 
   emit(event, payload) {
     if (event === 'newListener') {
-      return this.$emitLocal(event, ...args);
+      return this.$emitLocal(event, ...payload)
     }
-    const message = this.serialize({n: event, p: payload});
-    this._send(message);
+    const message = this.serialize({n: event, p: payload})
+    this._send(message)
   }
 
   serialize(data) {
-    return JSON.stringify(data);
+    return JSON.stringify(data)
   }
 
   // {n: 'event', a: 'args', i?: 'callbackid'}
   // returns {c: statusCode, e: 'error', p: 'payload',  i?: callbackid}
   process(message) {
-    if (message[0] !== '{') return;
+    if (message[0] !== '{') return
 
     try {
-      const o = JSON.parse(message);
-      if (!o.n) return;
+      const o = JSON.parse(message)
+      if (!o.n) return
 
-      const {n: event, a: params, i: callbackId} = o;
+      const {n: event, a: params, i: callbackId} = o
 
-      let cb;
+      let cb
       if (callbackId) {
         cb = (err, data) => {
           if (err) {
-            const packet = {e: err.message, i: callbackId};
-            packet.c = typeof err.code !== 'undefined' ? err.code : 500;
+            const packet = {e: err.message, i: callbackId}
+            packet.c = typeof err.code !== 'undefined' ? err.code : 500
 
             if (typeof err.stack !== 'undefined') {
-              packet.k = err.stack;
+              packet.k = err.stack
             }
-            return this._send(this.serialize(packet));
+            return this._send(this.serialize(packet))
           }
-          return this._send(this.serialize({c: 0, i: callbackId, p: data}));
-        };
+          return this._send(this.serialize({c: 0, i: callbackId, p: data}))
+        }
       }
 
-      this.$emitLocal(event, params, cb);
+      this.$emitLocal(event, params, cb)
     } catch (err) {
-      console.error('Error while processing packet', message);
-      console.error(err);
-      return;
+      console.error('Error while processing packet', message)
+      console.error(err)
+      return
     }
   }
 
   handleRPC(params, cb) {
-    const method = params[0];
-    const args = params.slice(1);
-    const fn = this.rpcMethods[method];
-    if (typeof fn === 'function') {
-      return fn(args, cb);
+    const method = params[0]
+    const args = params.slice(1)
+
+    // handlers may be namespaced
+    let fn = this.rpcRegistry.get(method)
+    if (fn) {
+      return fn(this.context, args, cb)
     }
-    console.error('Remote method not found: ' + method);
-  }
-
-  register(method, handler) {
-    this.rpcMethods[method] = (args, cb) => {
-      try {
-        const result = args && args.length ? handler(...args) : handler();
-
-        // ensure errors are logged, forwarded with or without callback
-        if (isPromise(result)) {
-          if (cb) {
-            return result.then(res => cb(null, res), cb);
-          }
-          return result.catch(err => {
-            console.error(noCallbackMessage, err);
-          });
-        } else {
-          if (cb) cb(null, result);
-        }
-      } catch (err) {
-        if (cb) return cb(err);
-        console.error(noCallbackMessage, err);
-      }
-    };
+    console.error('Remote method not registered', method)
   }
 
   _send(data) {
     for (const conn of _connections) {
       // 1 === OPEN
       if (conn.readyState !== 1) {
-        continue;
+        continue
       }
-      conn.send(data);
+      conn.send(data)
     }
   }
 }
 
-//util.inherits(Server, events.EventEmitter);
-Server.prototype.$emitLocal = EventEmitter.prototype.emit;
+Server.prototype.$emitLocal = EventEmitter.prototype.emit
 
 function noop() {}
 
 // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
 const initMessaging = (wss, hook) => {
   function heartbeat() {
-    this.isAlive = true;
+    this.isAlive = true
   }
 
   wss.on('connection', function connection(ws) {
     //console.log('adding connection');
-    _connections.add(ws);
-    ws.isAlive = true;
-    ws.on('pong', heartbeat);
+    _connections.add(ws)
+    ws.isAlive = true
+    ws.on('pong', heartbeat)
     ws.on('close', function connection(ws) {
       //console.log('deleting connection');
-      _connections.delete(ws);
-    });
+      _connections.delete(ws)
+    })
 
-    hook(new Server(ws));
-  });
+    hook(ws)
+  })
 
-  const interval = setInterval(function ping() {
+  setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
         //console.log('terminating connection');
-        _connections.delete(ws);
-        return ws.terminate();
+        _connections.delete(ws)
+        return ws.terminate()
       }
-      ws.isAlive = false;
-      ws.ping(noop);
-    });
-  }, 30000);
-};
+      ws.isAlive = false
+      ws.ping(noop)
+    })
+  }, 30000)
+}
 
-module.exports = {Server, initMessaging};
+module.exports = {Server, initMessaging}

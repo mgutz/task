@@ -40,11 +40,11 @@ export const histories = {
   // async action creators
   effects: {
     stop({pid}) {
-      invoke('stop', pid)
+      invoke('task.stop', pid)
     },
 
     kill({argv}) {
-      invoke('fkill', ...argv)
+      invoke('task.fkill', ...argv)
     },
 
     // Replay a history record with the option to override the reference

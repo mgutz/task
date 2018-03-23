@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 
 const Box = (props) => {
   const {
+    as,
     background,
     flexDirection,
     flexWrap,
@@ -94,16 +95,19 @@ const Box = (props) => {
     boxStyle = {...boxStyle, ...style}
   }
 
+  const El = props.as ? props.as : 'div'
+
   return (
-    <div style={boxStyle} {...rest}>
+    <El style={boxStyle} {...rest}>
       {props.children}
-    </div>
+    </El>
   )
 }
 
 Box.propTypes = {
   alignItems: PropTypes.string,
   alignContent: PropTypes.string,
+  as: PropTypes.node,
   background: PropTypes.string,
   color: PropTypes.string,
   display: PropTypes.string,

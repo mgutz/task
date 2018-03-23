@@ -36,7 +36,7 @@ const mapDispatch = (dispatch) => {
 }
 
 @connect(mapState, mapDispatch)
-class DatabaseView extends React.Component {
+class DatabaseMode extends React.Component {
   static propTypes = {
     invalidRoute: PropTypes.bool,
     loadProject: PropTypes.func.isRequired,
@@ -77,4 +77,4 @@ class DatabaseView extends React.Component {
   }
 }
 
-export default DatabaseView
+export default DatabaseMode

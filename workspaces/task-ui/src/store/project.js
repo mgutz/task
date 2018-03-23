@@ -35,7 +35,7 @@ export const project = {
 
   effects: {
     loadProject() {
-      invoke('loadProject').then((res) => {
+      invoke('task.loadProject').then((res) => {
         this.setProject(res)
         if (res.taskfiles) {
           for (const taskfile of res.taskfiles) {
@@ -50,7 +50,7 @@ export const project = {
       const scope = 'project'
       const bookmark = {id, record, scope, title}
       this.addBookmark(bookmark)
-      invoke('addBookmark', bookmark)
+      invoke('task.addBookmark', bookmark)
     },
 
     setBookmarkActiveHistory(payload) {

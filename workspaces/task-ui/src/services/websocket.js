@@ -1,5 +1,5 @@
 import {konsole} from '#/util'
-import Client from 'task-ws/client'
+import {Client} from 'task-ws/client'
 import Sockette from 'sockette'
 
 // TODO should be from options

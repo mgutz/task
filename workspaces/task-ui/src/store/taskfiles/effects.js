@@ -16,7 +16,7 @@ const logKind = {
 export const effects = {
   // async action creators
   fetchTasks({taskfileId}) {
-    invoke('tasks', taskfileId).then((tasks) => {
+    invoke('task.tasks', taskfileId).then((tasks) => {
       if (!Array.isArray(tasks) || tasks.length < 1) return
       // makes code a lot easier if there is unique id
       for (const task of tasks) {
@@ -81,7 +81,7 @@ export const effects = {
     const [taskfileId, taskName, ...rest] = args
 
     // historyId is passed as tag
-    return invoke('run', historyId, taskfileId, taskName, ...rest).then(
+    return invoke('task.run', historyId, taskfileId, taskName, ...rest).then(
       (payload) => {
         const {pid} = payload
         this.updateHistory({

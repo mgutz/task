@@ -1,18 +1,10 @@
 import * as _ from 'lodash'
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
-import styled from 'styled-components'
 import SaveBookmark from './SaveBookmark'
-
-const ToolbarView = styled(Toolbar)`
-  border-bottom: solid 1px #eee;
-  margin-bottom: 10px;
-`
-const Grow = styled.div`
-  flex: 1;
-`
+import {TopToolbar} from './styled'
+import Box from './Box'
 
 const SimpleArgs = ({data}) => {
   if (!data) return null
@@ -40,24 +32,24 @@ const SimpleArgs = ({data}) => {
 
 class RunInfo extends Component {
   static propTypes = {
-    history: PropTypes.object,
+    record: PropTypes.object,
   }
 
   render() {
-    if (!this.props.history) return null
-    const {history} = this.props
-    const {title} = history.ref
+    if (!this.props.record) return null
+    const {record} = this.props
+    const {title} = record.ref
 
     return (
-      <ToolbarView>
-        <Grow>
+      <Box display="flex" as={TopToolbar}>
+        <Box flex="1">
           <Typography variant="title">{title}</Typography>
           <Typography variant="subheading">
-            <SimpleArgs data={history.args[2]} />
+            <SimpleArgs data={record.args[2]} />
           </Typography>
-        </Grow>
-        <SaveBookmark history={history} />
-      </ToolbarView>
+        </Box>
+        <SaveBookmark record={record} />
+      </Box>
     )
   }
 }

@@ -5,7 +5,7 @@ import IconButton from 'material-ui/IconButton'
 import {Activate} from '#/services/router'
 import Box from './Box'
 
-class Modes extends Component {
+class ModeBar extends Component {
   constructor() {
     super()
 
@@ -21,7 +21,7 @@ class Modes extends Component {
     }
     return (
       <Activate class="is-selected" route={route} key={i}>
-        <Box shape="rounded">
+        <Box shape="rounded" margin="1em 0 0 0">
           <IconButton>{mode.icon}</IconButton>
         </Box>
       </Activate>
@@ -30,11 +30,11 @@ class Modes extends Component {
 
   render() {
     return (
-      <Box flexDirection="column" alignItems="center" margin="10px 0">
+      <Box flexDirection="column" alignItems="center" margin="1em 0">
         {this.modes.map(this.renderItem)}
       </Box>
     )
   }
 }
 
-export default Modes
+export default ModeBar

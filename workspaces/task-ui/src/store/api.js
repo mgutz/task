@@ -24,7 +24,7 @@ export const api = {
         kind = 'name'
       }
 
-      invoke('filterProcesses', kind, keyword)
+      invoke('task.filterProcesses', kind, keyword)
         .then((value) => {
           this.setKV({key: 'findProcessResult', value})
         })
