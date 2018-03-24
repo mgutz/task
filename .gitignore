@@ -2,3 +2,4 @@ node_modules
 *.puml
 /*.png
 *-error.log
+.pids/

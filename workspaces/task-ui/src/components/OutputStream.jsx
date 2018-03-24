@@ -30,7 +30,12 @@ class OutputStream extends Component {
     }
   }
 
-  renderItem = ({index, style}) => {
+  first = true
+
+  renderItem = (props) => {
+    const {index, style, isScrolling, isVisible} = props
+
+    console.log('RENDER index', props)
     const {logIndex, task} = this.props
     const {selected} = this.state
     // eslint-disable-next-line
@@ -76,6 +81,8 @@ class OutputStream extends Component {
     const {logIndex} = this.props
     const {selected} = this.state
     const max = logLength(logIndex)
+
+    console.log('rendering list', max)
 
     return (
       <AutoSizer>
@@ -135,7 +142,7 @@ class OutputStream extends Component {
     //   this.propsSelect(index)
     // })
     this.setState({selected: index})
-    this.updateGrid()
+    //this.updateGrid()
     this.propsSelect(index)
   }
 }
