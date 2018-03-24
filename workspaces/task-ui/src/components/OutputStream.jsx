@@ -33,7 +33,7 @@ class OutputStream extends Component {
   first = true
 
   renderItem = (props) => {
-    const {index, style, isScrolling, isVisible} = props
+    const {index, style} = props
 
     console.log('RENDER index', props)
     const {logIndex, task} = this.props
@@ -81,8 +81,6 @@ class OutputStream extends Component {
     const {logIndex} = this.props
     const {selected} = this.state
     const max = logLength(logIndex)
-
-    console.log('rendering list', max)
 
     return (
       <AutoSizer>

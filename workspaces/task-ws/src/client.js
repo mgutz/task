@@ -53,7 +53,6 @@ class Client {
   }
 
   process(message) {
-    console.log('ws:process', message)
     if (message[0] !== '{') return
 
     const parsed = this.deserialize(message)

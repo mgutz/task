@@ -64,7 +64,6 @@ export const effects = {
 
   // remote proc stdout data
   pout(payload) {
-    console.log('appending', payload)
     const [tag, _pid, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stdout})
   },
