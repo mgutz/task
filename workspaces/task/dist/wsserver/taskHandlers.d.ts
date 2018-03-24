@@ -1,5 +1,5 @@
-import { ResolverContext } from './types';
 import { Project } from './types';
+import { ResolverContext } from './types';
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -26,7 +26,7 @@ export declare const tasks: (context: ResolverContext, taskfileId: string) => Pr
  *
  * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
  */
-export declare const run: (context: ResolverContext, tag: string, taskfileId: string, taskName: string, argv: Options) => {
+export declare const run: (context: ResolverContext, tag: string, taskfileId: string, taskName: string, argv: Options) => Promise<{
     pid: number;
-};
+}>;
 export declare const stop: (context: ResolverContext, pid: number) => "z" | undefined;

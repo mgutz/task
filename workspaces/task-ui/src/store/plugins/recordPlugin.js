@@ -84,9 +84,7 @@ const recordPlugin = (whitelist) => {
             // navigate to it, passing in the new historyId
             if (ref.route) {
               const {route} = record.ref
-              console.log('ROUTE', route)
               if (route.name) {
-                console.log('ROUTEB', route)
                 dispatch.router.navigate(route)
               }
             }

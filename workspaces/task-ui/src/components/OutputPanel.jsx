@@ -56,6 +56,8 @@ export default class OutputPanel extends React.PureComponent {
     const {history, logIndex, task} = this.props
     const {selected} = this.state
 
+    console.log('outputpanel render', history, logIndex)
+
     if (!history) return null
 
     return (

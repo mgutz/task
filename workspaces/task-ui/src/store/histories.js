@@ -53,7 +53,6 @@ export const histories = {
     // the reference to the bookmark and the args executed are of the original
     // task.
     replay({ref, record}) {
-      console.log('REPLAYING', record)
       dispatch.taskfiles.run({ref: ref || record.ref, ...record.args})
     },
   },

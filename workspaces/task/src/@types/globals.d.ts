@@ -5,7 +5,8 @@ declare module 'require-uncached'
 declare module 'toposort'
 declare module 'task-ws'
 declare module 'tree-kill'
-declare module 'ws-messaging'
+declare module 'safe-log-reader'
+declare module 'websocket-stream'
 
 declare interface Options {
   _: string[]

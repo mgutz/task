@@ -8,12 +8,17 @@ export interface TaskfileInfo {
 
 export interface Project {
   path: string
+  server: ServerOptions
   taskfiles: TaskfileInfo[]
+}
+
+export interface ServerOptions {
+  logPathPattern: string
 }
 
 export interface ResolverContext {
   client: any
-  context: AppContext
+  app: AppContext
   authData: any
   project: Project
   projectDB: any

@@ -9,15 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
-const fp = require("path");
-const os = require("os");
-const util_1 = require("./util");
-const usage_1 = require("../cli/usage");
-const tasks_1 = require("../core/tasks");
-const task_ws_1 = require("task-ws");
-const kill = require("tree-kill");
-const fkillit = require("fkill");
 const findProcess = require("find-process");
+const fkillit = require("fkill");
+const fp = require("path");
+const kill = require("tree-kill");
+const util = require("./util");
+const task_ws_1 = require("task-ws");
+const tasks_1 = require("../core/tasks");
+const usage_1 = require("../cli/usage");
+const runAsProcess_1 = require("./runAsProcess");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -47,14 +47,14 @@ exports.fkill = (context, argv) => __awaiter(this, void 0, void 0, function* () 
  * security purposes hence no arguments.
  */
 exports.loadProject = (context) => __awaiter(this, void 0, void 0, function* () {
-    const argv = context.context.options;
-    const project = yield util_1.loadProjectFile(argv, true);
+    const argv = context.app.options;
+    const project = yield util.loadProjectFile(argv, true);
     context.project = project;
     // make paths relative to home to display in UI but do not alter real paths
     if (Array.isArray(project.taskfiles)) {
         const taskfiles = [];
         for (const taskfile of project.taskfiles) {
-            taskfiles.push(Object.assign({}, taskfile, { path: relativeToHomeDir(taskfile.path) }));
+            taskfiles.push(Object.assign({}, taskfile, { path: util.relativeToHomeDir(taskfile.path) }));
         }
         return Object.assign({}, project, { taskfiles });
     }
@@ -95,7 +95,7 @@ exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, functio
  * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
  */
 exports.run = (context, tag, // echoed back as-is to client, is currently historyId
-taskfileId, taskName, argv) => {
+taskfileId, taskName, argv) => __awaiter(this, void 0, void 0, function* () {
     const { client, project } = context;
     const taskfile = _.find(project.taskfiles, { id: taskfileId });
     if (!taskfile) {
@@ -103,41 +103,25 @@ taskfileId, taskName, argv) => {
     }
     const { path, argv: taskfileArgv } = taskfile;
     // merge inbound client argv with those found in the project file
-    const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), sanitizeInboundArgv(argv), { file: fp.resolve(path) });
-    const cp = util_1.runAsProcess(tag, taskfileId, taskName, newArgv, client);
+    const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), util.sanitizeInboundArgv(argv), { file: fp.resolve(path) });
+    // this does not wait for process to end, rather it awaits for some async
+    // statements like create PID files
+    const cp = yield runAsProcess_1.default({
+        argv: newArgv,
+        client,
+        context,
+        tag,
+        taskName,
+        taskfileId,
+    });
     // events are passed through client. return the pid here for the UI
     // to know which pid it is
     return { pid: cp.pid };
-};
+});
 // TODO we need to verify this is a pid started by task, very dangerous
 exports.stop = (context, pid) => {
     if (!pid)
         return `z`;
     kill(pid);
 };
-/**
- * The client MUST NOT be allowed to override taskfile and projectfile.
- * @param argv Users
- */
-const sanitizeInboundArgv = (argv) => {
-    if (_.isEmpty(argv))
-        return {};
-    // TODO task options need to be separate from CLI options
-    //
-    // In this example: task foo --help -- --help
-    //   foo is the task to run
-    //   --help is argument to CLI
-    //   -- help is argument to the task to run
-    return _.omit(argv, [
-        '_',
-        'file',
-        'help',
-        'server',
-        'init',
-        'initExample',
-        'list',
-        'projectFile',
-    ]);
-};
-const relativeToHomeDir = (path) => fp.join('~', fp.relative(os.homedir(), fp.resolve(path)));
 //# sourceMappingURL=taskHandlers.js.map

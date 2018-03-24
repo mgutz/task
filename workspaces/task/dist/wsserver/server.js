@@ -26,12 +26,12 @@ const onConnection = (rcontext) => {
         return new task_ws_1.Server(socket, rcontext, registry);
     };
 };
-exports.start = (ctx, opts) => __awaiter(this, void 0, void 0, function* () {
-    const project = (yield util_1.loadProjectFile(ctx.options));
+exports.start = (appContext, opts) => __awaiter(this, void 0, void 0, function* () {
+    const project = (yield util_1.loadProjectFile(appContext.options));
     const adapter = new FileAsync(project.path);
     const db = yield lowdb(adapter);
     const rcontext = {
-        context: ctx,
+        app: appContext,
         project,
         projectDB: db,
     };

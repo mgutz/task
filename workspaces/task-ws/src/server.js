@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const {EventEmitter} = require('events')
+const stream = require('stream')
 
 const _connections = new Set()
 
@@ -26,6 +27,7 @@ class Server extends EventEmitter {
     this.rpcRegistry = rpcRegistry
     this.on('invoke', this.handleRPC)
     this.context = Object.assign({}, context, {client: this})
+    this.writable = new stream.Writable()
   }
 
   emit(event, payload) {

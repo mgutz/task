@@ -1,16 +1,17 @@
 import * as _ from 'lodash'
-import * as fp from 'path'
-import * as os from 'os'
-import {AppContext} from '../core/AppContext'
-import {ResolverContext} from './types'
-import {loadProjectFile, runAsProcess} from './util'
-import {Project} from './types'
-import {parseArgv} from '../cli/usage'
-import {loadTasks} from '../core/tasks'
-import {CodeError} from 'task-ws'
-import * as kill from 'tree-kill'
-import * as fkillit from 'fkill'
 import * as findProcess from 'find-process'
+import * as fkillit from 'fkill'
+import * as fp from 'path'
+import * as kill from 'tree-kill'
+import * as os from 'os'
+import * as util from './util'
+import {AppContext} from '../core/AppContext'
+import {CodeError} from 'task-ws'
+import {loadTasks} from '../core/tasks'
+import {parseArgv} from '../cli/usage'
+import {Project} from './types'
+import {ResolverContext} from './types'
+import runAsProcess from './runAsProcess'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -51,15 +52,15 @@ export const fkill = async (context: ResolverContext, argv: string[]) => {
  * security purposes hence no arguments.
  */
 export const loadProject = async (context: ResolverContext) => {
-  const argv = context.context.options
-  const project = await loadProjectFile(argv, true)
+  const argv = context.app.options
+  const project = await util.loadProjectFile(argv, true)
   context.project = project
 
   // make paths relative to home to display in UI but do not alter real paths
   if (Array.isArray(project.taskfiles)) {
     const taskfiles = []
     for (const taskfile of project.taskfiles) {
-      taskfiles.push({...taskfile, path: relativeToHomeDir(taskfile.path)})
+      taskfiles.push({...taskfile, path: util.relativeToHomeDir(taskfile.path)})
     }
     return {...project, taskfiles}
   }
@@ -113,7 +114,7 @@ export const tasks = async (context: ResolverContext, taskfileId: string) => {
  *
  * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
  */
-export const run = (
+export const run = async (
   context: ResolverContext,
   tag: string, // echoed back as-is to client, is currently historyId
   taskfileId: string,
@@ -131,11 +132,20 @@ export const run = (
   // merge inbound client argv with those found in the project file
   const newArgv = {
     ...parseArgv(taskfileArgv),
-    ...sanitizeInboundArgv(argv),
+    ...util.sanitizeInboundArgv(argv),
     file: fp.resolve(path),
   }
 
-  const cp = runAsProcess(tag, taskfileId, taskName, newArgv, client)
+  // this does not wait for process to end, rather it awaits for some async
+  // statements like create PID files
+  const cp = await runAsProcess({
+    argv: newArgv,
+    client,
+    context,
+    tag,
+    taskName,
+    taskfileId,
+  })
 
   // events are passed through client. return the pid here for the UI
   // to know which pid it is
@@ -147,31 +157,3 @@ export const stop = (context: ResolverContext, pid: number) => {
   if (!pid) return `z`
   kill(pid)
 }
-
-/**
- * The client MUST NOT be allowed to override taskfile and projectfile.
- * @param argv Users
- */
-const sanitizeInboundArgv = (argv: Options): Options => {
-  if (_.isEmpty(argv)) return {} as Options
-
-  // TODO task options need to be separate from CLI options
-  //
-  // In this example: task foo --help -- --help
-  //   foo is the task to run
-  //   --help is argument to CLI
-  //   -- help is argument to the task to run
-  return _.omit(argv, [
-    '_',
-    'file',
-    'help',
-    'server',
-    'init',
-    'initExample',
-    'list',
-    'projectFile',
-  ]) as Options
-}
-
-const relativeToHomeDir = (path: string): string =>
-  fp.join('~', fp.relative(os.homedir(), fp.resolve(path)))

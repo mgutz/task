@@ -10,7 +10,6 @@ import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
 import * as FileAsync from 'lowdb/adapters/FileAsync'
 import {Server, initMessaging, RPCRegistry} from 'task-ws'
-import * as WSMessaging from 'ws-messaging'
 
 export interface StartOptions {
   port: number
@@ -31,12 +30,12 @@ const onConnection = (rcontext: ResolverContext) => {
   }
 }
 
-export const start = async (ctx: AppContext, opts: StartOptions) => {
-  const project = (await loadProjectFile(ctx.options)) as Project
+export const start = async (appContext: AppContext, opts: StartOptions) => {
+  const project = (await loadProjectFile(appContext.options)) as Project
   const adapter = new FileAsync(project.path)
   const db = await lowdb(adapter)
   const rcontext: any = {
-    context: ctx,
+    app: appContext,
     project,
     projectDB: db,
   }

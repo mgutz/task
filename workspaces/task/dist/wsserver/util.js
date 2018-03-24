@@ -8,67 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cp = require("child_process");
+const _ = require("lodash");
 const fp = require("path");
 const fs = require("fs");
+const os = require("os");
 const inquirer_1 = require("inquirer");
 const log_1 = require("../core/log");
 const util_1 = require("../core/util");
 const prompt = inquirer_1.createPromptModule();
-const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
-/**
- * Since node doesn't have goroutines and libraries like webworker-thread and
- * tiny-worker do not work well with `require`, the best we can do
- * is spawn a task as a child process. In effect, task is calling itself
- * with pre-built argv passed through env variable name `task_ipc_options`
- *
- * Task checks if `task_ipc_options` is set before doing anything else.
- *
- * The argv must have`_.[0]` be the task name and `server: false`.
- */
-exports.runAsProcess = (tag, taskfileId, taskName, argv, client) => {
-    argv._[0] = taskName;
-    argv.server = false;
-    // const newArgv = _.pick(argv, [
-    //   '_',
-    //   'babel',
-    //   'debug',
-    //   'dotenv',
-    //   'file',
-    //   'dryRun',
-    //   'silent',
-    //   'trace',
-    //   'typescript',
-    //   'watch',
-    //   'babelExtensions',
-    //   'name',
-    // ])
-    const newArgv = argv;
-    const argvstr = JSON.stringify(newArgv);
-    const opts = {
-        cwd: fp.dirname(argv.file),
-        detached: true,
-        env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
-    };
-    // execute the script
-    const params = [taskScript];
-    const proc = cp.spawn('node', params, opts);
-    proc.stdout.setEncoding('utf-8');
-    proc.stdout.on('data', (data) => {
-        client.emit('pout', [tag, proc.pid, data]);
-    });
-    proc.stderr.setEncoding('utf-8');
-    proc.stderr.on('data', (data) => {
-        client.emit('perr', [tag, proc.pid, data]);
-    });
-    proc.on('close', (code) => {
-        client.emit('pclose', [tag, proc.pid, code]);
-    });
-    proc.on('error', (err) => {
-        client.emit('perror', [tag, proc.pid, err]);
-    });
-    return proc;
-};
 const exampleTaskproject = `{
   "server": {
 	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
@@ -113,4 +60,29 @@ exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, v
     proj.path = projectFile;
     return proj;
 });
+exports.relativeToHomeDir = (path) => fp.join('~', fp.relative(os.homedir(), fp.resolve(path)));
+/**
+ * The client MUST NOT be allowed to override taskfile and projectfile.
+ * @param argv Users
+ */
+exports.sanitizeInboundArgv = (argv) => {
+    if (_.isEmpty(argv))
+        return {};
+    // TODO task options need to be separate from CLI options
+    //
+    // In this example: task foo --help -- --help
+    //   foo is the task to run
+    //   --help is argument to CLI
+    //   -- help is argument to the task to run
+    return _.omit(argv, [
+        '_',
+        'file',
+        'help',
+        'server',
+        'init',
+        'initExample',
+        'list',
+        'projectFile',
+    ]);
+};
 //# sourceMappingURL=util.js.map

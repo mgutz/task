@@ -10,33 +10,48 @@ import PropTypes from 'prop-types'
 
 const Box = (props) => {
   const {
-    as,
+    alignContent,
+    alignItems,
+    as: El,
     background,
+    center,
+    children,
+    color,
+    column,
+    display,
+    flex,
     flexDirection,
     flexWrap,
-    justifyContent,
-    alignItems,
-    alignContent,
-    color,
     height,
-    width,
-    flex,
-    display,
+    justifyContent,
     margin,
     overflow,
     padding,
+    row,
     shape,
     style,
+    width,
     ...rest
   } = props
 
   let boxStyle = {}
 
-  // no need to DRY this up, multi-cursors makes it painless
+  // NO NEED to be DRY here, these are simple rules and vscode makes it easy
+  // to add/remove rules
+
+  //// sets display="flex"
+
   if (flexDirection !== undefined) {
     boxStyle.flexDirection = flexDirection
     boxStyle.display = 'flex'
+  } else if (column) {
+    boxStyle.flexDirection = 'column'
+    boxStyle.display = 'flex'
+  } else if (row) {
+    boxStyle.flexDirection = 'row'
+    boxStyle.display = 'flex'
   }
+
   if (flexWrap !== undefined) {
     boxStyle.flexWrap = flexWrap
     boxStyle.display = 'flex'
@@ -48,11 +63,17 @@ const Box = (props) => {
   if (alignItems !== undefined) {
     boxStyle.alignItems = alignItems
     boxStyle.display = 'flex'
+  } else if (center) {
+    boxStyle.alignItems = 'center'
+    boxStyle.display = 'flex'
   }
+
   if (alignContent !== undefined) {
     boxStyle.alignContent = alignContent
     boxStyle.display = 'flex'
   }
+
+  //// applies to container and item
 
   if (background !== undefined) {
     boxStyle.background = background
@@ -95,21 +116,22 @@ const Box = (props) => {
     boxStyle = {...boxStyle, ...style}
   }
 
-  const El = props.as ? props.as : 'div'
-
   return (
     <El style={boxStyle} {...rest}>
-      {props.children}
+      {children}
     </El>
   )
 }
 
 Box.propTypes = {
-  alignItems: PropTypes.string,
   alignContent: PropTypes.string,
-  as: PropTypes.node,
+  alignItems: PropTypes.string,
+  as: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
   background: PropTypes.string,
+  center: PropTypes.bool,
+  children: PropTypes.node,
   color: PropTypes.string,
+  column: PropTypes.bool,
   display: PropTypes.string,
   flex: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   flexDirection: PropTypes.string,
@@ -119,9 +141,14 @@ Box.propTypes = {
   margin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   overflow: PropTypes.string,
   padding: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  row: PropTypes.bool,
   shape: PropTypes.oneOf(['circle', 'pill', 'rounded']),
   style: PropTypes.object,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+}
+
+Box.defaultProps = {
+  as: 'div',
 }
 
 export default Box

@@ -30,7 +30,7 @@ class ModeBar extends Component {
 
   render() {
     return (
-      <Box flexDirection="column" alignItems="center" margin="1em 0">
+      <Box column center margin="1em 0">
         {this.modes.map(this.renderItem)}
       </Box>
     )

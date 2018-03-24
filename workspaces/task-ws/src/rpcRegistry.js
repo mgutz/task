@@ -52,6 +52,7 @@ class RPCRegistry {
           if (cb) cb(null, result)
         }
       } catch (err) {
+        console.error('ERR', err)
         if (cb) return cb(err)
         console.error(noCallbackMessage, err)
       }

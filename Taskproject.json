@@ -193,7 +193,7 @@
     }
   ],
   "server": {
-    "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
+    "logPathPattern": ".pids/{{taskfileId}}/{{timestamp}}-{{taskName}}-{{pid}}"
   },
   "taskfiles": [
     {

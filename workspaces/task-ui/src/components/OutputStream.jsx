@@ -91,7 +91,7 @@ class OutputStream extends Component {
                 rowCount={max}
                 rowHeight={20}
                 rowRenderer={this.renderItem}
-                scrollToIndex={selected}
+                //scrollToIndex={selected}
                 width={width}
               />
             </div>
