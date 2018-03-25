@@ -119,5 +119,6 @@ export const logEntryAt = ({indices, chunks}, index) => {
 }
 
 export const logLength = (logIndex) => {
+  if (!logIndex) return 0
   return logIndex.indices.length / 4
 }

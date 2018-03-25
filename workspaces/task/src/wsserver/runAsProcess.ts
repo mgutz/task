@@ -6,8 +6,9 @@ import * as stream from 'stream'
 import * as mkdirP from 'mkdirp'
 import {promisify} from 'util'
 import {ResolverContext} from './types'
-import * as read from 'safe-log-reader'
 import * as websocketStream from 'websocket-stream'
+import {Tail} from 'tail'
+import {konsole} from '../core/log'
 
 const mkdirp = promisify(mkdirP)
 const writeFile = promisify(fs.writeFile)
@@ -104,16 +105,11 @@ const runAsProcess = async ({
   const params = [taskScript]
   const proc = cp.spawn('node', params, opts)
 
-  // const bookmarkFile = fp.resolve(logDir, 'bookmark')
-  // console.log('bookmarkfile', bookmarkFile)
-  const reader = read
-    .createReader(logFile, {
-      batchLimit: 4096,
-      bookmark: {dir: logDir},
-    })
-    .on('read', (line: string, count: number) => {
-      client.emit('pout', [tag, proc.pid, line])
-    })
+  const tail = new Tail(logFile)
+  tail.on('line', (line: string) => client.emit('pout', [tag, proc.pid, line]))
+  tail.on('error', (err: Error) =>
+    konsole.error(`Could not tail ${logFile}`, err)
+  )
 
   proc.on('close', (code) => {
     fs.unlinkSync(pidFile)

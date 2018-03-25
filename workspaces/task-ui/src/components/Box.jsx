@@ -126,7 +126,11 @@ const Box = (props) => {
 Box.propTypes = {
   alignContent: PropTypes.string,
   alignItems: PropTypes.string,
-  as: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+  as: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.string,
+    PropTypes.func,
+  ]),
   background: PropTypes.string,
   center: PropTypes.bool,
   children: PropTypes.node,

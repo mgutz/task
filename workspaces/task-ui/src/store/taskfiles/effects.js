@@ -66,6 +66,7 @@ export const effects = {
   pout(payload) {
     const [tag, _pid, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stdout})
+    //setTimeout(() => this.appendLog({id: tag, lines, kind: logKind.stdout}), 1)
   },
 
   /**

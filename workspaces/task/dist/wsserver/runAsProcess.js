@@ -12,10 +12,10 @@ const _ = require("lodash");
 const cp = require("child_process");
 const fp = require("path");
 const fs = require("fs");
-const stream = require("stream");
 const mkdirP = require("mkdirp");
 const util_1 = require("util");
-const read = require("safe-log-reader");
+const tail_1 = require("tail");
+const log_1 = require("../core/log");
 const mkdirp = util_1.promisify(mkdirP);
 const writeFile = util_1.promisify(fs.writeFile);
 const unlink = util_1.promisify(fs.unlink);
@@ -52,14 +52,6 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // ])
     const newArgv = argv;
     const argvstr = JSON.stringify(newArgv);
-    const passthrough = new stream.PassThrough();
-    // const wsb = new streamBuffers.WritableStreamBuffer({
-    //   // grow by 10 kilobytes each time buffer overflows.
-    //   incrementAmount: 10 * 1024,
-    //   // start at 100 kilobytes.
-    //   initialSize: 100 * 1024,
-    // })
-    passthrough.setEncoding('utf-8');
     // When task is run as a server, it should be long-lived like tmux. Each
     // process pipesj stdout, stderr to file. When task restarts it will read
     // from these proc logs.
@@ -88,31 +80,9 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
-    // pipe stdout to buffer
-    // proc.stdout.setEncoding('utf-8')
-    // // proc.stdout.on('data', (data) => {
-    // //   client.emit('pout', [tag, proc.pid, data])
-    // // })
-    //proc.stdout.pipe(passthrough)
-    // pipe stderr to buffer
-    // proc.stderr.setEncoding('utf-8')
-    //proc.stderr.pipe(passthrough)
-    // pipe buffer to file
-    //wsb.pipe(passthrough)
-    //passthrough.pipe(fileStream)
-    // const bookmarkFile = fp.resolve(logDir, 'bookmark')
-    // console.log('bookmarkfile', bookmarkFile)
-    const reader = read
-        .createReader(logFile, {
-        batchLimit: 4096,
-        bookmark: { dir: logDir },
-    })
-        .on('readable', function () {
-        this.readLine();
-    })
-        .on('read', (line, count) => {
-        client.emit('pout', [tag, proc.pid, line]);
-    });
+    const tail = new tail_1.Tail(logFile);
+    tail.on('line', (line) => client.emit('pout', [tag, proc.pid, line]));
+    tail.on('error', (err) => log_1.konsole.error(`Could not tail ${logFile}`, err));
     proc.on('close', (code) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);

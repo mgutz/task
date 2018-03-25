@@ -13,8 +13,19 @@ import {api} from './api'
 import routes from '#/routes'
 //import {trace} from './middleware/trace'
 import recordPlugin from './plugins/recordPlugin'
+import {batchedSubscribe} from 'redux-batched-subscribe'
+import raf from 'raf'
 
 const recordable = ['taskfiles/run']
+
+let rafId
+export default function rafUpdateBatcher(notify /*, action, getState*/) {
+  if (rafId) return
+  rafId = raf(() => {
+    rafId = null
+    notify()
+  })
+}
 
 export const createStore = async () => {
   const router = await initRouter5(routes, {defaultRoute: 'tasks'})
@@ -32,6 +43,8 @@ export const createStore = async () => {
     models,
     plugins: [selectorsPlugin(), recordPlugin(recordable)],
     redux: {
+      // muy excellente! https://github.com/tappleby/redux-batched-subscribe/issues/11
+      enhancers: [batchedSubscribe(rafUpdateBatcher)],
       middlewares: [],
       rootReducers: {
         RESET: () => undefined,

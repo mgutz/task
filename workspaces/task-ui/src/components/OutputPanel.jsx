@@ -5,15 +5,29 @@ import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {logEntryAt} from '#/store/logs'
 import RunInfo from './RunInfo'
-import {select} from '@rematch/select'
 import OutputStream from './OutputStream'
 import Box from './Box'
+import {createSelector} from 'reselect'
+
+const historyIdSelector = (state, props) => props.historyId
+const logsSelector = (state) => state.logs
+const historiesSelector = (state) => state.histories
+
+const logIndexSelector = createSelector(
+  logsSelector,
+  historyIdSelector,
+  (logs, historyId) => logs[historyId]
+)
+const historySelector = createSelector(
+  historiesSelector,
+  historyIdSelector,
+  (histories, historyId) => histories[historyId]
+)
 
 const mapState = (state, props) => {
-  const {historyId} = props
   return {
-    logIndex: state.logs[historyId],
-    history: select.histories.oneById(state, {id: historyId}),
+    logIndex: logIndexSelector(state, props),
+    history: historySelector(state, props),
   }
 }
 
@@ -64,13 +78,12 @@ export default class OutputPanel extends React.PureComponent {
           <RunInfo record={history} />
         </Box>
         <Box flex="1">
-          {logIndex && (
-            <OutputStream
-              logIndex={logIndex}
-              task={task}
-              onSelect={this.doSelect}
-            />
-          )}
+          <OutputStream
+            logIndex={logIndex}
+            task={task}
+            onSelect={this.doSelect}
+            historyId={history.id}
+          />
         </Box>
         <Box height="25vh">
           {logIndex && this.renderOutputDetail(logIndex, selected)}

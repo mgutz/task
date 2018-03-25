@@ -8,7 +8,7 @@ const port = '4200'
 const url = `ws://${hostname}:${port}`
 const client = new Client()
 
-export const init = () => {
+export const init = async () => {
   return new Promise((resolve) => {
     const ws = new Sockette(url, {
       timeout: 5e3,
@@ -18,7 +18,10 @@ export const init = () => {
         client.init(ws)
         resolve(client)
       },
-      onmessage: (e) => client.process(e.data),
+      onmessage: (e) => {
+        client.process(e.data)
+        //setTimeout(() => client.process(e.data), 1)
+      },
       onreconnect: (e) => konsole.log('ws reconnecting...', e),
       onmaximum: (e) => konsole.error('ws stopped after max attempts', e),
       onclose: (e) => konsole.log('ws connection closed', e),
