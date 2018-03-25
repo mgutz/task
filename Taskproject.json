@@ -192,9 +192,7 @@
       "title": "Hello Again"
     }
   ],
-  "server": {
-    "logPathPattern": ".pids/{{taskfileId}}/{{timestamp}}-{{taskName}}-{{pid}}"
-  },
+  "server": {},
   "taskfiles": [
     {
       "id": "Main",

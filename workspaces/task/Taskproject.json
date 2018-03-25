@@ -1,7 +1,5 @@
 {
-  "server": {
-	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
-  },
+  "server": {},
   "taskfiles": [
     {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
   ]

@@ -21,7 +21,7 @@ const writeFile = util_1.promisify(fs.writeFile);
 const unlink = util_1.promisify(fs.unlink);
 const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-const defaultLogPathPattern = '.pids/{{taskfileId}}/{{timestamp}}-{{taskName}}-{{pid}}';
+const defaultLogPathPattern = '.pids/{{taskfileId}}/{{taskName}}-{{timestamp}}';
 /**
  * Since node doesn't have goroutines and libraries like webworker-thread and
  * tiny-worker do not work well with `require`, the best we can do
@@ -58,17 +58,15 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     const pid = process.pid; // use parent's PID
     const pathPattern = project.server.logPathPattern || defaultLogPathPattern;
     const template = _.template(pathPattern);
-    const logFile = template({
-        pid,
+    const logBase = template({
         taskName,
         taskfileId,
         timestamp: new Date().toISOString(),
     });
-    const logDir = fp.dirname(logFile);
-    const pidFile = fp.join(logDir, String(pid));
+    const logDir = fp.dirname(logBase);
     yield mkdirp(logDir);
-    // create pid file
-    yield writeFile(pidFile, '');
+    const logFile = logBase + '.log';
+    const pidFile = logBase + '.pid';
     const fd = fs.openSync(logFile, 'a');
     const fileStream = fs.createWriteStream('', { fd });
     const opts = {
@@ -80,9 +78,6 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
-    const tail = new tail_1.Tail(logFile);
-    tail.on('line', (line) => client.emit('pout', [tag, proc.pid, line]));
-    tail.on('error', (err) => log_1.konsole.error(`Could not tail ${logFile}`, err));
     proc.on('close', (code) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
@@ -93,6 +88,11 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         fs.closeSync(fd);
         client.emit('perror', [tag, proc.pid, err]);
     });
+    // create pid file
+    yield writeFile(pidFile, String(proc.pid));
+    const tail = new tail_1.Tail(logFile);
+    tail.on('line', (line) => client.emit('pout', [tag, proc.pid, line]));
+    tail.on('error', (err) => log_1.konsole.error(`Could not tail ${logFile}`, err));
     return proc;
 });
 exports.default = runAsProcess;
