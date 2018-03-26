@@ -8,6 +8,9 @@
     },
     {
       "path": "workspaces/task-ws"
+    },
+    {
+      "path": "workspaces/task-tail"
     }
   ],
   "settings": {}

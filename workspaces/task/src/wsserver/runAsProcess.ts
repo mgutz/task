@@ -6,8 +6,7 @@ import * as stream from 'stream'
 import * as mkdirP from 'mkdirp'
 import {promisify} from 'util'
 import {ResolverContext} from './types'
-import * as websocketStream from 'websocket-stream'
-import * as Tail from 'tail'
+import * as Tail from 'task-tail'
 import {konsole} from '../core/log'
 
 const mkdirp = promisify(mkdirP)

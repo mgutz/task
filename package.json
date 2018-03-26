@@ -3,5 +3,5 @@
   "scripts": {
     "hello": "echo Hello $USER"
   },
-  "workspaces": ["workspaces/task-ws"]
+  "workspaces": ["workspaces/task-ws", "workspaces/task-tail"]
 }

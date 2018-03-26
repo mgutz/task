@@ -51,28 +51,24 @@ export const createStore = async () => {
       },
     },
   })
-
-  const wsClient = await initWebSocketClient()
-
-  hookWebSocket(store.dispatch, wsClient)
-  hookRouter(store.dispatch)
   _.set(window, 'DBG.store', store)
+
+  await hookWebSocket(store.dispatch)
+  hookRouter(store.dispatch)
   return store
 }
 
 /**
  * Handle process events from server.
  */
-const hookWebSocket = (dispatch, client) => {
+const hookWebSocket = async (dispatch) => {
+  const client = await initWebSocketClient()
   // process.stdout event
   client.on('pout', dispatch.taskfiles.pout)
-
   // process.stderr event
   client.on('perr', dispatch.taskfiles.perr)
-
   // process error event
   client.on('perror', dispatch.taskfiles.perror)
-
   // process close event
   client.on('pclose', dispatch.taskfiles.pclose)
 }
