@@ -100,6 +100,8 @@ const runAsProcess = async ({
     stdio: ['ignore', fd, fd],
   }
 
+  const tail = tailLog(client, logFile, tag)
+
   // execute the script
   const params = [taskScript]
   const proc = cp.spawn('node', params, opts)
@@ -107,25 +109,57 @@ const runAsProcess = async ({
   proc.on('close', (code) => {
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
-    client.emit('pclose', [tag, proc.pid, code])
+    if (tail) tail.unwatch()
+    client.emit('pclose', [tag, code])
   })
 
   proc.on('error', (err) => {
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
-    client.emit('perror', [tag, proc.pid, err])
+    client.emit('perror', [tag, err])
+    if (tail) tail.unwatch()
   })
 
   // create pid file
   await writeFile(pidFile, String(proc.pid))
 
-  const tail = new Tail(logFile)
-  tail.on('line', (line: string) => client.emit('pout', [tag, proc.pid, line]))
-  tail.on('error', (err: Error) =>
-    konsole.error(`Could not tail ${logFile}`, err)
-  )
+  // const tail = new Tail(logFile)
+  // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
+  // tail.on('error', (err: Error) =>
+  //   konsole.error(`Could not tail ${logFile}`, err)
+  // )
 
   return proc
+}
+
+export const tailLog = (
+  wsClient: any,
+  logFile: string,
+  tag: string,
+  batchLines = 5,
+  intervalMs = 64
+) => {
+  let buf = ''
+
+  const tail = new Tail(logFile)
+
+  tail.on('line', (line: string) => {
+    buf += line + '\n'
+  })
+
+  tail.on('error', (err: Error) => {
+    clearInterval(intervalId)
+    konsole.error(`Could not tail ${logFile}`, err)
+  })
+
+  const intervalId = setInterval(() => {
+    if (!buf) return
+    const s = buf
+    buf = ''
+    wsClient.emit('pout', [tag, s])
+  }, intervalMs)
+
+  return tail
 }
 
 export default runAsProcess

@@ -12,7 +12,7 @@ import {parseArgv} from '../cli/usage'
 import {Project} from './types'
 import {ResolverContext} from './types'
 import runAsProcess from './runAsProcess'
-
+import * as globby from 'globby'
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -101,9 +101,21 @@ export const tasks = async (context: ResolverContext, taskfileId: string) => {
   }
 
   // whitelist marshalled properties
-  const cleanTasks: Task[] = _.map(taskList, (task: Task) =>
-    _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui'])
-  )
+  const cleanTasks: Task[] = _.map(taskList, (task: Task) => {
+    const tsk = _.pick(task, [
+      'deps',
+      'desc',
+      'every',
+      'name',
+      'once',
+      'ui',
+    ]) as any
+    // tasks do not have ids since they are just exported functions. create id
+    // based on the taskfile id
+    tsk.id = taskfileId + '.' + task.name
+    return tsk
+  })
+
   return cleanTasks
 }
 
@@ -156,4 +168,23 @@ export const run = async (
 export const stop = (context: ResolverContext, pid: number) => {
   if (!pid) return `z`
   kill(pid)
+}
+
+// (taskfileId)/(taskName)-(timestamp).pid
+const rePidfiles = /([^\/]+)\/([^\-]+)-(.+).pid$/
+// (taskfileId)/(taskName)-(timestamp).log
+const reLogFiles = /([^\/]+)\/([^\-]+)-(.+).log$/
+
+/**
+ * Gets list of running process across all taskfiles in project.
+ */
+export const getRunningProcesses = async (context: ResolverContext) => {
+  // const files = await globby(globs)
+}
+
+/**
+ *
+ */
+export const tailProcessLogs = () => {
+  // TBD
 }

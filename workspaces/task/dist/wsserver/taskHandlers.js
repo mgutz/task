@@ -84,7 +84,20 @@ exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, functio
         return [];
     }
     // whitelist marshalled properties
-    const cleanTasks = _.map(taskList, (task) => _.pick(task, ['deps', 'desc', 'every', 'name', 'once', 'ui']));
+    const cleanTasks = _.map(taskList, (task) => {
+        const tsk = _.pick(task, [
+            'deps',
+            'desc',
+            'every',
+            'name',
+            'once',
+            'ui',
+        ]);
+        // tasks do not have ids since they are just exported functions. create id
+        // based on the taskfile id
+        tsk.id = taskfileId + '.' + task.name;
+        return tsk;
+    });
     return cleanTasks;
 });
 /**
@@ -123,5 +136,21 @@ exports.stop = (context, pid) => {
     if (!pid)
         return `z`;
     kill(pid);
+};
+// (taskfileId)/(taskName)-(timestamp).pid
+const rePidfiles = /([^\/]+)\/([^\-]+)-(.+).pid$/;
+// (taskfileId)/(taskName)-(timestamp).log
+const reLogFiles = /([^\/]+)\/([^\-]+)-(.+).log$/;
+/**
+ * Gets list of running process across all taskfiles in project.
+ */
+exports.getRunningProcesses = (context) => __awaiter(this, void 0, void 0, function* () {
+    // const files = await globby(globs)
+});
+/**
+ *
+ */
+exports.tailProcessLogs = () => {
+    // TBD
 };
 //# sourceMappingURL=taskHandlers.js.map

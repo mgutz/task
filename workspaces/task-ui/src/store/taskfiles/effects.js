@@ -20,7 +20,6 @@ export const effects = {
       if (!Array.isArray(tasks) || tasks.length < 1) return
       // makes code a lot easier if there is unique id
       for (const task of tasks) {
-        task.id = uid()
         task.taskfileId = taskfileId
         if (task.ui && task.ui.formatLog) {
           task.formatLog = _.template(task.ui.formatLog)
@@ -34,10 +33,9 @@ export const effects = {
 
   // remote proc close event
   pclose(payload) {
-    const [tag, pid, code] = payload
+    const [tag, code] = payload
     this.updateHistory({
       id: tag,
-      pid,
       status: 'closed',
       statusedAt: Date.now(),
       code,
@@ -46,16 +44,15 @@ export const effects = {
 
   // remote proc stderr data
   perr(payload) {
-    const [tag, _pid, lines] = payload // eslint-disable-line
+    const [tag, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stderr})
   },
 
   // remote proc error event
   perror(payload) {
-    const [tag, pid, error] = payload
+    const [tag, error] = payload
     this.updateHistory({
       id: tag,
-      pid,
       status: 'errored',
       statusedAt: Date.now(),
       error,
@@ -64,7 +61,7 @@ export const effects = {
 
   // remote proc stdout data
   pout(payload) {
-    const [tag, _pid, lines] = payload // eslint-disable-line
+    const [tag, lines] = payload // eslint-disable-line
     this.appendLog({id: tag, lines, kind: logKind.stdout})
     //setTimeout(() => this.appendLog({id: tag, lines, kind: logKind.stdout}), 1)
   },

@@ -3644,6 +3644,12 @@ table@4.0.2:
     slice-ansi "1.0.0"
     string-width "^2.1.1"
 
+tail-file@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/tail-file/-/tail-file-1.2.3.tgz#dd6c644974140821a20572c26c76cb6e9e0bca17"
+  dependencies:
+    debug "^3.1.0"
+
 tail@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/tail/-/tail-1.2.3.tgz#b08d6fa79fb928869631a341a51c14497c1c4255"

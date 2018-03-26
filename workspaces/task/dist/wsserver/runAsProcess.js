@@ -75,25 +75,51 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
         stdio: ['ignore', fd, fd],
     };
+    const tail = exports.tailLog(client, logFile, tag);
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
     proc.on('close', (code) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
-        client.emit('pclose', [tag, proc.pid, code]);
+        if (tail)
+            tail.unwatch();
+        client.emit('pclose', [tag, code]);
     });
     proc.on('error', (err) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
-        client.emit('perror', [tag, proc.pid, err]);
+        client.emit('perror', [tag, err]);
+        if (tail)
+            tail.unwatch();
     });
     // create pid file
     yield writeFile(pidFile, String(proc.pid));
-    const tail = new tail_1.Tail(logFile);
-    tail.on('line', (line) => client.emit('pout', [tag, proc.pid, line]));
-    tail.on('error', (err) => log_1.konsole.error(`Could not tail ${logFile}`, err));
+    // const tail = new Tail(logFile)
+    // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
+    // tail.on('error', (err: Error) =>
+    //   konsole.error(`Could not tail ${logFile}`, err)
+    // )
     return proc;
 });
+exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 64) => {
+    let buf = '';
+    const tail = new tail_1.Tail(logFile);
+    tail.on('line', (line) => {
+        buf += line + '\n';
+    });
+    tail.on('error', (err) => {
+        clearInterval(intervalId);
+        log_1.konsole.error(`Could not tail ${logFile}`, err);
+    });
+    const intervalId = setInterval(() => {
+        if (!buf)
+            return;
+        const s = buf;
+        buf = '';
+        wsClient.emit('pout', [tag, s]);
+    }, intervalMs);
+    return tail;
+};
 exports.default = runAsProcess;
 //# sourceMappingURL=runAsProcess.js.map

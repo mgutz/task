@@ -9,7 +9,6 @@ class OutputStream extends Component {
   static propTypes = {
     logIndex: PropTypes.object,
     onSelect: PropTypes.func.isRequired,
-    messageProp: PropTypes.string, // property name  of message in json objects
     task: PropTypes.object,
   }
 

@@ -20,4 +20,5 @@ export interface RunAsProcessParam {
  * The argv must have`_.[0]` be the task name and `server: false`.
  */
 declare const runAsProcess: ({ context, tag, taskfileId, taskName, argv, client, }: RunAsProcessParam) => Promise<cp.ChildProcess>;
+export declare const tailLog: (wsClient: any, logFile: string, tag: string, batchLines?: number, intervalMs?: number) => any;
 export default runAsProcess;

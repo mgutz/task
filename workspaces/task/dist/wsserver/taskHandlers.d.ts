@@ -30,3 +30,11 @@ export declare const run: (context: ResolverContext, tag: string, taskfileId: st
     pid: number;
 }>;
 export declare const stop: (context: ResolverContext, pid: number) => "z" | undefined;
+/**
+ * Gets list of running process across all taskfiles in project.
+ */
+export declare const getRunningProcesses: (context: ResolverContext) => Promise<void>;
+/**
+ *
+ */
+export declare const tailProcessLogs: () => void;

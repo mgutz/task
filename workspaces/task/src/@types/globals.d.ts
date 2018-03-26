@@ -7,6 +7,7 @@ declare module 'task-ws'
 declare module 'tree-kill'
 declare module 'websocket-stream'
 declare module 'tail'
+declare module 'tail-file'
 
 declare interface Options {
   _: string[]
