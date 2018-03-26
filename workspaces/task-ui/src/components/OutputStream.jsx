@@ -80,7 +80,8 @@ class OutputStream extends Component {
         onClick={this.doSelect(index)}
         style={style}
       >
-        <Ansi>{str}</Ansi>
+        {str}
+        {/* <Ansi>{str}</Ansi> */}
       </div>
     )
 
@@ -105,7 +106,7 @@ class OutputStream extends Component {
                 ref={this.doSetVirtualList}
                 className="task-log"
                 height={height}
-                overscanRowCount={10}
+                //overscanRowCount={10}
                 noRowsRenderer={this.noRows}
                 rowCount={max}
                 rowHeight={20}
@@ -141,8 +142,20 @@ class OutputStream extends Component {
   }
 
   doSetRowsRendered = (props) => {
-    if (props.startIndex !== this.rowsRendered.startIndex) {
-      //this.itemsCache = {}
+    const {startIndex} = this.rowsRendered
+    if (startIndex === undefined) {
+      this.rowsRendered = props
+      return
+    }
+
+    if (props.startIndex < startIndex) {
+      for (let i = 0; i < startIndex - props.startIndex; i++) {
+        delete this.itemsCache[props.stopIndex + i + 1]
+      }
+    } else if (props.startIndex > startIndex) {
+      for (let i = 0; i < props.startIndex - startIndex; i++) {
+        delete this.itemsCache[startIndex + i]
+      }
     }
 
     this.rowsRendered = props

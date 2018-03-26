@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
-import {uid} from '#/util'
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 

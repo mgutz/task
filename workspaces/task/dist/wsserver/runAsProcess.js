@@ -14,7 +14,7 @@ const fp = require("path");
 const fs = require("fs");
 const mkdirP = require("mkdirp");
 const util_1 = require("util");
-const tail_1 = require("tail");
+const Tail = require("tail");
 const log_1 = require("../core/log");
 const mkdirp = util_1.promisify(mkdirP);
 const writeFile = util_1.promisify(fs.writeFile);
@@ -82,16 +82,14 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     proc.on('close', (code) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
-        if (tail)
-            tail.unwatch();
+        // if (tail) tail.unwatch()
         client.emit('pclose', [tag, code]);
     });
     proc.on('error', (err) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
         client.emit('perror', [tag, err]);
-        if (tail)
-            tail.unwatch();
+        // if (tail) tail.unwatch()
     });
     // create pid file
     yield writeFile(pidFile, String(proc.pid));
@@ -102,9 +100,9 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // )
     return proc;
 });
-exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 64) => {
+exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 16) => {
     let buf = '';
-    const tail = new tail_1.Tail(logFile);
+    const tail = new Tail(logFile, '\n', { interval: 100 });
     tail.on('line', (line) => {
         buf += line + '\n';
     });

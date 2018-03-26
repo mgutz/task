@@ -7,7 +7,7 @@ import * as mkdirP from 'mkdirp'
 import {promisify} from 'util'
 import {ResolverContext} from './types'
 import * as websocketStream from 'websocket-stream'
-import {Tail} from 'tail'
+import * as Tail from 'tail'
 import {konsole} from '../core/log'
 
 const mkdirp = promisify(mkdirP)
@@ -109,7 +109,7 @@ const runAsProcess = async ({
   proc.on('close', (code) => {
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
-    if (tail) tail.unwatch()
+    // if (tail) tail.unwatch()
     client.emit('pclose', [tag, code])
   })
 
@@ -117,7 +117,7 @@ const runAsProcess = async ({
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
     client.emit('perror', [tag, err])
-    if (tail) tail.unwatch()
+    // if (tail) tail.unwatch()
   })
 
   // create pid file
@@ -137,11 +137,11 @@ export const tailLog = (
   logFile: string,
   tag: string,
   batchLines = 5,
-  intervalMs = 64
+  intervalMs = 16
 ) => {
   let buf = ''
 
-  const tail = new Tail(logFile)
+  const tail = new Tail(logFile, '\n', {interval: 100})
 
   tail.on('line', (line: string) => {
     buf += line + '\n'

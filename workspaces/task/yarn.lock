@@ -2494,6 +2494,10 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+line-by-line@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/line-by-line/-/line-by-line-0.1.6.tgz#6236edd1db2d1695addf11f0268e74a181561c30"
+
 locate-path@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"
