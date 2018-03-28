@@ -49,6 +49,15 @@ declare interface TaskUI {
   formatLog?: string
 }
 
+declare interface ExecInfo {
+  logFile: string
+  pid?: string
+  tag: string // history id
+  taskfileId: string
+  taskName: string
+  timestamp: string
+}
+
 declare interface RawTask {
   deps?: any[]
   desc?: string
@@ -61,6 +70,8 @@ declare interface RawTask {
   watch?: string[]
   _original?: Task
   _ran?: boolean
+
+  _execHistory?: ExecInfo[]
 }
 
 declare interface LazyTask extends RawTask {

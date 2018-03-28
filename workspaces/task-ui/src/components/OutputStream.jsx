@@ -4,9 +4,11 @@ import {AutoSizer, List} from 'react-virtualized'
 import {logEntryAt, logLength} from '#/store/logs'
 import PropTypes from 'prop-types'
 import Ansi from 'ansi-to-react'
+import VirtualList from 'react-tiny-virtual-list'
 
 class OutputStream extends Component {
   static propTypes = {
+    historyId: PropTypes.string.isRequired,
     logIndex: PropTypes.object,
     onSelect: PropTypes.func.isRequired,
     task: PropTypes.object,
@@ -29,7 +31,8 @@ class OutputStream extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.logIndex && nextProps.logIndex !== this.props.logIndex) {
+    if (nextProps.historyId && nextProps.historyId !== this.props.historyId) {
+      console.log('SWITCHING OUTPUT TO', nextProps.historyId)
       const max = logLength(nextProps.logIndex)
       this.setState({selected: -1, max})
       this.itemsCache = {}
@@ -53,6 +56,8 @@ class OutputStream extends Component {
       }
       return this.itemsCache[indexKey]
     }
+
+    console.log('renderitem', index)
 
     const {logIndex, task} = this.props
     // eslint-disable-next-line
@@ -96,6 +101,32 @@ class OutputStream extends Component {
     const max = logLength(logIndex)
     const {selected} = this.state
 
+    return (
+      <AutoSizer>
+        {({height, width}) => {
+          return (
+            <div onKeyDown={this.doKeyDown} tabIndex="0">
+              <VirtualList
+                ref={this.doSetVirtualList}
+                width={width}
+                height={height}
+                itemCount={max}
+                itemSize={20} // Also supports variable heights (array or function getter)
+                renderItem={this.renderItem}
+                onItemsRendered={this.doSetRowsRendered}
+              />
+            </div>
+          )
+        }}
+      </AutoSizer>
+    )
+  }
+
+  render3() {
+    const {logIndex, task} = this.props
+    const max = logLength(logIndex)
+    const {selected} = this.state
+
     const result = (
       <AutoSizer>
         {({height, width}) => {
@@ -106,7 +137,7 @@ class OutputStream extends Component {
                 ref={this.doSetVirtualList}
                 className="task-log"
                 height={height}
-                //overscanRowCount={10}
+                overscanRowCount={10}
                 noRowsRenderer={this.noRows}
                 rowCount={max}
                 rowHeight={20}
@@ -114,6 +145,7 @@ class OutputStream extends Component {
                 scrollToIndex={selected}
                 width={width}
                 onRowsRendered={this.doSetRowsRendered}
+                scrolltoAlignment="start"
               />
             </div>
           )
@@ -142,19 +174,24 @@ class OutputStream extends Component {
   }
 
   doSetRowsRendered = (props) => {
-    const {startIndex} = this.rowsRendered
+    const {startIndex, stopIndex} = this.rowsRendered
     if (startIndex === undefined) {
       this.rowsRendered = props
       return
     }
 
-    if (props.startIndex < startIndex) {
+    if (startIndex < props.startIndex && stopIndex > props.startIndex) {
+      for (let i = 0; i < props.startIndex - startIndex; i++) {
+        delete this.itemsCache[startIndex + i]
+      }
+    } else if (props.startIndex < startIndex && props.stopIndex > startIndex) {
       for (let i = 0; i < startIndex - props.startIndex; i++) {
         delete this.itemsCache[props.stopIndex + i + 1]
       }
-    } else if (props.startIndex > startIndex) {
-      for (let i = 0; i < props.startIndex - startIndex; i++) {
-        delete this.itemsCache[startIndex + i]
+    } else if (startIndex !== props.startIndex) {
+      // no overlap so delete all existing items
+      for (let i = startIndex; i <= stopIndex; i++) {
+        delete this.itemsCache[i]
       }
     }
 
@@ -169,9 +206,13 @@ class OutputStream extends Component {
     this.props.onSelect(index)
   }, 150)
 
-  updateGrid = _.debounce(() => {
+  updateGrid2 = _.debounce(() => {
     this.virtualList.forceUpdateGrid()
   }, 100)
+
+  updateGrid = _.debounce(() => {
+    this.virtualList.forceUpdate()
+  }, 16)
 
   innerSelect = (index) => {
     this.setState({selected: index})

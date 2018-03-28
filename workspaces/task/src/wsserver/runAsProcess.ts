@@ -8,6 +8,7 @@ import {promisify} from 'util'
 import {ResolverContext} from './types'
 import * as Tail from 'task-tail'
 import {konsole} from '../core/log'
+import {logBase, formatDate} from './util'
 
 const mkdirp = promisify(mkdirP)
 const writeFile = promisify(fs.writeFile)
@@ -23,10 +24,6 @@ export interface RunAsProcessParam {
   argv: Options
   client: any
 }
-
-_.templateSettings.interpolate = /{{([\s\S]+?)}}/g
-
-const defaultLogPathPattern = '.pids/{{taskfileId}}/{{taskName}}-{{timestamp}}'
 
 /**
  * Since node doesn't have goroutines and libraries like webworker-thread and
@@ -74,18 +71,17 @@ const runAsProcess = async ({
   // from these proc logs.
 
   const pid = process.pid // use parent's PID
-  const pathPattern = project.server.logPathPattern || defaultLogPathPattern
-  const template = _.template(pathPattern)
-  const logBase = template({
+  const base = logBase({
+    tag,
     taskName,
     taskfileId,
-    timestamp: new Date().toISOString(),
+    timestamp: formatDate(),
   })
-  const logDir = fp.dirname(logBase)
+  const logDir = fp.dirname(base)
   await mkdirp(logDir)
 
-  const logFile = logBase + '.log'
-  const pidFile = logBase + '.pid'
+  const logFile = base + '.log'
+  const pidFile = base + '.pid'
 
   const fd = fs.openSync(logFile, 'a')
   const fileStream = fs.createWriteStream('', {fd})
@@ -136,10 +132,18 @@ export const tailLog = (
   logFile: string,
   tag: string,
   batchLines = 5,
-  intervalMs = 16
+  intervalMs = 160
 ) => {
   let buf = ''
 
+  const sendBuffer = () => {
+    if (!buf) return
+    const s = buf
+    buf = ''
+    wsClient.emit('pout', [tag, s])
+  }
+
+  const intervalId = setInterval(sendBuffer, intervalMs)
   const tail = new Tail(logFile, '\n', {interval: 100})
 
   tail.on('line', (line: string) => {
@@ -150,13 +154,6 @@ export const tailLog = (
     clearInterval(intervalId)
     konsole.error(`Could not tail ${logFile}`, err)
   })
-
-  const intervalId = setInterval(() => {
-    if (!buf) return
-    const s = buf
-    buf = ''
-    wsClient.emit('pout', [tag, s])
-  }, intervalMs)
 
   return tail
 }

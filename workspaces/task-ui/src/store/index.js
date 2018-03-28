@@ -19,13 +19,13 @@ import raf from 'raf'
 const recordable = ['taskfiles/run']
 
 let rafId
-export default function rafUpdateBatcher(notify /*, action, getState*/) {
+const rafUpdateBatcher = _.debounce((notify /*, action, getState*/) => {
   if (rafId) return
   rafId = raf(() => {
     rafId = null
     notify()
   })
-}
+}, 16)
 
 export const createStore = async () => {
   const router = await initRouter5(routes, {defaultRoute: 'tasks'})

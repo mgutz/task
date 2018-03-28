@@ -18,6 +18,7 @@ const task_ws_1 = require("task-ws");
 const tasks_1 = require("../core/tasks");
 const usage_1 = require("../cli/usage");
 const runAsProcess_1 = require("./runAsProcess");
+const util_1 = require("./util");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -83,8 +84,10 @@ exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, functio
     if (!taskList) {
         return [];
     }
-    // whitelist marshalled properties
-    const cleanTasks = _.map(taskList, (task) => {
+    const result = [];
+    for (const k in taskList) {
+        const task = taskList[k];
+        // whitelist marshalled properties
         const tsk = _.pick(task, [
             'deps',
             'desc',
@@ -96,9 +99,10 @@ exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, functio
         // tasks do not have ids since they are just exported functions. create id
         // based on the taskfile id
         tsk.id = taskfileId + '.' + task.name;
-        return tsk;
-    });
-    return cleanTasks;
+        tsk.execHistory = yield util_1.getExecHistory(taskfileId, task.name);
+        result.push(tsk);
+    }
+    return result;
 });
 /**
  * Runs a task by name found in taskfile entry from  `Taskproject.json`
@@ -136,21 +140,5 @@ exports.stop = (context, pid) => {
     if (!pid)
         return `z`;
     kill(pid);
-};
-// (taskfileId)/(taskName)-(timestamp).pid
-const rePidfiles = /([^\/]+)\/([^\-]+)-(.+).pid$/;
-// (taskfileId)/(taskName)-(timestamp).log
-const reLogFiles = /([^\/]+)\/([^\-]+)-(.+).log$/;
-/**
- * Gets list of running process across all taskfiles in project.
- */
-exports.getRunningProcesses = (context) => __awaiter(this, void 0, void 0, function* () {
-    // const files = await globby(globs)
-});
-/**
- *
- */
-exports.tailProcessLogs = () => {
-    // TBD
 };
 //# sourceMappingURL=taskHandlers.js.map

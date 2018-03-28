@@ -7,12 +7,16 @@ import {createPromptModule} from 'inquirer'
 import {konsole} from '../core/log'
 import {readJSONFile} from '../core/util'
 import {Project} from './types'
+import * as globby from 'globby'
+import {promisify} from 'util'
+
+const readFile = promisify(fs.readFile)
+const existsAsync = promisify(fs.exists)
 
 const prompt = createPromptModule()
 
 const exampleTaskproject = `{
   "server": {
-	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
   },
   "taskfiles": [
     {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
@@ -84,4 +88,84 @@ export const sanitizeInboundArgv = (argv: Options): Options => {
     'list',
     'projectFile',
   ]) as Options
+}
+
+const pidDir = '.pids'
+
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g
+// tslint:disable-next-line
+const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}-{{tag}}`
+const logBaseTemplate = _.template(pathPattern)
+
+export interface LogBaseParam {
+  extName?: string
+  pid?: string
+  tag: string
+  taskfileId: string
+  taskName: string
+  timestamp: string
+}
+
+export const logBase = (arg: LogBaseParam) => {
+  return logBaseTemplate(arg)
+}
+
+const reLogBase = /\/([^\/]+)\/([^\-]+)-([^\-]+)-([^.]+)(\..+)$/
+
+const parseLogPath = async (path: string): Promise<ExecInfo | undefined> => {
+  const matches = path.match(reLogBase)
+  if (!matches) return
+
+  // export interface ExecInfo {
+  //   logFile: string
+  //   pid: string
+  //   tag: string // history id
+  //   taskfileId: string
+  //   taskName: string
+  //   timestamp: string
+  // }
+
+  const info: ExecInfo = {
+    logFile: path,
+    tag: matches[4],
+    taskName: matches[2],
+    taskfileId: matches[1],
+    timestamp: matches[3],
+  }
+
+  const pidFile = path.replace(/\.log/, '.pid')
+
+  if (await existsAsync(pidFile)) {
+    info.pid = await readFile(pidFile, 'utf-8')
+  }
+
+  return info
+}
+
+export const getExecHistory = async (
+  taskfileId: string,
+  taskName: string
+): Promise<ExecInfo[]> => {
+  const files = await globby([`${pidDir}/${taskfileId}/${taskName}-*.log`])
+  if (!files.length) return []
+
+  const result = []
+  for (const file of files) {
+    result.push(await parseLogPath(file))
+  }
+
+  return _.compact(result)
+}
+
+export const formatDate = (d = new Date()) => {
+  return (
+    d.getFullYear() +
+    '' +
+    ('0' + (d.getMonth() + 1)).slice(-2) +
+    '' +
+    ('0' + d.getDate()).slice(-2) +
+    'T' +
+    +('0' + d.getHours()).slice(-2) +
+    ('0' + d.getMinutes()).slice(-2)
+  )
 }

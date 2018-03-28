@@ -18,6 +18,7 @@ const logIndexSelector = createSelector(
   historyIdSelector,
   (logs, historyId) => logs[historyId]
 )
+
 const historySelector = createSelector(
   historiesSelector,
   historyIdSelector,

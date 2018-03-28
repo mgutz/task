@@ -6,3 +6,14 @@ export declare const relativeToHomeDir: (path: string) => string;
  * @param argv Users
  */
 export declare const sanitizeInboundArgv: (argv: Options) => Options;
+export interface LogBaseParam {
+    extName?: string;
+    pid?: string;
+    tag: string;
+    taskfileId: string;
+    taskName: string;
+    timestamp: string;
+}
+export declare const logBase: (arg: LogBaseParam) => string;
+export declare const getExecHistory: (taskfileId: string, taskName: string) => Promise<ExecInfo[]>;
+export declare const formatDate: (d?: Date) => string;

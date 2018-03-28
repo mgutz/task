@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("lodash");
 const cp = require("child_process");
 const fp = require("path");
 const fs = require("fs");
@@ -16,12 +15,11 @@ const mkdirP = require("mkdirp");
 const util_1 = require("util");
 const Tail = require("task-tail");
 const log_1 = require("../core/log");
+const util_2 = require("./util");
 const mkdirp = util_1.promisify(mkdirP);
 const writeFile = util_1.promisify(fs.writeFile);
 const unlink = util_1.promisify(fs.unlink);
 const taskScript = fp.resolve(__dirname, '..', '..', 'index.js');
-_.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-const defaultLogPathPattern = '.pids/{{taskfileId}}/{{taskName}}-{{timestamp}}';
 /**
  * Since node doesn't have goroutines and libraries like webworker-thread and
  * tiny-worker do not work well with `require`, the best we can do
@@ -56,17 +54,16 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // process pipesj stdout, stderr to file. When task restarts it will read
     // from these proc logs.
     const pid = process.pid; // use parent's PID
-    const pathPattern = project.server.logPathPattern || defaultLogPathPattern;
-    const template = _.template(pathPattern);
-    const logBase = template({
+    const base = util_2.logBase({
+        tag,
         taskName,
         taskfileId,
-        timestamp: new Date().toISOString(),
+        timestamp: util_2.formatDate(),
     });
-    const logDir = fp.dirname(logBase);
+    const logDir = fp.dirname(base);
     yield mkdirp(logDir);
-    const logFile = logBase + '.log';
-    const pidFile = logBase + '.pid';
+    const logFile = base + '.log';
+    const pidFile = base + '.pid';
     const fd = fs.openSync(logFile, 'a');
     const fileStream = fs.createWriteStream('', { fd });
     const opts = {
@@ -100,8 +97,16 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // )
     return proc;
 });
-exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 16) => {
+exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 160) => {
     let buf = '';
+    const sendBuffer = () => {
+        if (!buf)
+            return;
+        const s = buf;
+        buf = '';
+        wsClient.emit('pout', [tag, s]);
+    };
+    const intervalId = setInterval(sendBuffer, intervalMs);
     const tail = new Tail(logFile, '\n', { interval: 100 });
     tail.on('line', (line) => {
         buf += line + '\n';
@@ -110,13 +115,6 @@ exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 16) => {
         clearInterval(intervalId);
         log_1.konsole.error(`Could not tail ${logFile}`, err);
     });
-    const intervalId = setInterval(() => {
-        if (!buf)
-            return;
-        const s = buf;
-        buf = '';
-        wsClient.emit('pout', [tag, s]);
-    }, intervalMs);
     return tail;
 };
 exports.default = runAsProcess;

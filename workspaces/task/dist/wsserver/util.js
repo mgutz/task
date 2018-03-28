@@ -15,10 +15,13 @@ const os = require("os");
 const inquirer_1 = require("inquirer");
 const log_1 = require("../core/log");
 const util_1 = require("../core/util");
+const globby = require("globby");
+const util_2 = require("util");
+const readFile = util_2.promisify(fs.readFile);
+const existsAsync = util_2.promisify(fs.exists);
 const prompt = inquirer_1.createPromptModule();
 const exampleTaskproject = `{
   "server": {
-	  "storePath": ".tasklogs/{{taskfileId}}/{{taskName}}/{{timestamp}}-{{pid}}"
   },
   "taskfiles": [
     {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
@@ -85,4 +88,56 @@ exports.sanitizeInboundArgv = (argv) => {
         'projectFile',
     ]);
 };
+const pidDir = '.pids';
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+// tslint:disable-next-line
+const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}-{{tag}}`;
+const logBaseTemplate = _.template(pathPattern);
+exports.logBase = (arg) => {
+    return logBaseTemplate(arg);
+};
+const reLogBase = /\/([^\/]+)\/([^\-]+)-([^\-]+)-([^.]+)(\..+)$/;
+const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
+    const matches = path.match(reLogBase);
+    if (!matches)
+        return;
+    // export interface ExecInfo {
+    //   logFile: string
+    //   pid: string
+    //   tag: string // history id
+    //   taskfileId: string
+    //   taskName: string
+    //   timestamp: string
+    // }
+    const info = {
+        logFile: path,
+        tag: matches[4],
+        taskName: matches[2],
+        taskfileId: matches[1],
+        timestamp: matches[3],
+    };
+    const pidFile = path.replace(/\.log/, '.pid');
+    if (yield existsAsync(pidFile)) {
+        info.pid = yield readFile(pidFile, 'utf-8');
+    }
+    return info;
+});
+exports.getExecHistory = (taskfileId, taskName) => __awaiter(this, void 0, void 0, function* () {
+    const files = yield globby([`${pidDir}/${taskfileId}/${taskName}-*.log`]);
+    if (!files.length)
+        return [];
+    const result = [];
+    for (const file of files) {
+        result.push(yield parseLogPath(file));
+    }
+    return _.compact(result);
+});
+exports.formatDate = (d = new Date()) => d.getFullYear() +
+    '' +
+    ('0' + (d.getMonth() + 1)).slice(-2) +
+    '' +
+    ('0' + d.getDate()).slice(-2) +
+    'T' +
+    +('0' + d.getHours()).slice(-2) +
+    ('0' + d.getMinutes()).slice(-2);
 //# sourceMappingURL=util.js.map
