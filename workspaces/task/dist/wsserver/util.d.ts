@@ -9,7 +9,6 @@ export declare const sanitizeInboundArgv: (argv: Options) => Options;
 export interface LogBaseParam {
     extName?: string;
     pid?: string;
-    tag: string;
     taskfileId: string;
     taskName: string;
     timestamp: string;

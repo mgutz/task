@@ -34,6 +34,7 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     const { project } = context;
     argv._[0] = taskName;
     argv.server = false;
+    const historyId = tag.id;
     // const newArgv = _.pick(argv, [
     //   '_',
     //   'babel',
@@ -53,9 +54,7 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // When task is run as a server, it should be long-lived like tmux. Each
     // process pipesj stdout, stderr to file. When task restarts it will read
     // from these proc logs.
-    const pid = process.pid; // use parent's PID
     const base = util_2.logBase({
-        tag,
         taskName,
         taskfileId,
         timestamp: util_2.formatDate(),
@@ -64,6 +63,7 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     yield mkdirp(logDir);
     const logFile = base + '.log';
     const pidFile = base + '.pid';
+    const tagFile = base + '.tag';
     const fd = fs.openSync(logFile, 'a');
     const fileStream = fs.createWriteStream('', { fd });
     const opts = {
@@ -72,7 +72,7 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
         stdio: ['ignore', fd, fd],
     };
-    const tail = exports.tailLog(client, logFile, tag);
+    const tail = exports.tailLog(client, logFile, historyId);
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
@@ -80,16 +80,18 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
         // if (tail) tail.unwatch()
-        client.emit('pclose', [tag, code]);
+        client.emit('pclose', [historyId, code]);
     });
     proc.on('error', (err) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
-        client.emit('perror', [tag, err]);
+        client.emit('perror', [historyId, err]);
         // if (tail) tail.unwatch()
     });
-    // create pid file
+    // create pid file which lets know if a process is running
     yield writeFile(pidFile, String(proc.pid));
+    // creat tag file which contains data echoed back to UI on refresh/restart
+    yield writeFile(tagFile, JSON.stringify(tag));
     // const tail = new Tail(logFile)
     // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
     // tail.on('error', (err: Error) =>
@@ -97,14 +99,14 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // )
     return proc;
 });
-exports.tailLog = (wsClient, logFile, tag, batchLines = 5, intervalMs = 160) => {
+exports.tailLog = (wsClient, logFile, historyId, batchLines = 5, intervalMs = 160) => {
     let buf = '';
     const sendBuffer = () => {
         if (!buf)
             return;
         const s = buf;
         buf = '';
-        wsClient.emit('pout', [tag, s]);
+        wsClient.emit('pout', [historyId, s]);
     };
     const intervalId = setInterval(sendBuffer, intervalMs);
     const tail = new Tail(logFile, '\n', { interval: 100 });

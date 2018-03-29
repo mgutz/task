@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import * as os from 'os'
 import {createPromptModule} from 'inquirer'
 import {konsole} from '../core/log'
-import {readJSONFile} from '../core/util'
+import {readJSONFile, safeParseJSON} from '../core/util'
 import {Project} from './types'
 import * as globby from 'globby'
 import {promisify} from 'util'
@@ -94,13 +94,11 @@ const pidDir = '.pids'
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 // tslint:disable-next-line
-const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}-{{tag}}`
+const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`
 const logBaseTemplate = _.template(pathPattern)
-
 export interface LogBaseParam {
   extName?: string
   pid?: string
-  tag: string
   taskfileId: string
   taskName: string
   timestamp: string
@@ -110,7 +108,7 @@ export const logBase = (arg: LogBaseParam) => {
   return logBaseTemplate(arg)
 }
 
-const reLogBase = /\/([^\/]+)\/([^\-]+)-([^\-]+)-([^.]+)(\..+)$/
+const reLogBase = /\/([^\/]+)\/([^\-]+)-([^.]+)(\..+)$/
 
 const parseLogPath = async (path: string): Promise<ExecInfo | undefined> => {
   const matches = path.match(reLogBase)
@@ -127,16 +125,22 @@ const parseLogPath = async (path: string): Promise<ExecInfo | undefined> => {
 
   const info: ExecInfo = {
     logFile: path,
-    tag: matches[4],
+    tag: '',
     taskName: matches[2],
     taskfileId: matches[1],
     timestamp: matches[3],
   }
 
   const pidFile = path.replace(/\.log/, '.pid')
-
   if (await existsAsync(pidFile)) {
     info.pid = await readFile(pidFile, 'utf-8')
+  }
+
+  const tagFile = path.replace(/\.log/, '.tag')
+  if (await existsAsync(tagFile)) {
+    const [obj, err] = safeParseJSON(await readFile(tagFile, 'utf-8'))
+    if (err) throw err
+    info.tag = obj
   }
 
   return info

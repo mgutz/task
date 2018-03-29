@@ -91,12 +91,12 @@ exports.sanitizeInboundArgv = (argv) => {
 const pidDir = '.pids';
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
 // tslint:disable-next-line
-const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}-{{tag}}`;
+const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`;
 const logBaseTemplate = _.template(pathPattern);
 exports.logBase = (arg) => {
     return logBaseTemplate(arg);
 };
-const reLogBase = /\/([^\/]+)\/([^\-]+)-([^\-]+)-([^.]+)(\..+)$/;
+const reLogBase = /\/([^\/]+)\/([^\-]+)-([^.]+)(\..+)$/;
 const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
     const matches = path.match(reLogBase);
     if (!matches)
@@ -111,7 +111,7 @@ const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
     // }
     const info = {
         logFile: path,
-        tag: matches[4],
+        tag: '',
         taskName: matches[2],
         taskfileId: matches[1],
         timestamp: matches[3],
@@ -119,6 +119,13 @@ const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
     const pidFile = path.replace(/\.log/, '.pid');
     if (yield existsAsync(pidFile)) {
         info.pid = yield readFile(pidFile, 'utf-8');
+    }
+    const tagFile = path.replace(/\.log/, '.tag');
+    if (yield existsAsync(tagFile)) {
+        const [obj, err] = util_1.safeParseJSON(yield readFile(tagFile, 'utf-8'));
+        if (err)
+            throw err;
+        info.tag = obj;
     }
     return info;
 });
@@ -132,12 +139,14 @@ exports.getExecHistory = (taskfileId, taskName) => __awaiter(this, void 0, void 
     }
     return _.compact(result);
 });
-exports.formatDate = (d = new Date()) => d.getFullYear() +
-    '' +
-    ('0' + (d.getMonth() + 1)).slice(-2) +
-    '' +
-    ('0' + d.getDate()).slice(-2) +
-    'T' +
-    +('0' + d.getHours()).slice(-2) +
-    ('0' + d.getMinutes()).slice(-2);
+exports.formatDate = (d = new Date()) => {
+    return (d.getFullYear() +
+        '' +
+        ('0' + (d.getMonth() + 1)).slice(-2) +
+        '' +
+        ('0' + d.getDate()).slice(-2) +
+        'T' +
+        +('0' + d.getHours()).slice(-2) +
+        ('0' + d.getMinutes()).slice(-2));
+};
 //# sourceMappingURL=util.js.map

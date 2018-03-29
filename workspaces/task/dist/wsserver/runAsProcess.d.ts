@@ -1,9 +1,13 @@
 /// <reference types="node" />
 import * as cp from 'child_process';
 import { ResolverContext } from './types';
+export interface HistoryRecord {
+    id: string;
+    [k: string]: any;
+}
 export interface RunAsProcessParam {
     context: ResolverContext;
-    tag: string;
+    tag: HistoryRecord;
     taskfileId: string;
     taskName: string;
     argv: Options;
@@ -20,5 +24,5 @@ export interface RunAsProcessParam {
  * The argv must have`_.[0]` be the task name and `server: false`.
  */
 declare const runAsProcess: ({ context, tag, taskfileId, taskName, argv, client, }: RunAsProcessParam) => Promise<cp.ChildProcess>;
-export declare const tailLog: (wsClient: any, logFile: string, tag: string, batchLines?: number, intervalMs?: number) => any;
+export declare const tailLog: (wsClient: any, logFile: string, historyId: string, batchLines?: number, intervalMs?: number) => any;
 export default runAsProcess;

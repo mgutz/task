@@ -11,7 +11,7 @@ import {loadTasks} from '../core/tasks'
 import {parseArgv} from '../cli/usage'
 import {Project} from './types'
 import {ResolverContext} from './types'
-import runAsProcess from './runAsProcess'
+import runAsProcess, {HistoryRecord, tailLog} from './runAsProcess'
 import * as globby from 'globby'
 import {getExecHistory} from './util'
 
@@ -134,7 +134,7 @@ export const tasks = async (context: ResolverContext, taskfileId: string) => {
  */
 export const run = async (
   context: ResolverContext,
-  tag: string, // echoed back as-is to client, is currently historyId
+  tag: HistoryRecord, // echoed back as-is to client, is currently historyId
   taskfileId: string,
   taskName: string,
   argv: Options
@@ -174,4 +174,20 @@ export const run = async (
 export const stop = (context: ResolverContext, pid: number) => {
   if (!pid) return `z`
   kill(pid)
+}
+
+/**
+ * Tails a file and sends it to the UI as lines for given historyId.
+ *
+ * @param context
+ * @param logFile
+ * @param historyId
+ */
+export const tail = (
+  context: ResolverContext,
+  logFile: string,
+  historyId: string
+) => {
+  const {client} = context
+  return tailLog(client, logFile, historyId)
 }

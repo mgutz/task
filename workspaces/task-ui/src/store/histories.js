@@ -8,6 +8,15 @@ export const histories = {
   state: {}, // {[key: string]: History}
 
   reducers: {
+    record: producer((draft, payload) => {
+      const {id} = payload
+      const item = draft[id]
+      if (!item) {
+        draft[id] = payload
+        return
+      }
+    }),
+
     'taskfiles/record': producer((draft, payload) => {
       const {id} = payload
       const item = draft[id]
@@ -39,8 +48,8 @@ export const histories = {
 
   // async action creators
   effects: {
-    stop({pid}) {
-      invoke('task.stop', pid)
+    attach({historyId, logFile}) {
+      invoke('task.tail', logFile, historyId)
     },
 
     kill({argv}) {
@@ -54,6 +63,10 @@ export const histories = {
     // task.
     replay({ref, record}) {
       dispatch.taskfiles.run({ref: ref || record.ref, ...record.args})
+    },
+
+    stop({pid}) {
+      invoke('task.stop', pid)
     },
   },
 

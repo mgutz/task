@@ -141,4 +141,15 @@ exports.stop = (context, pid) => {
         return `z`;
     kill(pid);
 };
+/**
+ * Tails a file and sends it to the UI as lines for given historyId.
+ *
+ * @param context
+ * @param logFile
+ * @param historyId
+ */
+exports.tail = (context, logFile, historyId) => {
+    const { client } = context;
+    return runAsProcess_1.tailLog(client, logFile, historyId);
+};
 //# sourceMappingURL=taskHandlers.js.map

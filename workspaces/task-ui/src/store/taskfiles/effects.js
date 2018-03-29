@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
+import {select} from '@rematch/select'
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 
@@ -22,6 +23,31 @@ export const effects = {
         task.taskfileId = taskfileId
         if (task.ui && task.ui.formatLog) {
           task.formatLog = _.template(task.ui.formatLog)
+        }
+
+        // rehydrate history and processes
+        const {execHistory} = task
+        if (execHistory) {
+          for (const eh of execHistory) {
+            const record = eh.tag
+            // whether we are attached to the process logs
+            record.attached = false
+            record.status = 'closed'
+            record.logFile = eh.logFile
+
+            if (!record) continue
+
+            this.record(record)
+
+            const pid = eh.pid
+            if (pid) {
+              this.updateHistory({
+                id: record.id,
+                status: 'running',
+                pid,
+              })
+            }
+          }
         }
       }
       this.mergeTasks({taskfileId, tasks})
@@ -69,21 +95,25 @@ export const effects = {
    * Runs a task
    *
    */
-  run(payload) {
+  run(payload, rootState) {
     const validate = t.struct({
       args: t.Array,
       historyId: t.String,
     })
     const {args, historyId} = validate(payload)
     const [taskfileId, taskName, ...rest] = args
+    const history = select.histories.oneById(rootState, {id: historyId})
+
+    // need other state
 
     // historyId is passed as tag
-    return invoke('task.run', historyId, taskfileId, taskName, ...rest).then(
+    return invoke('task.run', history, taskfileId, taskName, ...rest).then(
       (payload) => {
         const {pid} = payload
         this.updateHistory({
           id: historyId,
           pid,
+          attached: true,
         })
       }
     )

@@ -16,9 +16,14 @@ const unlink = promisify(fs.unlink)
 
 const taskScript = fp.resolve(__dirname, '..', '..', 'index.js')
 
+export interface HistoryRecord {
+  id: string
+  [k: string]: any
+}
+
 export interface RunAsProcessParam {
   context: ResolverContext
-  tag: string
+  tag: HistoryRecord
   taskfileId: string
   taskName: string
   argv: Options
@@ -46,6 +51,7 @@ const runAsProcess = async ({
   const {project} = context
   argv._[0] = taskName
   argv.server = false
+  const historyId = tag.id
 
   // const newArgv = _.pick(argv, [
   //   '_',
@@ -70,9 +76,7 @@ const runAsProcess = async ({
   // process pipesj stdout, stderr to file. When task restarts it will read
   // from these proc logs.
 
-  const pid = process.pid // use parent's PID
   const base = logBase({
-    tag,
     taskName,
     taskfileId,
     timestamp: formatDate(),
@@ -82,6 +86,7 @@ const runAsProcess = async ({
 
   const logFile = base + '.log'
   const pidFile = base + '.pid'
+  const tagFile = base + '.tag'
 
   const fd = fs.openSync(logFile, 'a')
   const fileStream = fs.createWriteStream('', {fd})
@@ -95,7 +100,7 @@ const runAsProcess = async ({
     stdio: ['ignore', fd, fd],
   }
 
-  const tail = tailLog(client, logFile, tag)
+  const tail = tailLog(client, logFile, historyId)
 
   // execute the script
   const params = [taskScript]
@@ -105,18 +110,20 @@ const runAsProcess = async ({
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
     // if (tail) tail.unwatch()
-    client.emit('pclose', [tag, code])
+    client.emit('pclose', [historyId, code])
   })
 
   proc.on('error', (err) => {
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
-    client.emit('perror', [tag, err])
+    client.emit('perror', [historyId, err])
     // if (tail) tail.unwatch()
   })
 
-  // create pid file
+  // create pid file which lets know if a process is running
   await writeFile(pidFile, String(proc.pid))
+  // creat tag file which contains data echoed back to UI on refresh/restart
+  await writeFile(tagFile, JSON.stringify(tag))
 
   // const tail = new Tail(logFile)
   // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
@@ -130,7 +137,7 @@ const runAsProcess = async ({
 export const tailLog = (
   wsClient: any,
   logFile: string,
-  tag: string,
+  historyId: string,
   batchLines = 5,
   intervalMs = 160
 ) => {
@@ -140,7 +147,7 @@ export const tailLog = (
     if (!buf) return
     const s = buf
     buf = ''
-    wsClient.emit('pout', [tag, s])
+    wsClient.emit('pout', [historyId, s])
   }
 
   const intervalId = setInterval(sendBuffer, intervalMs)
