@@ -297,4 +297,4 @@ Tail.prototype.watch = function() {
   )
 }
 
-module.exports = Tail
+module.exports = {Tail}

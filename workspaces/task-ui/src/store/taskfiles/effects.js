@@ -109,11 +109,12 @@ export const effects = {
     // historyId is passed as tag
     return invoke('task.run', history, taskfileId, taskName, ...rest).then(
       (payload) => {
-        const {pid} = payload
+        const {pid, logFile} = payload
         this.updateHistory({
           id: historyId,
+          logFile,
           pid,
-          attached: true,
+          attached: false,
         })
       }
     )

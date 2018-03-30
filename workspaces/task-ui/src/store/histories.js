@@ -49,7 +49,9 @@ export const histories = {
   // async action creators
   effects: {
     attach({historyId, logFile}) {
-      invoke('task.tail', logFile, historyId)
+      invoke('task.tail', logFile, historyId).then(() => {
+        dispatch.taskfiles.updateHistory({id: historyId, attached: true})
+      })
     },
 
     kill({argv}) {

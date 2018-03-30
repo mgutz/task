@@ -6,7 +6,7 @@ import * as stream from 'stream'
 import * as mkdirP from 'mkdirp'
 import {promisify} from 'util'
 import {ResolverContext} from './types'
-import * as Tail from 'task-tail'
+import {Tail, readLastNLines} from 'task-tail'
 import {konsole} from '../core/log'
 import {logBase, formatDate} from './util'
 
@@ -47,7 +47,7 @@ const runAsProcess = async ({
   taskName,
   argv,
   client,
-}: RunAsProcessParam): Promise<cp.ChildProcess> => {
+}: RunAsProcessParam): Promise<any> => {
   const {project} = context
   argv._[0] = taskName
   argv.server = false
@@ -100,7 +100,10 @@ const runAsProcess = async ({
     stdio: ['ignore', fd, fd],
   }
 
-  const tail = tailLog(client, logFile, historyId)
+  // const tail = await tailLog(client, logFile, historyId, {
+  //   readEndLines: 0,
+  //   watch: true,
+  // } as TailLogParams)
 
   // execute the script
   const params = [taskScript]
@@ -122,7 +125,7 @@ const runAsProcess = async ({
 
   // create pid file which lets know if a process is running
   await writeFile(pidFile, String(proc.pid))
-  // creat tag file which contains data echoed back to UI on refresh/restart
+  // create tag file which contains data echoed back to UI on refresh/restart
   await writeFile(tagFile, JSON.stringify(tag))
 
   // const tail = new Tail(logFile)
@@ -131,17 +134,37 @@ const runAsProcess = async ({
   //   konsole.error(`Could not tail ${logFile}`, err)
   // )
 
-  return proc
+  return {
+    logFile,
+    pid: proc.pid,
+  }
 }
 
-export const tailLog = (
+export interface TailLogParams {
+  intervalMs: number
+  readEndLines: number
+  watch: boolean
+  pid: number
+}
+
+const tailLogDefaults: TailLogParams = {
+  intervalMs: 160,
+  pid: 0,
+  readEndLines: 10,
+  watch: false,
+}
+
+export const tailLog = async (
   wsClient: any,
   logFile: string,
   historyId: string,
-  batchLines = 5,
-  intervalMs = 160
+  options = tailLogDefaults
 ) => {
   let buf = ''
+
+  const {intervalMs, readEndLines, watch} = {...tailLogDefaults, ...options}
+
+  konsole.log(`Tailing ${logFile} w/ historyId ${historyId}`)
 
   const sendBuffer = () => {
     if (!buf) return
@@ -150,8 +173,19 @@ export const tailLog = (
     wsClient.emit('pout', [historyId, s])
   }
 
+  let offset = 0
+
+  if (readEndLines) {
+    const {lines, start} = await readLastNLines(logFile, readEndLines, 'utf-8')
+    buf = lines
+    offset = start
+    sendBuffer()
+  }
+
+  if (!watch) return
+
   const intervalId = setInterval(sendBuffer, intervalMs)
-  const tail = new Tail(logFile, '\n', {interval: 100})
+  const tail = new Tail(logFile, '\n', {interval: intervalMs, start: offset})
 
   tail.on('line', (line: string) => {
     buf += line + '\n'

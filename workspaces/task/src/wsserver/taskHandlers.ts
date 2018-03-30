@@ -11,7 +11,11 @@ import {loadTasks} from '../core/tasks'
 import {parseArgv} from '../cli/usage'
 import {Project} from './types'
 import {ResolverContext} from './types'
-import runAsProcess, {HistoryRecord, tailLog} from './runAsProcess'
+import runAsProcess, {
+  HistoryRecord,
+  tailLog,
+  TailLogParams,
+} from './runAsProcess'
 import * as globby from 'globby'
 import {getExecHistory} from './util'
 
@@ -156,7 +160,7 @@ export const run = async (
 
   // this does not wait for process to end, rather it awaits for some async
   // statements like create PID files
-  const cp = await runAsProcess({
+  const info = await runAsProcess({
     argv: newArgv,
     client,
     context,
@@ -167,7 +171,7 @@ export const run = async (
 
   // events are passed through client. return the pid here for the UI
   // to know which pid it is
-  return {pid: cp.pid}
+  return info
 }
 
 // TODO we need to verify this is a pid started by task, very dangerous
@@ -186,8 +190,9 @@ export const stop = (context: ResolverContext, pid: number) => {
 export const tail = (
   context: ResolverContext,
   logFile: string,
-  historyId: string
+  historyId: string,
+  options = {watch: false} as TailLogParams
 ) => {
   const {client} = context
-  return tailLog(client, logFile, historyId)
+  return tailLog(client, logFile, historyId, options)
 }

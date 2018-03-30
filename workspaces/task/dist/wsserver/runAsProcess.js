@@ -13,7 +13,7 @@ const fp = require("path");
 const fs = require("fs");
 const mkdirP = require("mkdirp");
 const util_1 = require("util");
-const Tail = require("task-tail");
+const task_tail_1 = require("task-tail");
 const log_1 = require("../core/log");
 const util_2 = require("./util");
 const mkdirp = util_1.promisify(mkdirP);
@@ -72,7 +72,10 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
         stdio: ['ignore', fd, fd],
     };
-    const tail = exports.tailLog(client, logFile, historyId);
+    // const tail = await tailLog(client, logFile, historyId, {
+    //   readEndLines: 0,
+    //   watch: true,
+    // } as TailLogParams)
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
@@ -97,10 +100,20 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
     // tail.on('error', (err: Error) =>
     //   konsole.error(`Could not tail ${logFile}`, err)
     // )
-    return proc;
+    return {
+        logFile,
+        pid: proc.pid,
+    };
 });
-exports.tailLog = (wsClient, logFile, historyId, batchLines = 5, intervalMs = 160) => {
+const tailLogDefaults = {
+    intervalMs: 160,
+    readEndLines: 10,
+    watch: false,
+};
+exports.tailLog = (wsClient, logFile, historyId, options = tailLogDefaults) => __awaiter(this, void 0, void 0, function* () {
     let buf = '';
+    const { intervalMs, readEndLines, watch } = Object.assign({}, tailLogDefaults, options);
+    log_1.konsole.log(`Tailing ${logFile} w/ historyId ${historyId}`);
     const sendBuffer = () => {
         if (!buf)
             return;
@@ -108,8 +121,17 @@ exports.tailLog = (wsClient, logFile, historyId, batchLines = 5, intervalMs = 16
         buf = '';
         wsClient.emit('pout', [historyId, s]);
     };
+    let offset = 0;
+    if (readEndLines) {
+        const { lines, start } = yield task_tail_1.readLastNLines(logFile, readEndLines, 'utf-8');
+        buf = lines;
+        offset = start;
+        sendBuffer();
+    }
+    if (!watch)
+        return;
     const intervalId = setInterval(sendBuffer, intervalMs);
-    const tail = new Tail(logFile, '\n', { interval: 100 });
+    const tail = new task_tail_1.Tail(logFile, '\n', { interval: intervalMs, start: offset });
     tail.on('line', (line) => {
         buf += line + '\n';
     });
@@ -118,6 +140,6 @@ exports.tailLog = (wsClient, logFile, historyId, batchLines = 5, intervalMs = 16
         log_1.konsole.error(`Could not tail ${logFile}`, err);
     });
     return tail;
-};
+});
 exports.default = runAsProcess;
 //# sourceMappingURL=runAsProcess.js.map

@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {router} from './router'
+import {konsole} from '#/util'
 
 // <Activate class="is-selected" route={{name, params}}><Child /></Activate>
 @connect((state) => ({currentRoute: state.router.route}))
@@ -9,6 +10,7 @@ export class Activate extends PureComponent {
   static propTypes = {
     class: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
+    onActivate: PropTypes.func,
     pathProp: PropTypes.string,
     route: PropTypes.object.isRequired,
   }
@@ -31,6 +33,18 @@ export class Activate extends PureComponent {
 
   doActivate = () => {
     const {route} = this.props
-    router.navigate(route.name, route.params)
+
+    router.navigate(route.name, route.params, (err, state) => {
+      if (err) {
+        if (err.code !== 'SAME_STATES') {
+          konsole.error('Navigation Error', err)
+        } else {
+          konsole.error(err)
+        }
+        return
+      }
+
+      if (this.props.onActivate) this.props.onActivate(state)
+    })
   }
 }

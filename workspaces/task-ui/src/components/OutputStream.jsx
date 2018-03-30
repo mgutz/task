@@ -57,8 +57,6 @@ class OutputStream extends Component {
       return this.itemsCache[indexKey]
     }
 
-    console.log('renderitem', index)
-
     const {logIndex, task} = this.props
     // eslint-disable-next-line
     const o = logEntryAt(logIndex, index)

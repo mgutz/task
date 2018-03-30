@@ -1,6 +1,6 @@
 import { Project } from './types';
 import { ResolverContext } from './types';
-import { HistoryRecord } from './runAsProcess';
+import { HistoryRecord, TailLogParams } from './runAsProcess';
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -27,9 +27,7 @@ export declare const tasks: (context: ResolverContext, taskfileId: string) => Pr
  *
  * NOTE: Not all args are safe andt the inbound `argv` is sanitized.
  */
-export declare const run: (context: ResolverContext, tag: HistoryRecord, taskfileId: string, taskName: string, argv: Options) => Promise<{
-    pid: number;
-}>;
+export declare const run: (context: ResolverContext, tag: HistoryRecord, taskfileId: string, taskName: string, argv: Options) => Promise<any>;
 export declare const stop: (context: ResolverContext, pid: number) => "z" | undefined;
 /**
  * Tails a file and sends it to the UI as lines for given historyId.
@@ -38,4 +36,4 @@ export declare const stop: (context: ResolverContext, pid: number) => "z" | unde
  * @param logFile
  * @param historyId
  */
-export declare const tail: (context: ResolverContext, logFile: string, historyId: string) => any;
+export declare const tail: (context: ResolverContext, logFile: string, historyId: string, options?: TailLogParams) => Promise<any>;

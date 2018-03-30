@@ -123,7 +123,7 @@ taskfileId, taskName, argv) => __awaiter(this, void 0, void 0, function* () {
     const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), util.sanitizeInboundArgv(argv), { file: fp.resolve(path) });
     // this does not wait for process to end, rather it awaits for some async
     // statements like create PID files
-    const cp = yield runAsProcess_1.default({
+    const info = yield runAsProcess_1.default({
         argv: newArgv,
         client,
         context,
@@ -133,7 +133,7 @@ taskfileId, taskName, argv) => __awaiter(this, void 0, void 0, function* () {
     });
     // events are passed through client. return the pid here for the UI
     // to know which pid it is
-    return { pid: cp.pid };
+    return info;
 });
 // TODO we need to verify this is a pid started by task, very dangerous
 exports.stop = (context, pid) => {
@@ -148,8 +148,8 @@ exports.stop = (context, pid) => {
  * @param logFile
  * @param historyId
  */
-exports.tail = (context, logFile, historyId) => {
+exports.tail = (context, logFile, historyId, options = { watch: false }) => {
     const { client } = context;
-    return runAsProcess_1.tailLog(client, logFile, historyId);
+    return runAsProcess_1.tailLog(client, logFile, historyId, options);
 };
 //# sourceMappingURL=taskHandlers.js.map

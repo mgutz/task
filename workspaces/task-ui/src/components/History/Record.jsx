@@ -16,15 +16,6 @@ class Record extends PureComponent {
     onClick: PropTypes.func,
   }
 
-  componentDidMount() {
-    const {attach, record} = this.props
-    const {attached, logFile, id, status} = record
-    if (status === 'running' && !attached) {
-      console.log('RECORD', record)
-      attach({logFile, historyId: id})
-    }
-  }
-
   render() {
     const {className, record, onClick} = this.props
 
