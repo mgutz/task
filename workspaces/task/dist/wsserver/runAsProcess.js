@@ -16,6 +16,7 @@ const util_1 = require("util");
 const task_tail_1 = require("task-tail");
 const log_1 = require("../core/log");
 const util_2 = require("./util");
+const isRunning = require("is-running");
 const mkdirp = util_1.promisify(mkdirP);
 const writeFile = util_1.promisify(fs.writeFile);
 const unlink = util_1.promisify(fs.unlink);
@@ -72,34 +73,23 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
         env: Object.assign({}, process.env, { task_ipc_options: argvstr }),
         stdio: ['ignore', fd, fd],
     };
-    // const tail = await tailLog(client, logFile, historyId, {
-    //   readEndLines: 0,
-    //   watch: true,
-    // } as TailLogParams)
     // execute the script
     const params = [taskScript];
     const proc = cp.spawn('node', params, opts);
     proc.on('close', (code) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
-        // if (tail) tail.unwatch()
         client.emit('pclose', [historyId, code]);
     });
     proc.on('error', (err) => {
         fs.unlinkSync(pidFile);
         fs.closeSync(fd);
         client.emit('perror', [historyId, err]);
-        // if (tail) tail.unwatch()
     });
     // create pid file which lets know if a process is running
     yield writeFile(pidFile, String(proc.pid));
-    // creat tag file which contains data echoed back to UI on refresh/restart
+    // create tag file which contains data echoed back to UI on refresh/restart
     yield writeFile(tagFile, JSON.stringify(tag));
-    // const tail = new Tail(logFile)
-    // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
-    // tail.on('error', (err: Error) =>
-    //   konsole.error(`Could not tail ${logFile}`, err)
-    // )
     return {
         logFile,
         pid: proc.pid,
@@ -107,13 +97,15 @@ const runAsProcess = ({ context, tag, taskfileId, taskName, argv, client, }) => 
 });
 const tailLogDefaults = {
     intervalMs: 160,
+    pid: 0,
     readEndLines: 10,
     watch: false,
 };
 exports.tailLog = (wsClient, logFile, historyId, options = tailLogDefaults) => __awaiter(this, void 0, void 0, function* () {
     let buf = '';
-    const { intervalMs, readEndLines, watch } = Object.assign({}, tailLogDefaults, options);
-    log_1.konsole.log(`Tailing ${logFile} w/ historyId ${historyId}`);
+    const opts = Object.assign({}, tailLogDefaults, options);
+    const { intervalMs, pid, readEndLines, watch } = opts;
+    log_1.konsole.debug(`Tailing ${logFile} w/ historyId ${historyId}`);
     const sendBuffer = () => {
         if (!buf)
             return;
@@ -123,20 +115,37 @@ exports.tailLog = (wsClient, logFile, historyId, options = tailLogDefaults) => _
     };
     let offset = 0;
     if (readEndLines) {
-        const { lines, start } = yield task_tail_1.readLastNLines(logFile, readEndLines, 'utf-8');
+        const { lines, start } = yield task_tail_1.readLinesFromEnd(logFile, readEndLines, 'utf-8');
         buf = lines;
         offset = start;
         sendBuffer();
     }
     if (!watch)
         return;
-    const intervalId = setInterval(sendBuffer, intervalMs);
-    const tail = new task_tail_1.Tail(logFile, '\n', { interval: intervalMs, start: offset });
+    if (!pid) {
+        log_1.konsole.error(`Cannot watch ${logFile}. pid is required to stop watching`);
+    }
+    const tail = new task_tail_1.Tail(logFile, '\n', { interval: intervalMs });
+    const unwatch = () => {
+        tail.unwatch();
+        sendBuffer();
+    };
+    const interval = setInterval(() => {
+        if (!isRunning(pid)) {
+            clearInterval(interval);
+            // console.log(`Process is not running ${pid}. Flushing, clearing watch`)
+            tail.flush();
+            // need to give tail some time to retrieve lines
+            setTimeout(unwatch, intervalMs);
+            return;
+        }
+        sendBuffer();
+    }, intervalMs);
     tail.on('line', (line) => {
         buf += line + '\n';
     });
     tail.on('error', (err) => {
-        clearInterval(intervalId);
+        clearInterval(interval);
         log_1.konsole.error(`Could not tail ${logFile}`, err);
     });
     return tail;

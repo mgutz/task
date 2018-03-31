@@ -2,6 +2,7 @@ import _ from 'lodash'
 import {invoke} from '#/services/websocket'
 import * as t from 'tcomb'
 import {select} from '@rematch/select'
+import {dispatch} from '@rematch/core'
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 
@@ -37,11 +38,11 @@ export const effects = {
 
             if (!record) continue
 
-            this.record(record)
+            dispatch.histories.record(record)
 
             const pid = eh.pid
             if (pid) {
-              this.updateHistory({
+              dispatch.histories.updateHistory({
                 id: record.id,
                 status: 'running',
                 pid,
@@ -59,7 +60,7 @@ export const effects = {
   // remote proc close event
   pclose(payload) {
     const [tag, code] = payload
-    this.updateHistory({
+    dispatch.histories.updateHistory({
       id: tag,
       status: 'closed',
       statusedAt: Date.now(),
@@ -76,7 +77,7 @@ export const effects = {
   // remote proc error event
   perror(payload) {
     const [tag, error] = payload
-    this.updateHistory({
+    dispatch.histories.updateHistory({
       id: tag,
       status: 'errored',
       statusedAt: Date.now(),
@@ -110,11 +111,17 @@ export const effects = {
     return invoke('task.run', history, taskfileId, taskName, ...rest).then(
       (payload) => {
         const {pid, logFile} = payload
-        this.updateHistory({
+        dispatch.histories.updateHistory({
+          attach: true,
           id: historyId,
           logFile,
           pid,
-          attached: false,
+        })
+
+        dispatch.histories.attach({
+          historyId,
+          logFile,
+          options: {pid, watch: true, start: 0},
         })
       }
     )

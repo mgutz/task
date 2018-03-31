@@ -26,6 +26,7 @@ export interface TailLogParams {
     intervalMs: number;
     readEndLines: number;
     watch: boolean;
+    pid: number;
 }
 export declare const tailLog: (wsClient: any, logFile: string, historyId: string, options?: TailLogParams) => Promise<any>;
 export default runAsProcess;

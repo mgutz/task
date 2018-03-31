@@ -6,6 +6,7 @@ declare module 'toposort'
 declare module 'task-ws'
 declare module 'tree-kill'
 declare module 'task-tail'
+declare module 'is-running'
 
 declare interface Options {
   _: string[]

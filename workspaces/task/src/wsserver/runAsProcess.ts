@@ -6,9 +6,10 @@ import * as stream from 'stream'
 import * as mkdirP from 'mkdirp'
 import {promisify} from 'util'
 import {ResolverContext} from './types'
-import {Tail, readLastNLines} from 'task-tail'
+import {Tail, readLinesFromEnd} from 'task-tail'
 import {konsole} from '../core/log'
 import {logBase, formatDate} from './util'
+import * as isRunning from 'is-running'
 
 const mkdirp = promisify(mkdirP)
 const writeFile = promisify(fs.writeFile)
@@ -100,11 +101,6 @@ const runAsProcess = async ({
     stdio: ['ignore', fd, fd],
   }
 
-  // const tail = await tailLog(client, logFile, historyId, {
-  //   readEndLines: 0,
-  //   watch: true,
-  // } as TailLogParams)
-
   // execute the script
   const params = [taskScript]
   const proc = cp.spawn('node', params, opts)
@@ -112,7 +108,6 @@ const runAsProcess = async ({
   proc.on('close', (code) => {
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
-    // if (tail) tail.unwatch()
     client.emit('pclose', [historyId, code])
   })
 
@@ -120,19 +115,12 @@ const runAsProcess = async ({
     fs.unlinkSync(pidFile)
     fs.closeSync(fd)
     client.emit('perror', [historyId, err])
-    // if (tail) tail.unwatch()
   })
 
   // create pid file which lets know if a process is running
   await writeFile(pidFile, String(proc.pid))
   // create tag file which contains data echoed back to UI on refresh/restart
   await writeFile(tagFile, JSON.stringify(tag))
-
-  // const tail = new Tail(logFile)
-  // tail.on('line', (line: string) => client.emit('pout', [tag, line]))
-  // tail.on('error', (err: Error) =>
-  //   konsole.error(`Could not tail ${logFile}`, err)
-  // )
 
   return {
     logFile,
@@ -162,9 +150,11 @@ export const tailLog = async (
 ) => {
   let buf = ''
 
-  const {intervalMs, readEndLines, watch} = {...tailLogDefaults, ...options}
+  const opts = {...tailLogDefaults, ...options}
 
-  konsole.log(`Tailing ${logFile} w/ historyId ${historyId}`)
+  const {intervalMs, pid, readEndLines, watch} = opts
+
+  konsole.debug(`Tailing ${logFile} w/ historyId ${historyId}`)
 
   const sendBuffer = () => {
     if (!buf) return
@@ -176,23 +166,46 @@ export const tailLog = async (
   let offset = 0
 
   if (readEndLines) {
-    const {lines, start} = await readLastNLines(logFile, readEndLines, 'utf-8')
+    const {lines, start} = await readLinesFromEnd(
+      logFile,
+      readEndLines,
+      'utf-8'
+    )
     buf = lines
     offset = start
     sendBuffer()
   }
 
   if (!watch) return
+  if (!pid) {
+    konsole.error(`Cannot watch ${logFile}. pid is required to stop watching`)
+  }
 
-  const intervalId = setInterval(sendBuffer, intervalMs)
-  const tail = new Tail(logFile, '\n', {interval: intervalMs, start: offset})
+  const tail = new Tail(logFile, '\n', {interval: intervalMs})
+
+  const unwatch = () => {
+    tail.unwatch()
+    sendBuffer()
+  }
+
+  const interval = setInterval(() => {
+    if (!isRunning(pid)) {
+      clearInterval(interval)
+      // console.log(`Process is not running ${pid}. Flushing, clearing watch`)
+      tail.flush()
+      // need to give tail some time to retrieve lines
+      setTimeout(unwatch, intervalMs)
+      return
+    }
+    sendBuffer()
+  }, intervalMs)
 
   tail.on('line', (line: string) => {
     buf += line + '\n'
   })
 
   tail.on('error', (err: Error) => {
-    clearInterval(intervalId)
+    clearInterval(interval)
     konsole.error(`Could not tail ${logFile}`, err)
   })
 

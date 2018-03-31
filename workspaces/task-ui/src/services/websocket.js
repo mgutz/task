@@ -19,7 +19,6 @@ export const init = async () => {
         resolve(client)
       },
       onmessage: (e) => {
-        //console.log('ws-rawmessage', e.data)
         client.process(e.data)
         //setTimeout(() => client.process(e.data), 1)
       },

@@ -71,7 +71,7 @@ const recordPlugin = (whitelist) => {
             }
 
             // add new history to application state for components to select it
-            dispatch.taskfiles.record(record)
+            dispatch.histories.record(record)
 
             // reference object can have many histories, set new one as active
             if (ref.id) {
@@ -85,7 +85,9 @@ const recordPlugin = (whitelist) => {
             if (ref.route) {
               const {route} = record.ref
               if (route.name) {
-                dispatch.router.navigate(route)
+                setTimeout(() => {
+                  dispatch.router.navigate(route)
+                }, 1)
               }
             }
 

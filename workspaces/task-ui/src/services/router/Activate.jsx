@@ -10,17 +10,28 @@ export class Activate extends PureComponent {
   static propTypes = {
     class: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
+    currentRoute: PropTypes.object.isRequired,
     onActivate: PropTypes.func,
     pathProp: PropTypes.string,
     route: PropTypes.object.isRequired,
   }
 
+  componentDidMount() {
+    const {onActivate, route} = this.props
+    if (!onActivate) return
+    const isActive = router.isActive(route.name, route.params)
+    if (isActive) {
+      onActivate(this.props.currentRoute)
+    }
+  }
+
   render() {
     if (!this.props.route) return this.props.children
 
-    const {class: activeClass, children, route} = this.props
-
+    const {route} = this.props
+    const {class: activeClass, children} = this.props
     const isActive = router.isActive(route.name, route.params)
+
     const klass = isActive ? activeClass : ''
     const handler = isActive ? null : this.doActivate
     const child = React.Children.only(children)

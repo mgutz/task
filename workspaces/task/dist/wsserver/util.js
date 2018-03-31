@@ -147,6 +147,8 @@ exports.formatDate = (d = new Date()) => {
         ('0' + d.getDate()).slice(-2) +
         'T' +
         +('0' + d.getHours()).slice(-2) +
-        ('0' + d.getMinutes()).slice(-2));
+        ('0' + d.getMinutes()).slice(-2) +
+        ',' +
+        ('00' + d.getMilliseconds()).slice(-3));
 };
 //# sourceMappingURL=util.js.map

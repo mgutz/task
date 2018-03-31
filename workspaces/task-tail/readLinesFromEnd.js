@@ -20,7 +20,7 @@ const fsp = {
  * @return {promise}  a promise resolved with {lines: string, offset: number}
  */
 
-function readLastNLines(inputFilePath, maxLineCount, encoding) {
+function readLinesFromEnd(inputFilePath, maxLineCount, encoding) {
   const NEW_LINE_CHARACTERS = ['\n', '\r']
 
   if (encoding == null) {
@@ -113,4 +113,4 @@ function readLastNLines(inputFilePath, maxLineCount, encoding) {
   })
 }
 
-module.exports = {readLastNLines}
+module.exports = {readLinesFromEnd}

@@ -57,6 +57,8 @@ class Client {
 
     const parsed = this.deserialize(message)
 
+    //console.log('wsclient:processing', parsed)
+
     // only handle messages intended for us
     if (!parsed.n && !parsed.i) return
     const {n: event, i: callbackId, p: payload} = parsed

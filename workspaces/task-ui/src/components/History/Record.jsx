@@ -27,7 +27,7 @@ class Record extends PureComponent {
     const format = olderThanOneDay ? dayFormat : hourFormat
 
     let status = strftime(format, new Date(record.createdAt))
-    if (record.status === 'closed') {
+    if (record.status === 'closed' && record.statusedAt) {
       status += ' for ' + (record.statusedAt - record.createdAt) + 'ms'
     }
 

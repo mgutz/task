@@ -19,7 +19,7 @@ class History extends React.Component {
     return records.map((record) => {
       return (
         <Activate
-          class="is-selected"
+          class="is-selected History"
           route={record.ref.route}
           key={record.id}
           onActivate={this.doActivate(record)}

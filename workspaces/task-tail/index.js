@@ -1,4 +1,4 @@
 const tail = require('./tail')
-const read = require('./readLastNLines')
+const read = require('./readLinesFromEnd')
 
 module.exports = {...tail, ...read}

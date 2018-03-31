@@ -19,9 +19,7 @@ export const taskfiles = {
   },
 
   reducers: {
-    record: handledElsewhere,
     appendLog: handledElsewhere,
-    updateHistory: handledElsewhere,
 
     mergeTasks: producer((draft, payload) => {
       const {taskfileId, tasks} = payload

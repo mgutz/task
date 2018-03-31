@@ -17,16 +17,7 @@ export const histories = {
       }
     }),
 
-    'taskfiles/record': producer((draft, payload) => {
-      const {id} = payload
-      const item = draft[id]
-      if (!item) {
-        draft[id] = payload
-        return
-      }
-    }),
-
-    'taskfiles/updateHistory': producer((draft, payload) => {
+    updateHistory: producer((draft, payload) => {
       const {id} = payload
       if (!id) {
         konsole.error('History id is required', payload)
@@ -36,7 +27,6 @@ export const histories = {
       const item = draft[id]
       if (!item) {
         konsole.error(`History not found for id: ${id}`)
-
         konsole.error(
           `A process may be alive that is emitting events to an undefined history after a pagre refresh` // eslint-disable-line
         )
@@ -48,9 +38,9 @@ export const histories = {
 
   // async action creators
   effects: {
-    attach({historyId, logFile}) {
-      invoke('task.tail', logFile, historyId).then(() => {
-        dispatch.taskfiles.updateHistory({id: historyId, attached: true})
+    attach({historyId, logFile, options}) {
+      invoke('task.tail', logFile, historyId, options).then(() => {
+        this.updateHistory({id: historyId, attached: true})
       })
     },
 

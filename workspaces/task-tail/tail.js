@@ -75,6 +75,11 @@ class Tail extends events.EventEmitter {
   }
 }
 
+Tail.prototype.flush = function() {
+  this.blockSize = Number.MAX_SAFE_INTEGER
+  return this.readBlock()
+}
+
 /**
  * read a block of data and try to emit a line
  *
