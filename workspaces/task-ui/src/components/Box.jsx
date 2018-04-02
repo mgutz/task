@@ -26,6 +26,7 @@ const Box = (props) => {
     justifyContent,
     margin,
     overflow,
+    overflowY,
     padding,
     row,
     shape,
@@ -99,6 +100,9 @@ const Box = (props) => {
   if (overflow !== undefined) {
     boxStyle.overflow = overflow
   }
+  if (overflowY !== undefined) {
+    boxStyle.overflowY = overflowY
+  }
   if (padding !== undefined) {
     boxStyle.padding = padding
   }
@@ -144,6 +148,8 @@ Box.propTypes = {
   justifyContent: PropTypes.string,
   margin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   overflow: PropTypes.string,
+  overflowY: PropTypes.string,
+
   padding: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   row: PropTypes.bool,
   shape: PropTypes.oneOf(['circle', 'pill', 'rounded']),

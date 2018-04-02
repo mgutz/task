@@ -7,6 +7,7 @@ declare module 'task-ws'
 declare module 'tree-kill'
 declare module 'task-tail'
 declare module 'is-running'
+declare module 'expand-tilde'
 
 declare interface Options {
   _: string[]
@@ -37,6 +38,11 @@ declare interface TaskResult {
   result: any
 }
 
+declare interface UILog {
+  ansi?: boolean
+  format?: string
+}
+
 declare interface TaskUI {
   // form order
   form?: any[]
@@ -47,7 +53,7 @@ declare interface TaskUI {
   // the initial values for the form
   model?: any
   // mustache template pattern to format log entry if app emits JSON
-  formatLog?: string
+  log?: UILog
 }
 
 declare interface ExecInfo {

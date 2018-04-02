@@ -60,13 +60,15 @@ class OutputStream extends Component {
     const {logIndex, task} = this.props
     // eslint-disable-next-line
     const o = logEntryAt(logIndex, index)
+    const format = _.get(task, 'ui.log.format')
+    const isAnsi = _.get(task, 'ui.log.ansi')
 
     let str
     if (o._msg_ !== undefined) {
       str = o._msg_
-    } else if (task.formatLog) {
+    } else if (format) {
       try {
-        str = task.formatLog(o)
+        str = format(o)
       } catch (err) {
         str = JSON.stringify(o)
       }
@@ -83,8 +85,7 @@ class OutputStream extends Component {
         onClick={this.doSelect(index)}
         style={style}
       >
-        {str}
-        {/* <Ansi>{str}</Ansi> */}
+        {isAnsi ? <Ansi>{str}</Ansi> : str}
       </div>
     )
 
@@ -105,6 +106,7 @@ class OutputStream extends Component {
           return (
             <div onKeyDown={this.doKeyDown} tabIndex="0">
               <VirtualList
+                className="task-log"
                 ref={this.doSetVirtualList}
                 width={width}
                 height={height}
@@ -126,26 +128,26 @@ class OutputStream extends Component {
     const {selected} = this.state
 
     const result = (
-      <AutoSizer>
+      <AutoSizer className="foo">
         {({height, width}) => {
           return (
-            <div onKeyDown={this.doKeyDown} tabIndex="0">
-              <List
-                id={task.id}
-                ref={this.doSetVirtualList}
-                className="task-log"
-                height={height}
-                overscanRowCount={10}
-                noRowsRenderer={this.noRows}
-                rowCount={max}
-                rowHeight={20}
-                rowRenderer={this.renderItem}
-                scrollToIndex={selected}
-                width={width}
-                onRowsRendered={this.doSetRowsRendered}
-                scrolltoAlignment="start"
-              />
-            </div>
+            // <div onKeyDown={this.doKeyDown}>
+            <List
+              id={task.id}
+              ref={this.doSetVirtualList}
+              className="task-log"
+              height={height}
+              overscanRowCount={10}
+              noRowsRenderer={this.noRows}
+              rowCount={max}
+              rowHeight={20}
+              rowRenderer={this.renderItem}
+              scrollToIndex={selected}
+              width={width}
+              onRowsRendered={this.doSetRowsRendered}
+              scrolltoAlignment="start"
+            />
+            // </div>
           )
         }}
       </AutoSizer>

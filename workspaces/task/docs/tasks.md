@@ -32,6 +32,7 @@ Task props
 | _once_  | Task must only run once across watches and dependents            |
 | _run_   | The function to run.                                             |
 | _watch_ | [Glob](https://github.com/micromatch/anymatch) patterns to watch |
+| _ui_    | UI options                                                       |
 
 ```js
 export function clean() {}
@@ -156,6 +157,20 @@ export const runTest_ = async (ctx) => {
 ```
 
 ### GUI Form for UI
+
+### Logs
+
+If an app emits JSON, use a format template to extract summary line
+
+```js
+task.ui.log.format = '{{time}} {{msg}}'
+```
+
+Print ANSI codes
+
+```js
+task.ui.log.ansi = true
+```
 
 ## CLI Features
 

@@ -22,8 +22,9 @@ export const effects = {
       // makes code a lot easier if there is unique id
       for (const task of tasks) {
         task.taskfileId = taskfileId
-        if (task.ui && task.ui.formatLog) {
-          task.formatLog = _.template(task.ui.formatLog)
+        const format = _.get(task, 'ui.log.format')
+        if (format) {
+          task.ui.log.format = _.template(format)
         }
 
         // rehydrate history and processes

@@ -6,13 +6,15 @@ import PropTypes from 'prop-types'
 import History from './History'
 import Tabs, {Tab} from 'material-ui/Tabs'
 import Bookmarks from './Bookmarks'
-import styled from 'styled-components'
+//import styled from 'styled-components'
 import {TopToolbar} from './styled'
+import Box from './Box'
 
-const HistoryContainer = styled.div`
-  background-color: #fcfcfc;
-  border-left: solid 1px #f0f0f0;
-`
+// const Container = styled(Box)`
+//   background-color: #fcfcfc;
+//   border-left: solid 1px #f0f0f0;
+//   overflow-y: scroll;
+// `
 
 const mapState = (state) => {
   return {
@@ -71,20 +73,26 @@ class HistoryPanel extends Component {
     const {activeTab} = this.state
 
     return (
-      <HistoryContainer>
-        <TopToolbar />
-        <Tabs
-          value={activeTab}
-          indicatorColor="primary"
-          textColor="primary"
-          onChange={this.doSetActive}
-        >
-          {this.activeTabs.map(({label}) => (
-            <Tab key={label} label={label} style={styles.tab} />
-          ))}
-        </Tabs>
-        {this.activeTabs[activeTab].render()}
-      </HistoryContainer>
+      <Box column>
+        <Box>
+          <TopToolbar />
+        </Box>
+        <Box>
+          <Tabs
+            value={activeTab}
+            indicatorColor="primary"
+            textColor="primary"
+            onChange={this.doSetActive}
+          >
+            {this.activeTabs.map(({label}) => (
+              <Tab key={label} label={label} style={styles.tab} />
+            ))}
+          </Tabs>
+        </Box>
+        <Box flex="1 0 0" overflowY="scroll">
+          {this.activeTabs[activeTab].render()}
+        </Box>
+      </Box>
     )
   }
 

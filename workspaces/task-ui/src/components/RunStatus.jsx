@@ -1,6 +1,10 @@
 import React, {Component} from 'react'
 import IconButton from 'material-ui/IconButton'
-import {FiberManualRecord as Record, Stop as StopIcon} from 'material-ui-icons'
+import {
+  FiberManualRecord as Record,
+  Replay as ReplayIcon,
+  Stop as StopIcon,
+} from 'material-ui-icons'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
@@ -23,18 +27,28 @@ class RunStatus extends Component {
     const {record: {status}} = this.props
     const {hover} = this.state
 
-    const onClick = hover ? this.doStop : null
-    const icon = hover ? <StopIcon /> : <RecordIcon status={status} />
+    const icon = hover ? (
+      <span>
+        <IconButton title="stop">
+          <StopIcon onClick={this.doStop} />
+        </IconButton>
+        <IconButton>
+          <ReplayIcon onClick={this.doReplay} />
+        </IconButton>
+      </span>
+    ) : (
+      <span>
+        <IconButton>
+          <RecordIcon status={status} />
+        </IconButton>
+      </span>
+    )
 
     if (status !== 'running') return null
     return (
-      <IconButton
-        onClick={onClick}
-        onMouseOver={this.doMouseOver}
-        onMouseLeave={this.doMouseLeave}
-      >
+      <div onMouseOver={this.doMouseOver} onMouseLeave={this.doMouseLeave}>
         {icon}
-      </IconButton>
+      </div>
     )
   }
 
@@ -44,6 +58,10 @@ class RunStatus extends Component {
 
   doMouseLeave = () => {
     this.setState({hover: false})
+  }
+
+  doReplay = () => {
+    console.error('doReplay not yet implemented')
   }
 
   doStop = () => {

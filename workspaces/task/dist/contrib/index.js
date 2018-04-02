@@ -21,6 +21,7 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 const cp = require("child_process");
+const expandTilde = require("expand-tilde");
 __export(require("./importPackageTasks"));
 const defaults = {
     shell: '/bin/bash',
@@ -35,7 +36,10 @@ const defaults = {
 exports.shawn = (script, options = {}) => {
     const _a = Object.assign({}, defaults, options), { shell, shellArgs } = _a, otherOpts = __rest(_a, ["shell", "shellArgs"]);
     // regarding detached, see https://stackoverflow.com/a/33367711
-    const opts = Object.assign({ detached: true, stdio: 'inherit' }, otherOpts);
+    const opts = Object.assign({ cwd: undefined, detached: true, stdio: 'inherit' }, otherOpts);
+    if (opts.cwd) {
+        opts.cwd = expandTilde(opts.cwd);
+    }
     // execute the script
     const params = [...shellArgs, script];
     return cp.spawn(shell, params, opts);

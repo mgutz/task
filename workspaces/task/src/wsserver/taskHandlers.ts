@@ -177,7 +177,7 @@ export const run = async (
 // TODO we need to verify this is a pid started by task, very dangerous
 export const stop = (context: ResolverContext, pid: number) => {
   if (!pid) return `z`
-  kill(pid)
+  process.kill(-pid, 'SIGINT')
 }
 
 /**

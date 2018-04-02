@@ -101,6 +101,13 @@ const callbacks = {
   },
 
   use: (id, args) => {
+    if (typeof callbacks.funcs[id] !== 'function') {
+      console.warn(
+        'Callback id does not resolve to function. ' +
+          'Usually means page was refreshed and server sending latet response'
+      )
+      return
+    }
     callbacks.funcs[id](args || {})
     delete callbacks.funcs[id]
   },

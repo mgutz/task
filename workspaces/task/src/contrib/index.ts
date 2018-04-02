@@ -1,4 +1,5 @@
 import * as cp from 'child_process'
+import * as expandTilde from 'expand-tilde'
 export * from './importPackageTasks'
 
 const defaults = {
@@ -17,9 +18,14 @@ export const shawn = (script: string, options = {}) => {
 
   // regarding detached, see https://stackoverflow.com/a/33367711
   const opts = {
+    cwd: undefined,
     detached: true,
     stdio: 'inherit',
     ...otherOpts,
+  }
+
+  if (opts.cwd) {
+    opts.cwd = expandTilde(opts.cwd)
   }
 
   // execute the script
