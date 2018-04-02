@@ -17,8 +17,10 @@ const log_1 = require("../core/log");
 const util_1 = require("../core/util");
 const globby = require("globby");
 const util_2 = require("util");
+const isRunning = require("is-running");
 const readFile = util_2.promisify(fs.readFile);
 const existsAsync = util_2.promisify(fs.exists);
+const unlink = util_2.promisify(fs.unlink);
 const prompt = inquirer_1.createPromptModule();
 const exampleTaskproject = `{
   "server": {
@@ -27,7 +29,7 @@ const exampleTaskproject = `{
     {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
   ]
 }`;
-exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, void 0, function* () {
+exports.loadProjectFile = (argv, isAlreadyRunning = false) => __awaiter(this, void 0, void 0, function* () {
     let projectFile = argv.projectFile;
     if (projectFile) {
         if (!fs.existsSync(projectFile)) {
@@ -39,7 +41,7 @@ exports.loadProjectFile = (argv, isRunning = false) => __awaiter(this, void 0, v
         projectFile = 'Taskproject.json';
         const exists = fs.existsSync(projectFile);
         if (!exists) {
-            if (isRunning) {
+            if (isAlreadyRunning) {
                 throw new Error(`Project file not found. ${projectFile}`);
             }
             else {
@@ -118,7 +120,13 @@ const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
     };
     const pidFile = path.replace(/\.log/, '.pid');
     if (yield existsAsync(pidFile)) {
-        info.pid = yield readFile(pidFile, 'utf-8');
+        const pid = yield readFile(pidFile, 'utf-8');
+        if (isRunning(pid)) {
+            info.pid = pid;
+        }
+        else {
+            yield unlink(pidFile);
+        }
     }
     const tagFile = path.replace(/\.log/, '.tag');
     if (yield existsAsync(tagFile)) {

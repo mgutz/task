@@ -83,9 +83,13 @@ const parseLFIndices = (s) => {
   }
 
   // this removes blank lines. TODO should there be a retain option?
-  if (s.length - curr > 0) {
+  //if (s.length - curr > 0) {
+  const len = s.length
+  if (s[len - 1] !== '\n') {
     result.push(curr, s.length - curr)
   }
+
+  //}
   return result
 }
 

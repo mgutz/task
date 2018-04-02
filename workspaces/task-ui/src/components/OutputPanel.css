@@ -21,6 +21,11 @@
   overflow: hidden;
 }
 
+.task-entry pre {
+  padding: 0;
+  margin: 0;
+}
+
 .task-entry:hover {
   background-color: #f4f4f4;
 }

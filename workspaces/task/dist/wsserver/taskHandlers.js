@@ -12,7 +12,6 @@ const _ = require("lodash");
 const findProcess = require("find-process");
 const fkillit = require("fkill");
 const fp = require("path");
-const kill = require("tree-kill");
 const util = require("./util");
 const task_ws_1 = require("task-ws");
 const tasks_1 = require("../core/tasks");
@@ -139,7 +138,7 @@ taskfileId, taskName, argv) => __awaiter(this, void 0, void 0, function* () {
 exports.stop = (context, pid) => {
     if (!pid)
         return `z`;
-    kill(pid);
+    process.kill(-pid, 'SIGINT');
 };
 /**
  * Tails a file and sends it to the UI as lines for given historyId.

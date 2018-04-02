@@ -32,7 +32,6 @@ class OutputStream extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.historyId && nextProps.historyId !== this.props.historyId) {
-      console.log('SWITCHING OUTPUT TO', nextProps.historyId)
       const max = logLength(nextProps.logIndex)
       this.setState({selected: -1, max})
       this.itemsCache = {}
@@ -85,7 +84,7 @@ class OutputStream extends Component {
         onClick={this.doSelect(index)}
         style={style}
       >
-        {isAnsi ? <Ansi>{str}</Ansi> : str}
+        <pre>{isAnsi ? <Ansi>{str}</Ansi> : str}</pre>
       </div>
     )
 
@@ -95,10 +94,9 @@ class OutputStream extends Component {
     return result
   }
 
-  render() {
-    const {logIndex, task} = this.props
+  render2() {
+    const {logIndex} = this.props
     const max = logLength(logIndex)
-    const {selected} = this.state
 
     return (
       <AutoSizer>
@@ -122,7 +120,7 @@ class OutputStream extends Component {
     )
   }
 
-  render3() {
+  render() {
     const {logIndex, task} = this.props
     const max = logLength(logIndex)
     const {selected} = this.state

@@ -39,7 +39,11 @@ class History extends React.Component {
     if (record.attached) return
 
     // attach logs on-the-fly
-    this.props.attach({historyId: record.id, logFile: record.logFile})
+    this.props.attach({
+      historyId: record.id,
+      logFile: record.logFile,
+      options: {readEndLines: 100},
+    })
   }
 }
 

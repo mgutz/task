@@ -8,10 +8,10 @@ import produce from 'immer'
  *   // anything
  * })
  */
-const producer = (fn) => (state, payload) => {
-  return produce(state, (draft) => {
-    return fn(draft, payload, state)
-  })
-}
+// const producer = (fn) => (state, payload) => {
+//   return produce(state, (draft) => {
+//     return fn(draft, payload, state)
+//   })
+// }
 
-export default producer
+export default produce

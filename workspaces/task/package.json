@@ -46,6 +46,7 @@
     "toposort": "^1.0.6",
     "tree-kill": "^1.2.0",
     "typescript": "^2.7.2",
+    "untabify": "^0.0.6",
     "webworker-threads": "^0.7.13",
     "ws": "^5.0.0"
   },

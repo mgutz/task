@@ -10,6 +10,7 @@ import {Tail, readLinesFromEnd} from 'task-tail'
 import {konsole} from '../core/log'
 import {logBase, formatDate} from './util'
 import * as isRunning from 'is-running'
+import {untabify} from 'untabify'
 
 const mkdirp = promisify(mkdirP)
 const writeFile = promisify(fs.writeFile)
@@ -151,7 +152,6 @@ export const tailLog = async (
   let buf = ''
 
   const opts = {...tailLogDefaults, ...options}
-
   const {intervalMs, pid, readEndLines, watch} = opts
 
   konsole.debug(`Tailing ${logFile} w/ historyId ${historyId}`)

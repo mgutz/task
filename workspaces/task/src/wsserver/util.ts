@@ -9,9 +9,11 @@ import {readJSONFile, safeParseJSON} from '../core/util'
 import {Project} from './types'
 import * as globby from 'globby'
 import {promisify} from 'util'
+import * as isRunning from 'is-running'
 
 const readFile = promisify(fs.readFile)
 const existsAsync = promisify(fs.exists)
+const unlink = promisify(fs.unlink)
 
 const prompt = createPromptModule()
 
@@ -25,7 +27,7 @@ const exampleTaskproject = `{
 
 export const loadProjectFile = async (
   argv: Options,
-  isRunning = false
+  isAlreadyRunning = false
 ): Promise<Project> => {
   let projectFile = argv.projectFile
   if (projectFile) {
@@ -37,7 +39,7 @@ export const loadProjectFile = async (
     projectFile = 'Taskproject.json'
     const exists = fs.existsSync(projectFile)
     if (!exists) {
-      if (isRunning) {
+      if (isAlreadyRunning) {
         throw new Error(`Project file not found. ${projectFile}`)
       } else {
         await prompt([
@@ -133,7 +135,12 @@ const parseLogPath = async (path: string): Promise<ExecInfo | undefined> => {
 
   const pidFile = path.replace(/\.log/, '.pid')
   if (await existsAsync(pidFile)) {
-    info.pid = await readFile(pidFile, 'utf-8')
+    const pid = await readFile(pidFile, 'utf-8')
+    if (isRunning(pid)) {
+      info.pid = pid
+    } else {
+      await unlink(pidFile)
+    }
   }
 
   const tagFile = path.replace(/\.log/, '.tag')

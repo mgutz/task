@@ -8,6 +8,7 @@ declare module 'tree-kill'
 declare module 'task-tail'
 declare module 'is-running'
 declare module 'expand-tilde'
+declare module 'untabify'
 
 declare interface Options {
   _: string[]
