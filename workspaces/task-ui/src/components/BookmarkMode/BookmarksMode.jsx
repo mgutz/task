@@ -4,8 +4,8 @@ import {connect} from 'react-redux'
 import {dispatch} from '@rematch/core'
 import {select} from '@rematch/select'
 import Box from '../Box'
-import OutputPanel from './OutputPanel'
-import TaskPanel from './TaskPanel'
+import OutputPanel from '../TaskMode/OutputPanel'
+import BookmarksPanel from './BookmarksPanel'
 
 const {Fragment} = React
 
@@ -32,7 +32,7 @@ const mapDispatch = (dispatch) => {
 }
 
 @connect(mapState, mapDispatch)
-class TaskMode extends React.Component {
+class BookmarksMode extends React.Component {
   static propTypes = {
     invalidRoute: PropTypes.bool,
     loadProject: PropTypes.func.isRequired,
@@ -42,7 +42,7 @@ class TaskMode extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.project.taskfiles) {
+    if (!this.props.project.bookmarks) {
       this.props.loadProject()
     }
 
@@ -58,12 +58,12 @@ class TaskMode extends React.Component {
 
   render() {
     const {project} = this.props
-    if (!project.taskfiles) return null
+    if (!project.bookmarks) return null
 
     return (
       <Fragment>
         <aside>
-          <TaskPanel project={project} />
+          <BookmarksPanel project={project} />
         </aside>
         <Box height="100%">
           <OutputPanel />
@@ -73,4 +73,4 @@ class TaskMode extends React.Component {
   }
 }
 
-export default TaskMode
+export default BookmarksMode

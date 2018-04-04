@@ -1,8 +1,9 @@
-import React, {Component} from 'react'
+import {Activate} from '#/services/router'
+import BookmarkIcon from 'material-ui-icons/BookmarkBorder'
 import ListIcon from 'material-ui-icons/List'
 import SettingsIcon from 'material-ui-icons/Settings'
 import IconButton from 'material-ui/IconButton'
-import {Activate} from '#/services/router'
+import React, {Component} from 'react'
 import Box from './Box'
 
 class ModeBar extends Component {
@@ -11,6 +12,7 @@ class ModeBar extends Component {
 
     this.modes = [
       {label: 'Tasks', icon: <ListIcon />, routeName: 'tasks'},
+      {label: 'Bookmarks', icon: <BookmarkIcon />, routeName: 'bookmarks'},
       {label: 'Settings', icon: <SettingsIcon />, routeName: 'settings'},
     ]
   }

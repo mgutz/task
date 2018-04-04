@@ -11,7 +11,7 @@ const client = new Client()
 export const init = async () => {
   return new Promise((resolve) => {
     const ws = new Sockette(url, {
-      timeout: 5e3,
+      timeout: 5000,
       maxAttempts: 10,
       onopen: (e) => {
         konsole.log('Connected', e)

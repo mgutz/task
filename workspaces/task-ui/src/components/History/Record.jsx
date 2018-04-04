@@ -1,9 +1,9 @@
-import React, {PureComponent} from 'react'
+import {ListItem, ListItemSecondaryAction, ListItemText} from 'material-ui/List'
 import PropTypes from 'prop-types'
-import {ListItem, ListItemText, ListItemSecondaryAction} from 'material-ui/List'
+import React, {PureComponent} from 'react'
+import {connect} from 'react-redux'
 import * as strftime from 'strftime'
 import ReplayTask from '../ReplayTask'
-import {connect} from 'react-redux'
 
 const mapDispatch = ({histories: {attach}}) => ({attach})
 
@@ -22,8 +22,8 @@ class Record extends PureComponent {
     if (!record) return null
 
     const olderThanOneDay = Date.now() - record.createdAt > 24 * 60 * 60 * 1000
-    const dayFormat = '%F %I:%M:%S %p'
-    const hourFormat = '%I:%M:%S %p'
+    const dayFormat = '%F %I:%M%p'
+    const hourFormat = '%I:%M:%S%p'
     const format = olderThanOneDay ? dayFormat : hourFormat
 
     let status = strftime(format, new Date(record.createdAt))

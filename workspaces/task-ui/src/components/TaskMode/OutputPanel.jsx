@@ -1,5 +1,6 @@
-import React, {Component} from 'react'
+import _ from 'lodash'
 import PropTypes from 'prop-types'
+import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {select} from '@rematch/select'
 import RealOutputPanel from '../OutputPanel'
@@ -11,8 +12,9 @@ const mapState = (state) => {
   // The output panel is always tied to history
   if (!params.historyId) return {}
 
+  let task
   if (name.startsWith('tasks')) {
-    const task = select.taskfiles.taskById(state, params.id)
+    task = select.taskfiles.taskById(state, params.id)
     return {task, historyId: params.historyId}
   } else if (name.startsWith('bookmarks')) {
     // TODO this should be in selector but selectors in rematch only handle
@@ -21,11 +23,8 @@ const mapState = (state) => {
     // NOTE: bookmarks don't have task ids because task ids are assigned
     // at run-time when tasks are loaded. A bookmark has taskfileId and taskName
     const bookmark = select.project.bookmarkById(state, params.id)
-    const task = select.taskfiles.taskByFileIdAndName(
-      state,
-      bookmark.taskfileId,
-      bookmark.taskName
-    )
+    const taskId = _.get(bookmark, 'record.ref.id')
+    task = taskId ? select.taskfiles.taskById(state, taskId) : null
     return {task, historyId: params.historyId}
   }
 
@@ -42,6 +41,7 @@ class OutputPanel extends Component {
 
   render() {
     const {historyId, task} = this.props
+    if (!task) return null
     return <RealOutputPanel historyId={historyId} task={task} />
   }
 }

@@ -1,12 +1,14 @@
 import './App.css'
-import {connect} from 'react-redux'
+
 import {MuiThemeProvider, createMuiTheme} from 'material-ui/styles'
-import * as React from 'react'
-import TaskMode from '../TaskMode'
 import PropTypes from 'prop-types'
-import ModeBar from '../ModeBar'
+import * as React from 'react'
+import {connect} from 'react-redux'
+import BookmarkMode from '../BookmarkMode'
 import DatabaseMode from '../DatabaseMode'
 import HistoryPanel from '../HistoryPanel'
+import ModeBar from '../ModeBar'
+import TaskMode from '../TaskMode'
 
 const theme = {
   palette: {
@@ -43,7 +45,7 @@ export default class App extends React.Component {
 
   renderMode() {
     const {name} = this.props.route
-    if (name.startsWith('bookmarks')) return <TaskMode />
+    if (name.startsWith('bookmarks')) return <BookmarkMode />
     if (name.startsWith('tasks')) return <TaskMode />
     if (name.startsWith('settings')) return <DatabaseMode />
     return <div>Route not found</div>

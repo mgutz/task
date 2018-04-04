@@ -1,8 +1,7 @@
-import * as t from 'tcomb'
 import {uid} from '#/util'
+import * as t from 'tcomb'
 
 /*
-
 To make an action recordable
 
 1) Add action to whitelist, eg whitelist = ['taskfiles/run']
