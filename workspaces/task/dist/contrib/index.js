@@ -29,6 +29,17 @@ const defaults = {
     shellArgs: ['-c'],
 };
 /**
+ * pawn pipes text through a script.
+ */
+exports.pawn = (str, script, options = {}) => {
+    const proc = exports.shawn(script, Object.assign({}, options, { stdio: ['pipe', 'inherit', 'inherit'] }));
+    if (!proc.stdin) {
+        throw new Error('STDIN is not writable');
+    }
+    proc.stdin.write(str);
+    return proc;
+};
+/**
  * shawn is short for shell spawns. It defaults to `bin/bash -c`. The options
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
  * option props can be set to configure the the shell used.

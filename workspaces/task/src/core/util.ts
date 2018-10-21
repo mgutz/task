@@ -68,3 +68,11 @@ export const taskParam = (
     shawn: contrib.shawn,
   }
 }
+
+/**
+ * Returns the full path to filename without extension.
+ */
+export const trimExtname = (path: string): string => {
+  if (!path) return ''
+  return fp.join(fp.dirname(path), fp.basename(path, fp.extname(path)))
+}

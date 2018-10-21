@@ -6,6 +6,7 @@ export declare const relativeToHomeDir: (path: string) => string;
  * @param argv Users
  */
 export declare const sanitizeInboundArgv: (argv: Options) => Options;
+export declare const logDir = ".pids";
 export interface LogBaseParam {
     extName?: string;
     pid?: string;

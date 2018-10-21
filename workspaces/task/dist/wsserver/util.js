@@ -90,10 +90,10 @@ exports.sanitizeInboundArgv = (argv) => {
         'projectFile',
     ]);
 };
-const pidDir = '.pids';
+exports.logDir = '.pids';
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
 // tslint:disable-next-line
-const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`;
+const pathPattern = `${exports.logDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`;
 const logBaseTemplate = _.template(pathPattern);
 exports.logBase = (arg) => {
     return logBaseTemplate(arg);
@@ -138,7 +138,7 @@ const parseLogPath = (path) => __awaiter(this, void 0, void 0, function* () {
     return info;
 });
 exports.getExecHistory = (taskfileId, taskName) => __awaiter(this, void 0, void 0, function* () {
-    const files = yield globby([`${pidDir}/${taskfileId}/${taskName}-*.log`]);
+    const files = yield globby([`${exports.logDir}/${taskfileId}/${taskName}-*.log`]);
     if (!files.length)
         return [];
     const result = [];

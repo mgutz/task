@@ -17,6 +17,7 @@ const task_ws_1 = require("task-ws");
 const tasks_1 = require("../core/tasks");
 const usage_1 = require("../cli/usage");
 const runAsProcess_1 = require("./runAsProcess");
+const globby = require("globby");
 const util_1 = require("./util");
 /**
  * Resolvers (handlers) for websocket API
@@ -73,35 +74,12 @@ exports.filterProcesses = (context, kind, keyword) => __awaiter(this, void 0, vo
     }
     return findProcess(kind, keyword);
 });
-exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, function* () {
-    const found = _.find(context.project.taskfiles, { id: taskfileId });
-    if (!found) {
-        throw new task_ws_1.CodeError(422, `taskfileId '${taskfileId}' not found in project file`);
-    }
-    const argv = usage_1.parseArgv(found.argv);
-    const taskList = yield tasks_1.loadTasks(argv, found.path);
-    if (!taskList) {
-        return [];
-    }
-    const result = [];
-    for (const k in taskList) {
-        const task = taskList[k];
-        // whitelist marshalled properties
-        const tsk = _.pick(task, [
-            'deps',
-            'desc',
-            'every',
-            'name',
-            'once',
-            'ui',
-        ]);
-        // tasks do not have ids since they are just exported functions. create id
-        // based on the taskfile id
-        tsk.id = taskfileId + '.' + task.name;
-        tsk.execHistory = yield util_1.getExecHistory(taskfileId, task.name);
-        result.push(tsk);
-    }
-    return result;
+/**
+ * Removes stopped logs.
+ */
+exports.removeStoppedLogs = (context) => __awaiter(this, void 0, void 0, function* () {
+    const files = yield globby([`${util_1.logDir}/**/*`]);
+    const running = files.filter((file) => file.endsWith('.pid'));
 });
 /**
  * Runs a task by name found in taskfile entry from  `Taskproject.json`
@@ -151,4 +129,34 @@ exports.tail = (context, logFile, historyId, options = { watch: false }) => {
     const { client } = context;
     return runAsProcess_1.tailLog(client, logFile, historyId, options);
 };
+exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, function* () {
+    const found = _.find(context.project.taskfiles, { id: taskfileId });
+    if (!found) {
+        throw new task_ws_1.CodeError(422, `taskfileId '${taskfileId}' not found in project file`);
+    }
+    const argv = usage_1.parseArgv(found.argv);
+    const taskList = yield tasks_1.loadTasks(argv, found.path);
+    if (!taskList) {
+        return [];
+    }
+    const result = [];
+    for (const k in taskList) {
+        const task = taskList[k];
+        // whitelist marshalled properties
+        const tsk = _.pick(task, [
+            'deps',
+            'desc',
+            'every',
+            'name',
+            'once',
+            'ui',
+        ]);
+        // tasks do not have ids since they are just exported functions. create id
+        // based on the taskfile id
+        tsk.id = taskfileId + '.' + task.name;
+        tsk.execHistory = yield util_1.getExecHistory(taskfileId, task.name);
+        result.push(tsk);
+    }
+    return result;
+});
 //# sourceMappingURL=taskHandlers.js.map

@@ -19,7 +19,10 @@ export declare const loadProject: (context: ResolverContext) => Promise<Project>
  * Find process by pid, name or keyword.
  */
 export declare const filterProcesses: (context: ResolverContext, kind: string, keyword: string) => Promise<any>;
-export declare const tasks: (context: ResolverContext, taskfileId: string) => Promise<any[]>;
+/**
+ * Removes stopped logs.
+ */
+export declare const removeStoppedLogs: (context: ResolverContext) => Promise<void>;
 /**
  * Runs a task by name found in taskfile entry from  `Taskproject.json`
  * retrieved by ID. The taskfile entry defines the `Taskfile` path and default
@@ -37,3 +40,4 @@ export declare const stop: (context: ResolverContext, pid: number) => "z" | unde
  * @param historyId
  */
 export declare const tail: (context: ResolverContext, logFile: string, historyId: string, options?: TailLogParams) => Promise<any>;
+export declare const tasks: (context: ResolverContext, taskfileId: string) => Promise<any[]>;

@@ -9,6 +9,22 @@ const defaults = {
 }
 
 /**
+ * pawn pipes text through a script.
+ */
+export const pawn = (str: string, script: string, options = {}) => {
+  const proc = shawn(script, {
+    ...options,
+    stdio: ['pipe', 'inherit', 'inherit'],
+  })
+
+  if (!proc.stdin) {
+    throw new Error('STDIN is not writable')
+  }
+  proc.stdin.write(str)
+  return proc
+}
+
+/**
  * shawn is short for shell spawns. It defaults to `bin/bash -c`. The options
  * are the same as node's ChildProcess. Additionally, `shell` and `shellArgs`
  * option props can be set to configure the the shell used.
@@ -19,7 +35,7 @@ export const shawn = (script: string, options = {}) => {
   // regarding detached, see https://stackoverflow.com/a/33367711
   const opts = {
     cwd: undefined,
-    detached: true,
+    detached: true, // spawns a process group
     stdio: 'inherit',
     ...otherOpts,
   }

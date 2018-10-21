@@ -8,3 +8,7 @@ export declare const prettify: (o: any) => string;
 export declare const safeParseJSON: (s: string) => any;
 export declare const readJSONFile: (filename: string) => Promise<any>;
 export declare const taskParam: (argv: Options, additionalProps?: any) => TaskParam;
+/**
+ * Returns the full path to filename without extension.
+ */
+export declare const trimExtname: (path: string) => string;

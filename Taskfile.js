@@ -84,7 +84,7 @@ export const npm_ = ({contrib}) => {
 }
 
 
-export const buildtask = {
+export const buildTask = {
   desc: 'builds task',
   run: ({shawn}) => {
     return shawn(`tsc`, {cwd: 'workspaces/task'})

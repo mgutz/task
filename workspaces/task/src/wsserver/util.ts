@@ -92,11 +92,11 @@ export const sanitizeInboundArgv = (argv: Options): Options => {
   ]) as Options
 }
 
-const pidDir = '.pids'
+export const logDir = '.pids'
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g
 // tslint:disable-next-line
-const pathPattern = `${pidDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`
+const pathPattern = `${logDir}/{{taskfileId}}/{{taskName}}-{{timestamp}}`
 const logBaseTemplate = _.template(pathPattern)
 export interface LogBaseParam {
   extName?: string
@@ -157,7 +157,7 @@ export const getExecHistory = async (
   taskfileId: string,
   taskName: string
 ): Promise<ExecInfo[]> => {
-  const files = await globby([`${pidDir}/${taskfileId}/${taskName}-*.log`])
+  const files = await globby([`${logDir}/${taskfileId}/${taskName}-*.log`])
   if (!files.length) return []
 
   const result = []

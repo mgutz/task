@@ -59,10 +59,13 @@ class OutputStream extends Component {
     const {logIndex, task} = this.props
     // eslint-disable-next-line
     const o = logEntryAt(logIndex, index)
-    const format = _.get(task, 'ui.log.format')
-    const isAnsi = _.get(task, 'ui.log.ansi')
 
-    let str
+    let format, isAnsi, str
+    if (task.ui && task.ui.log) {
+      format = task.ui.log.format
+      isAnsi = task.ui.log.ansi
+    }
+
     if (o._msg_ !== undefined) {
       str = o._msg_
     } else if (format) {
@@ -101,15 +104,17 @@ class OutputStream extends Component {
     return (
       <AutoSizer>
         {({height, width}) => {
+          const itemSize = 22
+          const h = Math.floor(height / itemSize) * itemSize
           return (
             <div onKeyDown={this.doKeyDown} tabIndex="0">
               <VirtualList
                 className="task-log"
                 ref={this.doSetVirtualList}
                 width={width}
-                height={height}
+                height={h}
                 itemCount={max}
-                itemSize={20} // Also supports variable heights (array or function getter)
+                itemSize={itemSize} // Also supports variable heights (array or function getter)
                 renderItem={this.renderItem}
                 onItemsRendered={this.doSetRowsRendered}
               />

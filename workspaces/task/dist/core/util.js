@@ -68,4 +68,12 @@ exports.taskParam = (argv, additionalProps = {}) => {
         shawn: contrib.shawn,
     };
 };
+/**
+ * Returns the full path to filename without extension.
+ */
+exports.trimExtname = (path) => {
+    if (!path)
+        return '';
+    return fp.join(fp.dirname(path), fp.basename(path, fp.extname(path)));
+};
 //# sourceMappingURL=util.js.map

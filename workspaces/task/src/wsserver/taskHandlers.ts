@@ -17,7 +17,7 @@ import runAsProcess, {
   TailLogParams,
 } from './runAsProcess'
 import * as globby from 'globby'
-import {getExecHistory} from './util'
+import {getExecHistory, logDir} from './util'
 
 /**
  * Resolvers (handlers) for websocket API
@@ -92,41 +92,13 @@ export const filterProcesses = async (
   return findProcess(kind, keyword)
 }
 
-export const tasks = async (context: ResolverContext, taskfileId: string) => {
-  const found = _.find(context.project.taskfiles, {id: taskfileId})
-  if (!found) {
-    throw new CodeError(
-      422,
-      `taskfileId '${taskfileId}' not found in project file`
-    )
-  }
-  const argv = parseArgv(found.argv)
-  const taskList = await loadTasks(argv, found.path)
-  if (!taskList) {
-    return []
-  }
+/**
+ * Removes stopped logs.
+ */
+export const removeStoppedLogs = async (context: ResolverContext) => {
+  const files = await globby([`${logDir}/**/*`])
 
-  const result = []
-  for (const k in taskList) {
-    const task = taskList[k]
-
-    // whitelist marshalled properties
-    const tsk = _.pick(task, [
-      'deps',
-      'desc',
-      'every',
-      'name',
-      'once',
-      'ui',
-    ]) as any
-    // tasks do not have ids since they are just exported functions. create id
-    // based on the taskfile id
-    tsk.id = taskfileId + '.' + task.name
-    tsk.execHistory = await getExecHistory(taskfileId, task.name)
-    result.push(tsk)
-  }
-
-  return result
+  const running = files.filter((file) => file.endsWith('.pid'))
 }
 
 /**
@@ -195,4 +167,41 @@ export const tail = (
 ) => {
   const {client} = context
   return tailLog(client, logFile, historyId, options)
+}
+
+export const tasks = async (context: ResolverContext, taskfileId: string) => {
+  const found = _.find(context.project.taskfiles, {id: taskfileId})
+  if (!found) {
+    throw new CodeError(
+      422,
+      `taskfileId '${taskfileId}' not found in project file`
+    )
+  }
+  const argv = parseArgv(found.argv)
+  const taskList = await loadTasks(argv, found.path)
+  if (!taskList) {
+    return []
+  }
+
+  const result = []
+  for (const k in taskList) {
+    const task = taskList[k]
+
+    // whitelist marshalled properties
+    const tsk = _.pick(task, [
+      'deps',
+      'desc',
+      'every',
+      'name',
+      'once',
+      'ui',
+    ]) as any
+    // tasks do not have ids since they are just exported functions. create id
+    // based on the taskfile id
+    tsk.id = taskfileId + '.' + task.name
+    tsk.execHistory = await getExecHistory(taskfileId, task.name)
+    result.push(tsk)
+  }
+
+  return result
 }
