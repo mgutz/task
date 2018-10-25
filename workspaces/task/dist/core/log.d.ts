@@ -1,4 +1,3 @@
-/// <reference types="pino" />
 import * as pino from 'pino';
 /**
  * Konsole logs to terminal on host.

@@ -1,4 +1,3 @@
-/// <reference types="pino" />
 import * as pino from 'pino';
 export declare class AppContext {
     tasks: Tasks;

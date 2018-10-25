@@ -6,7 +6,7 @@ class AppContext {
     ) {
         this.tasks = tasks;
         this.options = options;
-        this.konsole = konsole; // Always logs to host's console
+        this.konsole = konsole;
         this.log = log_1.newTerminalLogger();
     }
 }
