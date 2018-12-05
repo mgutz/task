@@ -1,4 +1,10 @@
-export const sleep = async ms => new Promise(resolve => setTimeout(resolve, ms))
+/* eslint-disable no-console */
+
+export const sleep = async (ms) => {
+  return new Promise((resolve) => {
+    return setTimeout(resolve, ms)
+  })
+}
 
 export const name = async ({prompt}) => {
   const answers = await prompt([{name: 'name', message: 'Name'}])
@@ -37,3 +43,6 @@ export default {
   // runs `name` then ['clean', 'build'] and `docs` in parallel
   deps: [name, {p: [build, docs]}],
 }
+
+// lifecycle hook to run before all tasks (only once)
+export const _before = (taskContext) => {}

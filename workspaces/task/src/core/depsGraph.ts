@@ -112,6 +112,12 @@ const dependencyGraph = (
 export const execOrder = (tasks: Tasks, name: string) => {
   const graph = dependencyGraph(tasks, [], [name])
   graph.push([name, ''])
+
+  // if _before lifecycle hooks than make it a hard dependency of the task
+  if (tasks._before) {
+    graph.push(['_before', name])
+  }
+
   const deps = toposort(graph)
 
   const result = []

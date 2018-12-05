@@ -163,7 +163,7 @@ export const depToRef = (tasks: Tasks, task: Task, dep: any): string | null => {
     if (key) {
       name = key
     } else {
-      log.Error(`Can't match object reference`, {task, dep})
+      log.error(`Can't match object reference`, {task, dep})
       return null
     }
   } else {

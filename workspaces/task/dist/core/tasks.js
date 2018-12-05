@@ -146,7 +146,7 @@ exports.depToRef = (tasks, task, dep) => {
             name = key;
         }
         else {
-            log.Error(`Can't match object reference`, { task, dep });
+            log.error(`Can't match object reference`, { task, dep });
             return null;
         }
     }
