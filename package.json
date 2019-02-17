@@ -1,13 +1,22 @@
 {
-  "private": true,
-  "scripts": {
-    "hello": "echo Hello $USER"
-  },
-  "workspaces": [
-    "workspaces/task-ws",
-    "workspaces/task-tail"
-  ],
   "name": "task",
+  "version": "1.0.0",
+  "description": "## Hacking",
+  "main": "Taskfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgutz/task.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mgutz/task/issues"
+  },
+  "homepage": "https://github.com/mgutz/task#readme",
   "devDependencies": {
     "lerna": "^3.13.0"
   }

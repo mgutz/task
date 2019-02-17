@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsc && task test",
+    "test": "tsc && node ./index.js test",
     "hello": "echo hello $USER"
   },
   "version": "1.0.1-alpha.0",
@@ -19,6 +19,8 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "^7.0.0",
+    "@mgutz/task-tail": "1.0.1-alpha.0",
+    "@mgutz/task-ws": "1.0.1-alpha.0",
     "@types/mkdirp": "^0.5.2",
     "chokidar": "^2.0.2",
     "columnify": "^1.5.4",
