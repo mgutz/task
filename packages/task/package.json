@@ -70,5 +70,9 @@
     "prettier": "^1.15.2",
     "prettier-eslint": "^8.8.2",
     "tslint": "^5.11.0"
+  },
+  "gitHead": "b202d5db5ecd8dffaa4f0572e51ef01875982d70",
+  "publishConfig": {
+    "access": "public"
   }
 }
