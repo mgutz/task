@@ -43,7 +43,7 @@ exports.trace = (msg, obj) => {
     if (_level !== 'trace') {
         return;
     }
-    if (arguments.length === 1) {
+    if (obj === undefined) {
         return _log.debug(msg);
     }
     _log.debug(msg, util_1.inspect(obj));

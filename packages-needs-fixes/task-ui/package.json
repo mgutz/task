@@ -23,6 +23,7 @@
     "react-json-tree": "obsoke/react-json-tree#custom",
     "react-redux": "^5.0.7",
     "react-router5": "^5.5.2",
+    "react-script": "^2.0.5",
     "react-scripts": "1.1.1",
     "react-tiny-virtual-list": "^2.1.4",
     "react-virtualized": "^9.18.5",

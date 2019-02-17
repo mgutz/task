@@ -9,7 +9,7 @@ import * as taskHandlers from './taskHandlers'
 import {loadProjectFile} from './util'
 import * as lowdb from 'lowdb'
 import * as FileAsync from 'lowdb/adapters/FileAsync'
-import {Server, initMessaging, RPCRegistry} from 'task-ws'
+import {Server, initMessaging, RPCRegistry} from '@mgutz/task-ws'
 
 export interface StartOptions {
   port: number

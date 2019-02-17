@@ -3,5 +3,12 @@
   "scripts": {
     "hello": "echo Hello $USER"
   },
-  "workspaces": ["workspaces/task-ws", "workspaces/task-tail"]
+  "workspaces": [
+    "workspaces/task-ws",
+    "workspaces/task-tail"
+  ],
+  "name": "task",
+  "devDependencies": {
+    "lerna": "^3.13.0"
+  }
 }

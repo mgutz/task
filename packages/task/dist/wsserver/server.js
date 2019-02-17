@@ -16,7 +16,7 @@ const taskHandlers = require("./taskHandlers");
 const util_1 = require("./util");
 const lowdb = require("lowdb");
 const FileAsync = require("lowdb/adapters/FileAsync");
-const task_ws_1 = require("task-ws");
+const task_ws_1 = require("@mgutz/task-ws");
 const onConnection = (rcontext) => {
     const registry = new task_ws_1.RPCRegistry();
     registry.register('task', taskHandlers);

@@ -1,0 +1,5 @@
+function publish {
+	echo 'Login as mgutz <mario.l.gutierrez@gmail.com>'
+	npm login
+
+}

@@ -55,7 +55,7 @@ export const trace = (msg: string, obj: any) => {
   if (_level !== 'trace') {
     return
   }
-  if (arguments.length === 1) {
+  if (obj === undefined) {
     return _log.debug(msg)
   }
   _log.debug(msg, inspect(obj))
