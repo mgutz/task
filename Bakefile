@@ -1,5 +1,7 @@
+#. Publishes everything
 function publish {
 	echo 'Login as mgutz <mario.l.gutierrez@gmail.com>'
-	npm login
+	#npm login
 
+	lerna publish --dist-tag matcherino
 }
