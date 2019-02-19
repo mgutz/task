@@ -11,7 +11,7 @@
     "test": "tsc && node ./index.js test",
     "hello": "echo hello $USER"
   },
-  "version": "1.0.4-alpha.0",
+  "version": "1.0.5-alpha.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
@@ -19,7 +19,7 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "^7.0.0",
-    "@mgutz/task-tail": "^1.0.1-alpha.0",
+    "@mgutz/task-tail": "^1.0.5-alpha.0",
     "@mgutz/task-ws": "^1.0.1-alpha.0",
     "@types/mkdirp": "^0.5.2",
     "chokidar": "^2.0.2",
