@@ -1,11 +1,11 @@
-import * as columnify from 'columnify'
 import * as _ from 'lodash'
-import * as minimist from 'minimist'
+import * as columnify from 'columnify'
+import * as yargs from 'yargs-parser'
 
 // tslint:disable-next-line
 const pkgJson = require('../../package.json')
 
-const minimistOpts = {
+const argvParserOpts = {
   alias: {
     babelExtensions: ['babel-extensions'],
     debug: ['verbose'],
@@ -20,6 +20,7 @@ const minimistOpts = {
   boolean: [
     '?',
     'babel',
+    'compile',
     'debug',
     'dotenv',
     'dry-run',
@@ -31,6 +32,7 @@ const minimistOpts = {
     'initExample',
     'list',
     'p',
+    'pretty',
     'project-file',
     'projectFile',
     'silent',
@@ -44,6 +46,7 @@ const minimistOpts = {
   default: {
     babel: true,
     babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
+    compile: false,
     dotenv: true,
     file: '',
   },
@@ -51,10 +54,10 @@ const minimistOpts = {
 }
 
 export const parseArgv = (argv: string[], defaultOverrides = {}): Options => {
-  return minimist(argv, {
-    ...minimistOpts,
-    default: {...minimistOpts.default, ...defaultOverrides},
-  } as any) as Options
+  return yargs(argv, {
+    ...argvParserOpts,
+    default: {...argvParserOpts.default, ...defaultOverrides},
+  }) as any
 }
 
 export const helpScreen = () => {
@@ -63,13 +66,13 @@ export const helpScreen = () => {
 Usage: task [options] [task] [task_options...]
 
 Options
+  --compile           Force the task file to be compiled
   --debug,--verbose   Debug logging
   --dry-run           Displays tasks that will run
-  --file,-f           File
+  --file,-f           Task file
   --init              Create empty Taskfile.js if not exists
   --init-example      Create example Taskfile.js if not exists
   --list              List tasks
-  --no-babel          Do not use babel
   --no-dotenv         Do not parse .env file
   --project-file,-p   Project file used by server (./Taskproject.json)
   --server               Run GUI server. Browse http://localhost:4200

@@ -12,6 +12,7 @@ const _ = require("lodash");
 const contrib = require("../contrib");
 const fp = require("path");
 const fs = require("fs");
+const execa = require("execa");
 const util_1 = require("util");
 const log_1 = require("./log");
 const readFileAsync = util_1.promisify(fs.readFile);
@@ -20,7 +21,7 @@ exports.prettify = (o) => util_1.inspect(o);
 /**
  * Safely parses string `s` return [obj, err]
  *
- * @param s JSON.stringified object.
+ * @param s The string to be parsed.
  */
 exports.safeParseJSON = (s) => {
     try {
@@ -34,6 +35,11 @@ exports.safeParseJSON = (s) => {
         return [null, err.message];
     }
 };
+/**
+ * Reads JSON file, returning an object.
+ *
+ * @param filename The JSON file to open.
+ */
 exports.readJSONFile = (filename) => __awaiter(this, void 0, void 0, function* () {
     const content = yield readFileAsync(filename, 'utf8');
     const [json, err] = exports.safeParseJSON(content);
@@ -61,6 +67,7 @@ exports.taskParam = (argv, additionalProps = {}) => {
         argv: Object.assign({}, argv, { _: argv._.slice(1) }, additionalProps),
         contrib,
         exec: execAsync,
+        execa,
         globby,
         konsole,
         prompt,
@@ -69,7 +76,7 @@ exports.taskParam = (argv, additionalProps = {}) => {
     };
 };
 /**
- * Returns the full path to filename without extension.
+ * Returns the full path without dot extension.
  */
 exports.trimExtname = (path) => {
     if (!path)

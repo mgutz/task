@@ -14,10 +14,11 @@ const fp = require("path");
 const fs = require("fs");
 const server = require("../wsserver");
 const terminal = require("./terminal");
-const AppContext_1 = require("../core/AppContext");
 const tasks_1 = require("../core/tasks");
-const usage_1 = require("./usage");
+const options_1 = require("./options");
 const log_1 = require("../core/log");
+const AppContext_1 = require("../core/AppContext");
+const compile_1 = require("./compile");
 const init_1 = require("../core/commands/init");
 const util_1 = require("../core/util");
 const loadTaskrc = (workDir) => {
@@ -61,7 +62,7 @@ const loadOptions = () => {
     }
     // load taskrc early
     const taskrc = loadTaskrc(process.cwd());
-    return usage_1.parseArgv(process.argv.slice(2), taskrc);
+    return options_1.parseArgv(process.argv.slice(2), taskrc);
 };
 // if the first arg has a known extension, use it as the task file
 const setFileOnFirstArgExt = (argv) => {
@@ -78,7 +79,7 @@ const setFileOnFirstArgExt = (argv) => {
 const main = () => __awaiter(this, void 0, void 0, function* () {
     const argv = loadOptions();
     if (argv.help) {
-        return exits.message(usage_1.helpScreen());
+        return exits.message(options_1.helpScreen());
     }
     setLogLevel(argv);
     setFileOnFirstArgExt(argv);
@@ -88,9 +89,10 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
             exits.error(`Tasks file not found: ${argv.file}`);
             return null;
         }
-        return exits.message(usage_1.helpScreen());
+        return exits.message(options_1.helpScreen());
     }
-    const tasks = yield tasks_1.loadTasks(argv, taskfilePath);
+    const filename = yield compile_1.build(argv, taskfilePath);
+    const tasks = yield tasks_1.loadTasks(argv, filename);
     if (!tasks) {
         return exits.error(`Cannot load tasks from: ${taskfilePath}`);
     }
@@ -98,7 +100,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         dotenv.config();
     }
     if (argv.list) {
-        return exits.message(usage_1.tasksScreen(tasks));
+        return exits.message(options_1.tasksScreen(tasks));
     }
     const ctx = new AppContext_1.AppContext(tasks, argv, log_1.konsole);
     if (argv.init || argv.initExample) {

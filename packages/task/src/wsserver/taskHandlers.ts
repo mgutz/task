@@ -2,22 +2,24 @@ import * as _ from 'lodash'
 import * as findProcess from 'find-process'
 import * as fkillit from 'fkill'
 import * as fp from 'path'
+import * as globby from 'globby'
 import * as kill from 'tree-kill'
 import * as os from 'os'
 import * as util from './util'
-import {AppContext} from '../core/AppContext'
-import {CodeError} from '@mgutz/task-ws'
-import {loadTasks} from '../core/tasks'
-import {parseArgv} from '../cli/usage'
-import {Project} from './types'
-import {ResolverContext} from './types'
+
+import {getExecHistory, logDir} from './util'
 import runAsProcess, {
   HistoryRecord,
-  tailLog,
   TailLogParams,
+  tailLog,
 } from './runAsProcess'
-import * as globby from 'globby'
-import {getExecHistory, logDir} from './util'
+
+import {AppContext} from '../core/AppContext'
+import {CodeError} from '@mgutz/task-ws'
+import {Project} from './types'
+import {ResolverContext} from './types'
+import {loadTasks} from '../core/tasks'
+import {parseArgv} from '../cli/options'
 
 /**
  * Resolvers (handlers) for websocket API

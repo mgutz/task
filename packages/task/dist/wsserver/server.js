@@ -8,15 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const FileAsync = require("lowdb/adapters/FileAsync");
+const WebSocket = require("ws");
 const express = require("express");
 const http = require("http");
-const WebSocket = require("ws");
-const log_1 = require("../core/log");
-const taskHandlers = require("./taskHandlers");
-const util_1 = require("./util");
 const lowdb = require("lowdb");
-const FileAsync = require("lowdb/adapters/FileAsync");
+const taskHandlers = require("./taskHandlers");
 const task_ws_1 = require("@mgutz/task-ws");
+const log_1 = require("../core/log");
+const util_1 = require("./util");
 const onConnection = (rcontext) => {
     const registry = new task_ws_1.RPCRegistry();
     registry.register('task', taskHandlers);

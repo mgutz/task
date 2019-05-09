@@ -1,92 +1,91 @@
-import * as fp from 'path'
-import * as fs from 'fs'
+import * as fp from 'path';
+import * as fs from 'fs';
 
 export const hello = {
-  run: ({argv}) => {
-    console.log(`Hello, ${argv.name}!`)
-    console.error('Random error 1')
-    console.error('Another error 2')
-    console.log('No error')
-    console.error('Ooops, another error!')
-  },
-  ui: {
-    // validation schema
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          title: 'Name',
-          type: 'string',
-        },
-      },
-      required: ['name'],
-    },
-    // form ui
-    form: ['name'],
-  },
-}
-
-export const diagram = {
-  desc: 'Generates PlantUML diagram',
-  run: ({argv, sh}) => {
-    const file = argv.filename
-    const path = fp.resolve(file + '.puml')
-    if (!fs.existsSync(path)) return console.error(`File does not exist: ${path}`)
-    const cmd = `java -jar $DOTFILES/bin/plantuml.jar -charset UTF-8 -tpng ${path}`
-    sh.exec(cmd)
-  },
-  watch: ['./*.puml'],
-  ui: {
-    schema: {
-      properties: {
-        filename: {
-          title: 'File',
-          type: 'string',
-          enum: ['diagram'],
-        },
-      },
-      required: ['filename'],
-    },
-    form: ['filename'],
-    model: {
-      filename: 'diagram',
-    },
-  },
-}
-
-export const lazy_ = async (ctx) => {
-  const files = await ctx.globby(['./*.json'])
-  return {
-    run: (ctx) => {
-      console.log(ctx.argv.filename)
+    run: ({argv}) => {
+        console.log(`Hello, ${argv.name}!`);
+        console.error('Random error 1');
+        console.error('Another error 2');
+        console.log('No error');
+        console.error('Ooops, another error!');
     },
     ui: {
-      schema: {
-        properties: {
-          filename: {
-            title: 'File',
-            type: 'string',
-            enum: files,
-          },
+        // validation schema
+        schema: {
+            type: 'object',
+            properties: {
+                name: {
+                    title: 'Name',
+                    type: 'string',
+                },
+            },
+            required: ['name'],
         },
-        required: ['filename'],
-      },
-      form: ['filename'],
-      model: {
-        filename: 'diagram',
-      },
+        // form ui
+        form: ['name'],
     },
-  }
-}
+};
+
+export const diagram = {
+    desc: 'Generates PlantUML diagram',
+    run: ({argv, sh}) => {
+        const file = argv.filename;
+        const path = fp.resolve(file + '.puml');
+        if (!fs.existsSync(path)) return console.error(`File does not exist: ${path}`);
+        const cmd = `java -jar $DOTFILES/bin/plantuml.jar -charset UTF-8 -tpng ${path}`;
+        sh.exec(cmd);
+    },
+    watch: ['./*.puml'],
+    ui: {
+        schema: {
+            properties: {
+                filename: {
+                    title: 'File',
+                    type: 'string',
+                    enum: ['diagram'],
+                },
+            },
+            required: ['filename'],
+        },
+        form: ['filename'],
+        model: {
+            filename: 'diagram',
+        },
+    },
+};
+
+export const lazy_ = async ctx => {
+    const files = await ctx.globby(['./*.json']);
+    return {
+        run: ctx => {
+            console.log(ctx.argv.filename);
+        },
+        ui: {
+            schema: {
+                properties: {
+                    filename: {
+                        title: 'File',
+                        type: 'string',
+                        enum: files,
+                    },
+                },
+                required: ['filename'],
+            },
+            form: ['filename'],
+            model: {
+                filename: 'diagram',
+            },
+        },
+    };
+};
 
 export const npm_ = ({contrib}) => {
-  return contrib.importPackageTasks('.')
-}
-
+    return contrib.importPackageTasks('.');
+};
 
 export const buildTask = {
-  desc: 'builds task',
-  run: ({shawn}) => {
-    return shawn(`tsc`, {cwd: 'workspaces/task'})
-  }
-}
+    desc: 'builds task',
+    run: ({shawn}) => {
+        return shawn(`tsc`, {cwd: 'workspaces/task'});
+    },
+};

@@ -17,5 +17,8 @@
     "url": "https://github.com/mgutz/task/issues"
   },
   "homepage": "https://github.com/mgutz/task#readme",
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "lerna": "^3.13.4"
+  }
 }

@@ -1,6 +1,6 @@
+import { HistoryRecord, TailLogParams } from './runAsProcess';
 import { Project } from './types';
 import { ResolverContext } from './types';
-import { HistoryRecord, TailLogParams } from './runAsProcess';
 /**
  * Resolvers (handlers) for websocket API
  *

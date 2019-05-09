@@ -5,3 +5,4 @@ export declare const serialTask: (task: any) => task is SerialTask;
 export declare const childProcess: (v: any) => v is ChildProcess;
 export declare const promise: (v: any) => boolean;
 export declare const runnable: (task: any) => task is Task;
+export declare const object: (o: any) => o is Dict<any>;

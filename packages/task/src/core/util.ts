@@ -2,7 +2,10 @@ import * as _ from 'lodash'
 import * as contrib from '../contrib'
 import * as fp from 'path'
 import * as fs from 'fs'
+import * as execa from 'execa'
+
 import {inspect, promisify} from 'util'
+
 import {newTerminalLogger} from './log'
 
 const readFileAsync = promisify(fs.readFile)
@@ -14,7 +17,7 @@ export const prettify = (o: any) => inspect(o)
 /**
  * Safely parses string `s` return [obj, err]
  *
- * @param s JSON.stringified object.
+ * @param s The string to be parsed.
  */
 export const safeParseJSON = (s: string): any => {
   try {
@@ -28,6 +31,11 @@ export const safeParseJSON = (s: string): any => {
   }
 }
 
+/**
+ * Reads JSON file, returning an object.
+ *
+ * @param filename The JSON file to open.
+ */
 export const readJSONFile = async (filename: string): Promise<any> => {
   const content = await readFileAsync(filename, 'utf8')
   const [json, err] = safeParseJSON(content)
@@ -61,6 +69,7 @@ export const taskParam = (
     argv: {...argv, _: argv._.slice(1), ...additionalProps}, // drop the command
     contrib,
     exec: execAsync,
+    execa,
     globby,
     konsole,
     prompt,
@@ -70,7 +79,7 @@ export const taskParam = (
 }
 
 /**
- * Returns the full path to filename without extension.
+ * Returns the full path without dot extension.
  */
 export const trimExtname = (path: string): string => {
   if (!path) return ''

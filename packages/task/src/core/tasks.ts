@@ -3,9 +3,9 @@ import * as exits from './exits'
 import * as fp from 'path'
 import * as fs from 'fs'
 import * as iss from './iss'
+
 import {appWorkDirectory, prettify, taskParam} from './util'
 import {getLogger, konsole, trace} from './log'
-import * as requireUncached from 'require-uncached'
 
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
@@ -100,12 +100,14 @@ export const makeParallelRef = (
   // to treat it as one unit otherwise each dep runs parallelized
   const deps =
     Array.isArray(dep.p) &&
-    dep.p.map((it: any): string => {
-      if (Array.isArray(it)) {
-        return addSeriesRef(tasks, task, it)
+    dep.p.map(
+      (it: any): string => {
+        if (Array.isArray(it)) {
+          return addSeriesRef(tasks, task, it)
+        }
+        return it
       }
-      return it
-    })
+    )
 
   tsk.deps = standardizeDeps(tasks, tsk, deps) || []
   tsk.desc = `Run ${task.name}`
@@ -207,7 +209,7 @@ export const findTaskfile = (argv: Options): string | null => {
 /**
  * Use task's built-in babel.
  */
-export const configureBabel = (argv: Options, taskfilePath: string) => {
+export const compileOld = (argv: Options, taskfilePath: string) => {
   const dotext = fp.extname(taskfilePath) || '.js'
   const isTypeScript = argv.typescript || dotext === '.ts'
 
@@ -278,14 +280,14 @@ export const loadTasks = async (
   if (!taskfilePath) {
     return null
   }
-  configureBabel(argv, taskfilePath)
 
   const log = getLogger()
   log.debug(`Loading "${fp.resolve(taskfilePath)}"`)
   log.debug('cwd', process.cwd())
 
-  const taskfileExports = requireUncached(fp.resolve(taskfilePath))
+  const taskfileExports = await import(taskfilePath)
   trace('Raw taskfile\n', taskfileExports)
+
   const taskfile = standardizeExports(argv, taskfileExports)
   trace('Standardized as ES6\n', taskfile)
 
@@ -316,7 +318,9 @@ export const loadTasks = async (
 
     const desc = task.deps
       ? `Run ${task.deps.join(', ')}${task.run ? ', ' + task.name : ''}`
-      : task.run ? `Run ${task.name}` : ''
+      : task.run
+      ? `Run ${task.name}`
+      : ''
     task.desc = desc
   }
 
@@ -331,6 +335,7 @@ export const standardizeFile = async (
   argv: Options
 ): Promise<Tasks> => {
   const tasks: Tasks = {}
+
   const assignTask = async (key: string, taskdef: any) => {
     if (typeof taskdef === 'function' && key.endsWith('_')) {
       const newTaskDef = await taskdef(taskParam(argv))
@@ -355,9 +360,8 @@ export const standardizeFile = async (
     tasks[key] = task
   }
 
-  if (_.isObject(v)) {
+  if (iss.object(v)) {
     // convert exported default object
-    // tslint:disable-next-line
     for (const name in v) {
       await assignTask(name, v[name])
     }
@@ -374,11 +378,11 @@ export const standardizeTask = (tasks: Tasks, k: string, v: any): Task => {
     // we also need to track original object to compare object references
     const existing = tasks[k]
     return {_original: v, ...existing, ...v, name: k}
-  } else {
-    throw new Error(
-      `Tasks must be a function or task object: ${prettify({[k]: v})}`
-    )
   }
+
+  throw new Error(
+    `Tasks must be a function or task object: ${prettify({[k]: v})}`
+  )
 }
 
 let _nameId = 0

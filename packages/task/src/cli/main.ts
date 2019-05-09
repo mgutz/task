@@ -5,10 +5,13 @@ import * as fp from 'path'
 import * as fs from 'fs'
 import * as server from '../wsserver'
 import * as terminal from './terminal'
-import {AppContext} from '../core/AppContext'
+
 import {findTaskfile, loadTasks} from '../core/tasks'
-import {helpScreen, parseArgv, tasksScreen} from './usage'
+import {helpScreen, parseArgv, tasksScreen} from './options'
 import {konsole, newTerminalLogger, setLevel} from '../core/log'
+
+import {AppContext} from '../core/AppContext'
+import {build} from './compile'
 import {run as commandInit} from '../core/commands/init'
 import {safeParseJSON} from '../core/util'
 
@@ -87,7 +90,9 @@ const main = async () => {
     return exits.message(helpScreen())
   }
 
-  const tasks = await loadTasks(argv, taskfilePath)
+  const filename = await build(argv, taskfilePath)
+
+  const tasks = await loadTasks(argv, filename)
   if (!tasks) {
     return exits.error(`Cannot load tasks from: ${taskfilePath}`)
   }
@@ -106,6 +111,7 @@ const main = async () => {
   if (argv.server) {
     return server.run(ctx)
   }
+
   ctx.log = newTerminalLogger()
   return terminal.run(ctx)
 }

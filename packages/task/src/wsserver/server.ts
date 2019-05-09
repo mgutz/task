@@ -1,15 +1,17 @@
+import * as FileAsync from 'lowdb/adapters/FileAsync'
+import * as WebSocket from 'ws'
 import * as _ from 'lodash'
 import * as express from 'express'
 import * as http from 'http'
-import * as WebSocket from 'ws'
+import * as lowdb from 'lowdb'
+import * as taskHandlers from './taskHandlers'
+
+import {Project, ResolverContext} from './types'
+import {RPCRegistry, Server, initMessaging} from '@mgutz/task-ws'
+
 import {AppContext} from '../core/AppContext'
 import {konsole} from '../core/log'
-import {Project, ResolverContext} from './types'
-import * as taskHandlers from './taskHandlers'
 import {loadProjectFile} from './util'
-import * as lowdb from 'lowdb'
-import * as FileAsync from 'lowdb/adapters/FileAsync'
-import {Server, initMessaging, RPCRegistry} from '@mgutz/task-ws'
 
 export interface StartOptions {
   port: number

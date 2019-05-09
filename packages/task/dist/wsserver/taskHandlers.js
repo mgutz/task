@@ -12,13 +12,13 @@ const _ = require("lodash");
 const findProcess = require("find-process");
 const fkillit = require("fkill");
 const fp = require("path");
+const globby = require("globby");
 const util = require("./util");
+const util_1 = require("./util");
+const runAsProcess_1 = require("./runAsProcess");
 const task_ws_1 = require("@mgutz/task-ws");
 const tasks_1 = require("../core/tasks");
-const usage_1 = require("../cli/usage");
-const runAsProcess_1 = require("./runAsProcess");
-const globby = require("globby");
-const util_1 = require("./util");
+const options_1 = require("../cli/options");
 /**
  * Resolvers (handlers) for websocket API
  *
@@ -97,7 +97,7 @@ taskfileId, taskName, argv) => __awaiter(this, void 0, void 0, function* () {
     }
     const { path, argv: taskfileArgv } = taskfile;
     // merge inbound client argv with those found in the project file
-    const newArgv = Object.assign({}, usage_1.parseArgv(taskfileArgv), util.sanitizeInboundArgv(argv), { file: fp.resolve(path) });
+    const newArgv = Object.assign({}, options_1.parseArgv(taskfileArgv), util.sanitizeInboundArgv(argv), { file: fp.resolve(path) });
     // this does not wait for process to end, rather it awaits for some async
     // statements like create PID files
     const info = yield runAsProcess_1.default({
@@ -134,7 +134,7 @@ exports.tasks = (context, taskfileId) => __awaiter(this, void 0, void 0, functio
     if (!found) {
         throw new task_ws_1.CodeError(422, `taskfileId '${taskfileId}' not found in project file`);
     }
-    const argv = usage_1.parseArgv(found.argv);
+    const argv = options_1.parseArgv(found.argv);
     const taskList = yield tasks_1.loadTasks(argv, found.path);
     if (!taskList) {
         return [];

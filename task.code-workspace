@@ -1,16 +1,16 @@
 {
   "folders": [
     {
-      "path": "workspaces/task"
+      "path": "packages/task"
     },
     {
-      "path": "workspaces/task-ui"
+      "path": "packages/task-ui"
     },
     {
-      "path": "workspaces/task-ws"
+      "path": "packages/task-ws"
     },
     {
-      "path": "workspaces/task-tail"
+      "path": "packages/task-tail"
     }
   ],
   "settings": {}

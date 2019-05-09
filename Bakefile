@@ -1,7 +1,12 @@
 #. Publishes everything
-function publish {
+publish() {
 	echo 'Login as mgutz <mario.l.gutierrez@gmail.com>'
 	#npm login
 
-	lerna publish --dist-tag matcherino
+	npx lerna publish --dist-tag matcherino
+}
+
+link() {
+	echo 'Linking all files for development'
+	npx lerna link
 }

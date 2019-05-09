@@ -1,3 +1,5 @@
+import * as _ from 'lodash'
+
 import {ChildProcess} from 'child_process'
 
 export const parallelTask = (task: any): task is ParallelTask =>
@@ -14,6 +16,8 @@ export const promise = (v: any) => v && typeof v.then === 'function'
 export const runnable = (task: any): task is Task => {
   return task && (typeof task.run === 'function' || Array.isArray(task.deps))
 }
+
+export const object = (o: any): o is Dict<any> => _.isObject(o)
 
 // {p: [dep1, dep2]}
 // const isParallel = (dep: any): boolean => dep && Array.isArray(dep.p)

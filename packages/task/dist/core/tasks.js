@@ -15,7 +15,6 @@ const fs = require("fs");
 const iss = require("./iss");
 const util_1 = require("./util");
 const log_1 = require("./log");
-const requireUncached = require("require-uncached");
 // Standardize differences between es6 exports and commonJs exports. Code
 // assumes es6 from user taskfiles.
 const standardizeExports = (argv, taskFile) => {
@@ -185,7 +184,7 @@ exports.findTaskfile = (argv) => {
 /**
  * Use task's built-in babel.
  */
-exports.configureBabel = (argv, taskfilePath) => {
+exports.compileOld = (argv, taskfilePath) => {
     const dotext = fp.extname(taskfilePath) || '.js';
     const isTypeScript = argv.typescript || dotext === '.ts';
     if (!argv.babel && !isTypeScript) {
@@ -231,11 +230,10 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
     if (!taskfilePath) {
         return null;
     }
-    exports.configureBabel(argv, taskfilePath);
     const log = log_1.getLogger();
     log.debug(`Loading "${fp.resolve(taskfilePath)}"`);
     log.debug('cwd', process.cwd());
-    const taskfileExports = requireUncached(fp.resolve(taskfilePath));
+    const taskfileExports = yield Promise.resolve().then(() => require(taskfilePath));
     log_1.trace('Raw taskfile\n', taskfileExports);
     const taskfile = standardizeExports(argv, taskfileExports);
     log_1.trace('Standardized as ES6\n', taskfile);
@@ -262,7 +260,9 @@ exports.loadTasks = (argv, taskfilePath) => __awaiter(this, void 0, void 0, func
         }
         const desc = task.deps
             ? `Run ${task.deps.join(', ')}${task.run ? ', ' + task.name : ''}`
-            : task.run ? `Run ${task.name}` : '';
+            : task.run
+                ? `Run ${task.name}`
+                : '';
         task.desc = desc;
     }
     log_1.trace('Tasks after standardizing desc\n', tasks);
@@ -293,9 +293,8 @@ exports.standardizeFile = (v, argv) => __awaiter(this, void 0, void 0, function*
         }
         tasks[key] = task;
     });
-    if (_.isObject(v)) {
+    if (iss.object(v)) {
         // convert exported default object
-        // tslint:disable-next-line
         for (const name in v) {
             yield assignTask(name, v[name]);
         }
@@ -313,9 +312,7 @@ exports.standardizeTask = (tasks, k, v) => {
         const existing = tasks[k];
         return Object.assign({ _original: v }, existing, v, { name: k });
     }
-    else {
-        throw new Error(`Tasks must be a function or task object: ${util_1.prettify({ [k]: v })}`);
-    }
+    throw new Error(`Tasks must be a function or task object: ${util_1.prettify({ [k]: v })}`);
 };
 let _nameId = 0;
 const uniqueName = (prefix) => {

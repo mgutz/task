@@ -11,12 +11,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const exits = require("../core/exits");
 const runner_1 = require("../core/runner");
 const tasks_1 = require("../core/tasks");
-const usage_1 = require("./usage");
+const options_1 = require("./options");
 exports.run = (ctx) => __awaiter(this, void 0, void 0, function* () {
     const { options, tasks } = ctx;
     const taskName = taskToRun(options);
     if (!taskName && !tasks_1.runnableRef(tasks, 'default')) {
-        exits.message(usage_1.usage(tasks));
+        exits.message(options_1.usage(tasks));
     }
     const name = tasks_1.runnableRef(tasks, taskName || 'default');
     if (!name) {

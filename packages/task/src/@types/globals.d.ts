@@ -9,11 +9,13 @@ declare module '@mgutz/task-tail'
 declare module 'is-running'
 declare module 'expand-tilde'
 declare module 'untabify'
+declare module 'rollup-plugin-auto-external'
 
 declare interface Options {
   _: string[]
   babel: boolean
   babelExtensions: string[]
+  compile: boolean
   debug: boolean
   dotenv: boolean
   dryRun: boolean
@@ -116,6 +118,7 @@ declare interface TaskParam {
   argv: any
   contrib: any
   event?: any
+  execa: any
   exec: any
   globby: any
   konsole: any
@@ -124,7 +127,7 @@ declare interface TaskParam {
   shawn: any
 }
 
-declare interface Dict<k, v> {
+declare interface Dict<v> {
   [k: string]: v
 }
 

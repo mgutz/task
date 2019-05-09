@@ -20,7 +20,9 @@ exports.run = (ctx) => __awaiter(this, void 0, void 0, function* () {
     const taskrcPath = fp.join(process.cwd(), '.taskrc');
     const taskfilePath = fp.join(process.cwd(), taskfile);
     const content = argv.initExample
-        ? argv.typescript ? typescript : javascript
+        ? argv.typescript
+            ? typescript
+            : javascript
         : empty;
     if (fs.existsSync(taskfilePath)) {
         exits.error(`SKIPPED ${taskfilePath} exists`);

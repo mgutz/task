@@ -6,7 +6,7 @@ export declare const findTaskfile: (argv: Options) => string | null;
 /**
  * Use task's built-in babel.
  */
-export declare const configureBabel: (argv: Options, taskfilePath: string) => void;
+export declare const compileOld: (argv: Options, taskfilePath: string) => void;
 /**
  * Loads and standardize tasks.
  *

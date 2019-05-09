@@ -1,6 +1,0 @@
-{
-  "server": {},
-  "taskfiles": [
-    {"id": "Main", "desc":"Main",  "path": "./Taskfile.js", "argv": []}
-  ]
-}

@@ -1,8 +1,10 @@
 import * as exits from '../core/exits'
+
 import {run as runRef, runThenWatch} from '../core/runner'
-import {runnableRef} from '../core/tasks'
-import {usage} from './usage'
+
 import {AppContext} from '../core/AppContext'
+import {runnableRef} from '../core/tasks'
+import {usage} from './options'
 
 export const run = async (ctx: AppContext) => {
   const {options, tasks} = ctx
@@ -20,6 +22,7 @@ export const run = async (ctx: AppContext) => {
   if (options.watch) {
     return runThenWatch(ctx, name).then(exits.okFn(), exits.errorFn())
   }
+
   return runRef(ctx, name).then(exits.okFn(), exits.errorFn())
 }
 

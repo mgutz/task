@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const columnify = require("columnify");
 const _ = require("lodash");
+const columnify = require("columnify");
 const minimist = require("minimist");
 // tslint:disable-next-line
 const pkgJson = require('../../package.json');
@@ -20,6 +20,7 @@ const minimistOpts = {
     boolean: [
         '?',
         'babel',
+        'compile',
         'debug',
         'dotenv',
         'dry-run',
@@ -31,6 +32,7 @@ const minimistOpts = {
         'initExample',
         'list',
         'p',
+        'pretty',
         'project-file',
         'projectFile',
         'silent',
@@ -44,6 +46,7 @@ const minimistOpts = {
     default: {
         babel: true,
         babelExtensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx'],
+        compile: true,
         dotenv: true,
         file: '',
     },
